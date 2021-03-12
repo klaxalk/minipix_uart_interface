@@ -8,7 +8,7 @@
 
 HW diagram of the Dummy<->STM32F4 example<->Gatherer.
 
-![](hw_diagram_labels.jpg)
+![](hw_diagram_labels.png)
 
 ## Commands provided by the MiniPIX Interface
 
