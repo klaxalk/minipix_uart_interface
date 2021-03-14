@@ -24,7 +24,7 @@
 /* USER CODE BEGIN Includes */
 
 #include <minipix_interface_stm.h>
-#include <string>
+#include <string.h>
 
 /* USER CODE END Includes */
 
@@ -53,8 +53,6 @@ DMA_HandleTypeDef  hdma_usart6_rx;
 
 #define UART_RX_BUFFER_SIZE 128
 uint8_t usart6_rx_buffer[UART_RX_BUFFER_SIZE];
-
-MinipixInterfaceSTM minipix_interface;
 
 /* USER CODE END PV */
 
@@ -109,8 +107,6 @@ int main(void) {
 
   HAL_UART_Receive_DMA(&huart6, (uint8_t *)usart6_rx_buffer, UART_RX_BUFFER_SIZE);
 
-  minipix_interface.setMinipixUart(huart6);
-
   /* USER CODE END 2 */
 
   /* Infinite loop */
@@ -118,7 +114,6 @@ int main(void) {
   while (1) {
 
     // run the main update() routine of the MiniPIX interface
-    minipix_interface.update();
 
     /* USER CODE END WHILE */
 
@@ -138,7 +133,7 @@ void USART_IDLECallback(UART_HandleTypeDef *huart) {
   uint8_t received_bytes = UART_RX_BUFFER_SIZE - __HAL_DMA_GET_COUNTER(&hdma_usart6_rx);
 
   for (uint8_t i = 0; i < received_bytes; i++) {
-    minipix_interface.minipixReceiveCharCallback(usart6_rx_buffer[i]);
+    /* minipix_interface.minipixReceiveCharCallback(usart6_rx_buffer[i]); */
   }
 
   // Clear Receiving Buffer

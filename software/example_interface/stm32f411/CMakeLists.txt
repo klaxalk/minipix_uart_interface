@@ -6,10 +6,8 @@ set(STM32_TARGET_TRIPLET arm-none-eabi)
 
 set(CMAKE_TOOLCHAIN_FILE ${CMAKE_SOURCE_DIR}/cmake/stm32_gcc.cmake)
 
-project(example_interface CXX C ASM)
+project(example_interface C ASM) # add CXX for c++
 
-set(CMAKE_CXX_STANDARD 17)
-set(CMAKE_CXX_STANDARD_REQUIRED ON)
 set(CMAKE_EXPORT_COMPILE_COMMANDS ON)
 
 set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -g -O0")
@@ -18,10 +16,10 @@ find_package(CMSIS COMPONENTS STM32F4 REQUIRED)
 find_package(HAL COMPONENTS STM32F4 RCC UART GPIO DMA CORTEX REQUIRED)
 
 add_executable(main
-  src/main.cpp
+  src/main.c
   src/stm_core/stm32f4xx_it.c
   src/stm_core/stm32f4xx_hal_msp.c
-  src/minipix_interface_stm.cpp
+  src/minipix_interface_stm.c
 )
 
 include_directories(

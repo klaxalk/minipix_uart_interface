@@ -2,16 +2,9 @@
 
 #define USART_TIMEOUT 10  // # [ms]
 
-/* constructor MinipixInterfaceSTM() //{ */
-
-MinipixInterfaceSTM::MinipixInterfaceSTM() {
-}
-
-//}
-
 /* setMinipixUart() //{ */
 
-void MinipixInterfaceSTM::setMinipixUart(UART_HandleTypeDef &huart_minipix) {
+void setMinipixUart(UART_HandleTypeDef huart_minipix) {
 
   huart_minipix_ptr_ = &huart_minipix;
 }
@@ -20,7 +13,7 @@ void MinipixInterfaceSTM::setMinipixUart(UART_HandleTypeDef &huart_minipix) {
 
 /* ledSetHW() //{ */
 
-void MinipixInterfaceSTM::ledSetHW(const bool &new_state) {
+void ledSetHW(const bool new_state) {
 
   HAL_GPIO_WritePin(LD2_GPIO_Port, LD2_Pin, new_state ? GPIO_PIN_SET : GPIO_PIN_RESET);
 }
@@ -29,7 +22,7 @@ void MinipixInterfaceSTM::ledSetHW(const bool &new_state) {
 
 /* sleepHW() //{ */
 
-void MinipixInterfaceSTM::sleepHW(const int &milliseconds) {
+void sleepHW(const int milliseconds) {
 
   HAL_Delay(milliseconds);
 }
@@ -38,7 +31,7 @@ void MinipixInterfaceSTM::sleepHW(const int &milliseconds) {
 
 /* uart2SendChar() //{ */
 
-void MinipixInterfaceSTM::minipixSendChar(const char &char_out) {
+void minipixSendChar(const char char_out) {
 
   HAL_UART_Transmit(huart_minipix_ptr_, (uint8_t *)&char_out, 1, USART_TIMEOUT);
 }
@@ -47,7 +40,7 @@ void MinipixInterfaceSTM::minipixSendChar(const char &char_out) {
 
 /* minipixSendString() //{ */
 
-void MinipixInterfaceSTM::minipixSendString(const char *str_out, const char &len) {
+void minipixSendString(const char *str_out, const char len) {
 
   HAL_UART_Transmit(huart_minipix_ptr_, (uint8_t *)str_out, len, USART_TIMEOUT);
 }
