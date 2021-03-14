@@ -22,11 +22,16 @@ sudo cp -r ~/STM32Cube/Repository/STM32Cube_FW_F4_* /usr/local
 ## Installing compilation, debugging and flashing toolchain
 
 Install STM tools for flashing and debugging:
-```
+```bash
 sudo apt-get -y install stlink-tools stm32flash
 ```
 
 For debugging over STLink using `arm-none-eabi-gdb`, install:
-```
+```bash
 sudo apt-get -y install gdb-multiarch
+```
+
+YouCompleteMe has a problem with stdlib in C. Install this:
+```bash
+sudo apt-get -y install gcc-multilib
 ```
