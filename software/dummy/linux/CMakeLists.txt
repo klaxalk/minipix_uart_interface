@@ -10,5 +10,11 @@ include_directories(
 )
 
 add_executable(minipix_dummy
-  src/dummy.cpp
+  src/main.cpp
+  src/serial_port.cpp
+)
+
+add_executable(sender
+  src/sender.cpp
+  src/serial_port.cpp
 )

@@ -10,10 +10,12 @@ import re
 compilation_database_folder = os.path.dirname(os.path.abspath( __file__))+'/build'
 
 add_flags = [
-    '-isystem',
+    '-I',
     '/usr/include/',
-    '-isystem',
+    '-I',
     '/usr/lib',
+    '-I',
+    '/usr/include/c++/9/',
 ]
 
 # flags = default_flags
