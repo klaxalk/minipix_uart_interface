@@ -7,11 +7,14 @@
 
 enum MessageId_t : uint8_t
 {
-  LLCP_IMAGE_DATA_MSG_ID = 0,
-  LLCP_GET_FRAME_MSG_ID  = 1,
-  LLCP_STATUS_MSG_ID     = 2,
-  LLCP_GET_STATUS_MSG_ID = 3,
+  LLCP_IMAGE_DATA_MSG_ID     = 0,
+  LLCP_MEASURE_FRAME_MSG_ID  = 1,
+  LLCP_STATUS_MSG_ID         = 2,
+  LLCP_GET_STATUS_MSG_ID     = 3,
+  LLCP_FRAME_DATA_ACK_MSG_ID = 4,
 };
+
+// | -------------------------- Frame ------------------------- |
 
 /* ImageDataMsg_t //{ */
 
@@ -63,27 +66,46 @@ static_assert((sizeof(ImageDataMsg_t) > 255) == 0, "ImageDataMsg_t is too large"
 
 //}
 
-/* GetFrameMsg_t //{ */
+/* MeasureFrameMsg_t //{ */
 
-struct GetFrameMsg_t
+struct MeasureFrameMsg_t
 {
-  const MessageId_t message_id = LLCP_GET_FRAME_MSG_ID;
+  const MessageId_t message_id = LLCP_MEASURE_FRAME_MSG_ID;
   uint16_t          acquisition_time_ms;
 } __attribute__((packed));
 
-void hton_GetFrameMsg_t(GetFrameMsg_t* data) {
+void hton_MeasureFrameMsg_t(MeasureFrameMsg_t* data) {
 
   data->acquisition_time_ms = llcp_hton16(data->acquisition_time_ms);
 }
 
-void ntoh_GetFrameMsg_t(GetFrameMsg_t* data) {
+void ntoh_MeasureFrameMsg_t(MeasureFrameMsg_t* data) {
 
   data->acquisition_time_ms = llcp_ntoh16(data->acquisition_time_ms);
 }
 
-static_assert((sizeof(GetFrameMsg_t) > 255) == 0, "GetFrameMsg_t is too large");
+static_assert((sizeof(MeasureFrameMsg_t) > 255) == 0, "MeasureFrameMsg_t is too large");
 
 //}
+
+/* FrameDataAckMsg_t //{ */
+
+struct FrameDataAckMsg_t
+{
+  const MessageId_t message_id = LLCP_FRAME_DATA_ACK_MSG_ID;
+} __attribute__((packed));
+
+void hton_FrameDataAckMsg_t([[maybe_unused]] FrameDataAckMsg_t* data) {
+}
+
+void ntoh_FrameDataAckMsg_t([[maybe_unused]] FrameDataAckMsg_t* data) {
+}
+
+static_assert((sizeof(FrameDataAckMsg_t) > 255) == 0, "FrameDataAckMsg_t is too large");
+
+//}
+
+// | ------------------------- status ------------------------- |
 
 /* StatusMsg_t //{ */
 

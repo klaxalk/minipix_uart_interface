@@ -25,9 +25,9 @@ int main() {
     std::this_thread::sleep_for(std::chrono::milliseconds(1000));
 
     {
-      GetFrameMsg_t get_frame;
+      MeasureFrameMsg_t get_frame;
       get_frame.acquisition_time_ms = 1213;
-      hton_GetFrameMsg_t(&get_frame);
+      hton_MeasureFrameMsg_t(&get_frame);
 
       uint8_t  tx_buffer[SERIAL_BUFFER_SIZE];
       uint16_t n_bytes = llcpPrepareMessage((uint8_t*)&get_frame, sizeof(get_frame), tx_buffer);

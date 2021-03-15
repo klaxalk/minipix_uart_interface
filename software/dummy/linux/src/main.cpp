@@ -40,10 +40,10 @@ int main() {
 
         switch ((MessageId_t)message.id) {
 
-          case LLCP_GET_FRAME_MSG_ID: {
+          case LLCP_MEASURE_FRAME_MSG_ID: {
 
-            GetFrameMsg_t* request = (GetFrameMsg_t*)&message.payload;
-            ntoh_GetFrameMsg_t(request);
+            MeasureFrameMsg_t* request = (MeasureFrameMsg_t*)&message.payload;
+            ntoh_MeasureFrameMsg_t(request);
 
             printf("starting acquisition (%d ms)\n", request->acquisition_time_ms);
 
