@@ -1,8 +1,6 @@
 #ifndef MINIPIX_INTERFACE_LINUX_H
 #define MINIPIX_INTERFACE_LINUX_H
 
-#define LLCP_LITTLE_ENDIAN
-
 #include <chrono>
 #include <thread>
 
@@ -55,7 +53,7 @@ inline void minipix_interface_processImagePacket(const ImageData_t *image_data) 
 
 /* minipix_interface_processStatus() //{ */
 
-inline void minipix_interface_processStatus(const Status_t* status) {
+inline void minipix_interface_processStatus(const Status_t *status) {
 
   printf("received status: boot count = %d, string: '%s'\n", status->boot_count, status->status_str);
 }

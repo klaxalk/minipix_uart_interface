@@ -2,8 +2,10 @@
 #define MINIPIX_INTERFACE_H
 
 // definition of packet structures of the measured data
+extern "C" {
 #include <llcp_minipix_messages.h>
 #include <llcp.h>
+}
 
 #include <stdint.h>
 #include <stdbool.h>
@@ -58,6 +60,7 @@ void minipix_interface_initialize(void) {
 void minipix_interface_measureFrame(const uint16_t acquisition_time) {
 
   MeasureFrameReqMsg_t get_frame;
+  get_frame.message_id = LLCP_MEASURE_FRAME_MSG_ID;
   get_frame.payload.acquisition_time_ms = acquisition_time;
   hton_MeasureFrameReqMsg_t(&get_frame);
 
@@ -75,6 +78,7 @@ void minipix_interface_measureFrame(const uint16_t acquisition_time) {
 void minipix_interface_getStatus(void) {
 
   GetStatusMsg_t get_status;
+  get_status.message_id = LLCP_GET_STATUS_MSG_ID;
   hton_GetStatusMsg_t(&get_status);
 
   uint16_t n_bytes = llcpPrepareMessage((uint8_t*)&get_status, sizeof(get_status), tx_buffer_);
