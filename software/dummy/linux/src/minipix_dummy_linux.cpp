@@ -16,12 +16,20 @@ void MinipixDummyLinux::initializeSerialPort(const std::string& file, const int&
 
 //}
 
+// | ------------ virtual functions --- HW-specific ----------- |
+
+/* sendByte() //{ */
+
 void MinipixDummyLinux::sendByte(const uint8_t& byte_out) {
 
   if (!serial_port_.sendCharArray((unsigned char*)&byte_out, 1)) {
     printf("FAILED sending message with %d bytes\n", 1);
   }
 }
+
+//}
+
+/* sendString() //{ */
 
 void MinipixDummyLinux::sendString(const uint8_t* bytes_out, const uint16_t& len) {
 
@@ -30,6 +38,9 @@ void MinipixDummyLinux::sendString(const uint8_t* bytes_out, const uint16_t& len
   }
 }
 
+//}
+
+/* update() //{ */
 
 void MinipixDummyLinux::update(void) {
 
@@ -40,3 +51,5 @@ void MinipixDummyLinux::update(void) {
   // feed all the incoming bytes into the minipix interface
   serialDataCallback(rx_buffer_, bytes_read);
 }
+
+//}

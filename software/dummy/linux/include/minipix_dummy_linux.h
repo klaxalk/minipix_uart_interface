@@ -5,7 +5,7 @@ extern "C" {
 #include <llcp_minipix_messages.h>
 }
 
-#include <minipix_dummy.hpp>
+#include <minipix_dummy.h>
 
 #include <serial_port.h>
 #define SERIAL_BUFFER_SIZE 2048
