@@ -1,48 +1,127 @@
-#ifndef EXAMPLE_INTERFACE_H
-#define EXAMPLE_INTERFACE_H
+#ifndef MINIPIX_INTERFACE_H
+#define MINIPIX_INTERFACE_H
 
 // definition of packet structures of the measured data
-#include <data_definitions.h>
+#include <llcp_minipix_messages.h>
+#include <llcp.h>
+
+#include <stdint.h>
 #include <stdbool.h>
 
 /* extern void ledSet(const bool new_state); */
 bool led_state_;
 
-// initiate acquisition
-void getFrame(const uint16_t acquisition_time);
+LLCP_Receiver_t llcp_receiver_;
+
+uint8_t tx_buffer_[LLCP_RX_TX_BUFFER_SIZE];
 
 // get status, to be called by the integrator
-Status_t getStatus(void);
-
-// mask pixel, to be called by the integrator
-void maskPixel(const PixelCoordinates_t pixel);
+void getStatus(void);
 
 // | --------------------- LED signalling --------------------- |
 
-extern void ledSetHW(const bool new_state);
+extern void minipix_interface_ledSetHW(const bool new_state);
 
 // | -------------------------- USART ------------------------- |
 
-extern void minipixSendChar(const char char_out);
-extern void minipixSendString(const char *str_out, const char len);
+extern void minipix_interface_minipixSendChar(const uint8_t char_out);
+extern void minipix_interface_minipixSendString(const uint8_t* str_out, const uint16_t len);
 
 // | ----------- virtual callbacks of the interface ----------- |
 
 // will be called when image packet is ready to be processed by the integrator
-extern void processImagePacket(const ImagePacket_t image_packet);
+extern void minipix_interface_processImagePacket(const ImageData_t* image_data);
+
+// will be called when status data is ready to be processed by the integrator
+extern void minipix_interface_processStatus(const Status_t* status);
 
 // | --------------------- other routines --------------------- |
 
-extern void sleepHW(const int milliseconds);
+extern void minipix_interface_sleepHW(const uint16_t milliseconds);
+
+//}
+
+/* minipix_interface_initialize() //{ */
+
+void minipix_interface_initialize(void) {
+
+  // initialize the inner state of the LLCP receiver
+  llcpInitialize(&llcp_receiver_);
+
+  printf("[MinipixInterface]: initialized\n");
+}
+
+//}
+
+/* minipix_interface_measureFrame() //{ */
+
+void minipix_interface_measureFrame(const uint16_t acquisition_time) {
+
+  MeasureFrameReqMsg_t get_frame;
+  get_frame.payload.acquisition_time_ms = acquisition_time;
+  hton_MeasureFrameReqMsg_t(&get_frame);
+
+  printf("asking for acquisition %d\n", acquisition_time);
+
+  uint16_t n_bytes = llcpPrepareMessage((uint8_t*)&get_frame, sizeof(get_frame), tx_buffer_);
+
+  minipix_interface_minipixSendString(tx_buffer_, n_bytes);
+}
+
+//}
+
+/* minipix_interface_getStatus() //{ */
+
+void minipix_interface_getStatus(void) {
+
+  GetStatusMsg_t get_status;
+  hton_GetStatusMsg_t(&get_status);
+
+  uint16_t n_bytes = llcpPrepareMessage((uint8_t*)&get_status, sizeof(get_status), tx_buffer_);
+
+  minipix_interface_minipixSendString(tx_buffer_, n_bytes);
+}
 
 //}
 
 // | ------------- UART communication with MiniPIX ------------ |
 
-/* minipixReceiveCharCallback() //{ */
+/* minipix_interface_ReceiveCharCallback() //{ */
 
-inline void minipixReceiveCharCallback(const char char_in) {
+inline void minipix_interface_ReceiveCharCallback(const uint8_t byte_in) {
 
+  LLCPMessage_t message_in;
+
+  if (llcpProcessChar(byte_in, &llcp_receiver_, &message_in)) {
+
+    switch ((LLCPMessageId_t)message_in.id) {
+
+      case LLCP_IMAGE_DATA_MSG_ID: {
+
+        ImageDataMsg_t* msg = (ImageDataMsg_t*)&message_in.payload;
+        ntoh_ImageDataMsg_t(msg);
+
+        minipix_interface_processImagePacket(&msg->payload);
+
+        break;
+      };
+
+      case LLCP_STATUS_MSG_ID: {
+
+        StatusMsg_t* msg = (StatusMsg_t*)&message_in.payload;
+        ntoh_StatusMsg_t(msg);
+
+        minipix_interface_processStatus(&msg->payload);
+
+        break;
+      };
+
+      default: {
+
+        printf("Received unsupported message with id = %d\n", message_in.id);
+      }
+    }
+  }
 }
 
 //}
@@ -53,7 +132,7 @@ inline void minipixReceiveCharCallback(const char char_in) {
 
 inline void ledSet(const bool new_state) {
 
-  ledSetHW(new_state);
+  minipix_interface_ledSetHW(new_state);
 
   led_state_ = new_state;
 }
@@ -78,9 +157,9 @@ void inline update(void) {
   // TODO process chars from the buffer
 
   ledToggle();
-  sleepHW(100);
+  minipix_interface_sleepHW(100);
 }
 
 //}
 
-#endif  // EXAMPLE_INTERFACE_H
+#endif  // MINIPIX_INTERFACE_H

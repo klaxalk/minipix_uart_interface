@@ -13,11 +13,12 @@ int main() {
 
   // the hardware serial driver
   SerialPort serial_port;
-  serial_port.connect("/tmp/ttyS0", 115200, true);
+  bool       serial_port_virtual = true;
+  serial_port.connect("/tmp/ttyS0", 115200, serial_port_virtual);
 
   // the bacaprotol receiver instance
-  Receiver_t receiver;
-  llcpInitialize(&receiver);
+  LLCP_Receiver_t llcp_receiver;
+  llcpInitialize(&llcp_receiver);
 
   printf("Dummy started\n");
 
@@ -27,35 +28,36 @@ int main() {
 
     std::this_thread::sleep_for(std::chrono::milliseconds(1));
 
-    uint8_t  read_buffer[LLCP_RX_TX_BUFFER_SIZE];
+    uint8_t  read_buffer[SERIAL_BUFFER_SIZE];
     uint16_t bytes_read;
 
-    bytes_read = serial_port.readSerial(read_buffer, LLCP_RX_TX_BUFFER_SIZE);
+    bytes_read = serial_port.readSerial(read_buffer, SERIAL_BUFFER_SIZE);
 
     for (uint16_t i = 0; i < bytes_read; i++) {
 
-      Message_t message;
+      LLCPMessage_t message;
 
-      if (llcpProcessChar(read_buffer[i], &receiver, &message)) {
+      if (llcpProcessChar(read_buffer[i], &llcp_receiver, &message)) {
 
-        switch ((MessageId_t)message.id) {
+        switch ((LLCPMessageId_t)message.id) {
 
           case LLCP_MEASURE_FRAME_MSG_ID: {
 
-            MeasureFrameMsg_t* request = (MeasureFrameMsg_t*)&message.payload;
-            ntoh_MeasureFrameMsg_t(request);
+            MeasureFrameReqMsg_t* msg = (MeasureFrameReqMsg_t*)(&message.payload);
+            ntoh_MeasureFrameReqMsg_t(msg);
 
-            printf("starting acquisition (%d ms)\n", request->acquisition_time_ms);
+            MeasureFrameReq_t* req = (MeasureFrameReq_t*)(&msg->payload);
+
+            printf("starting acquisition (%d ms)\n", req->acquisition_time_ms);
 
             uint8_t n_pixels = 31;
 
             ImageDataMsg_t test_data;
 
-            test_data.image_data.n_pixels = n_pixels;
+            test_data.payload.n_pixels = n_pixels;
 
             for (int i = 0; i < n_pixels; i++) {
-
-              PixelData_t* pixel  = (PixelData_t*)&test_data.image_data.pixel_data[i];
+              PixelData_t* pixel  = (PixelData_t*)&test_data.payload.pixel_data[i];
               pixel->x_coordinate = i;
               pixel->y_coordinate = i;
               pixel->data[0]      = i;
@@ -79,7 +81,9 @@ int main() {
           case LLCP_GET_STATUS_MSG_ID: {
 
             StatusMsg_t status;
-            status.boot_count = boot_count_++;
+            status.payload.boot_count = boot_count_++;
+            memset(&status.payload.status_str, 0, sizeof(status.payload.status_str));
+            sprintf((char*)status.payload.status_str, "Timepix3 is OK, but it is cold out here...");
             hton_StatusMsg_t(&status);
 
             uint8_t  tx_buffer[SERIAL_BUFFER_SIZE];

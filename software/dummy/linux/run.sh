@@ -11,4 +11,3 @@ sleep 1
 cd $MY_PATH
 
 ./build/minipix_dummy
-# cat /tmp/ttyS0

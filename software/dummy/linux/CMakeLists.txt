@@ -15,8 +15,3 @@ add_executable(minipix_dummy
   src/main.cpp
   src/serial_port.cpp
 )
-
-add_executable(sender
-  src/sender.cpp
-  src/serial_port.cpp
-)

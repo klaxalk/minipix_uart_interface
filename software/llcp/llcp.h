@@ -66,7 +66,7 @@ enum Receiver_State_t
 
 //}
 
-/* struct Receiver_t //{ */
+/* struct LLCP_Receiver_t //{ */
 
 #if COMM_HEXADECIMAL == 0
 typedef struct
@@ -76,7 +76,7 @@ typedef struct
   uint8_t          rx_buffer[LLCP_RX_TX_BUFFER_SIZE];
   uint16_t         buffer_counter;
   uint8_t          checksum;
-} Receiver_t;
+} LLCP_Receiver_t;
 #else
 typedef struct
 {
@@ -86,19 +86,19 @@ typedef struct
   uint16_t         buffer_counter;
   uint8_t          checksum;
   uint8_t          hexmem;  // for remembering the first one-byt of the 2-byte HEX byte
-} Receiver_t;
+} LLCP_Receiver_t;
 #endif
 
 //}
 
-/* struct Message_t //{ */
+/* struct LLCPMessage_t //{ */
 
 typedef struct
 {
   uint8_t id;
   uint8_t payload_size;
   uint8_t payload[MAX_PAYLOAD_LEN];
-} Message_t;
+} LLCPMessage_t;
 
 //}
 
@@ -142,7 +142,7 @@ inline void bin2hex(const uint8_t byte, uint8_t* buffer) {
 
 /* llcpInitialize() //{ */
 
-inline void llcpInitialize(Receiver_t* receiver) {
+inline void llcpInitialize(LLCP_Receiver_t* receiver) {
 
   receiver->checksum       = 0;
   receiver->buffer_counter = 0;
@@ -153,7 +153,7 @@ inline void llcpInitialize(Receiver_t* receiver) {
 
 /* llcpProcessChar() //{ */
 
-inline bool llcpProcessChar(const uint8_t char_in, Receiver_t* receiver, Message_t* message) {
+inline bool llcpProcessChar(const uint8_t char_in, LLCP_Receiver_t* receiver, LLCPMessage_t* message) {
 
 #ifdef DEBUG_PRINT
   printf("got char '%c'\n", char_in);
