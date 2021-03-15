@@ -1,11 +1,13 @@
 #define LLCP_LITTLE_ENDIAN
 
-#include <llcp/llcp.h>
-#include <llcp/llcp_minipix_messages.h>
+#include <llcp.h>
+#include <llcp_minipix_messages.h>
 #include <serial_port.h>
 
 #include <thread>
 #include <chrono>
+
+#define SERIAL_BUFFER_SIZE 2048
 
 int main() {
 
@@ -18,6 +20,8 @@ int main() {
   llcpInitialize(&receiver);
 
   printf("Dummy started\n");
+
+  uint16_t boot_count_ = 0;
 
   while (true) {
 
@@ -36,25 +40,62 @@ int main() {
 
         switch ((MessageId_t)message.id) {
 
-          case LLCP_IMAGE_DATA_MSG_ID: {
-
-            uint8_t n_pixels = ((ImageDataMsg_t*)&message.payload)->image_data.n_pixels;
-
-            printf("received test message, n_pixels %d, last_pixel: %d\n", n_pixels,
-                   ((ImageDataMsg_t*)&message.payload)->image_data.pixel_data[n_pixels - 1].x_coordinate);
-
-            break;
-          };
-
           case LLCP_GET_FRAME_MSG_ID: {
 
-            GetFrameMsg_t request = *((GetFrameMsg_t*) &message.payload);
-            ntoh(&request);
+            GetFrameMsg_t* request = (GetFrameMsg_t*)&message.payload;
+            ntoh_GetFrameMsg_t(request);
 
-            printf("acquisition started with time = %d ms\n", request.acquisition_time_ms);
+            printf("starting acquisition (%d ms)\n", request->acquisition_time_ms);
+
+            uint8_t n_pixels = 31;
+
+            ImageDataMsg_t test_data;
+
+            test_data.image_data.n_pixels = n_pixels;
+
+            for (int i = 0; i < n_pixels; i++) {
+
+              PixelData_t* pixel  = (PixelData_t*)&test_data.image_data.pixel_data[i];
+              pixel->x_coordinate = i;
+              pixel->y_coordinate = i;
+              pixel->data[0]      = i;
+              pixel->data[1]      = i;
+              pixel->data[2]      = i;
+              pixel->data[3]      = i;
+              pixel->data[4]      = i;
+              pixel->data[5]      = i;
+            }
+
+            uint8_t  tx_buffer[SERIAL_BUFFER_SIZE];
+            uint16_t n_bytes = llcpPrepareMessage((uint8_t*)&test_data, sizeof(test_data), tx_buffer);
+
+            if (!serial_port.sendCharArray(tx_buffer, n_bytes)) {
+              printf("FAILED sending message with %d bytes\n", n_bytes);
+            }
 
             break;
           };
+
+          case LLCP_GET_STATUS_MSG_ID: {
+
+            StatusMsg_t status;
+            status.boot_count = boot_count_++;
+            hton_StatusMsg_t(&status);
+
+            uint8_t  tx_buffer[SERIAL_BUFFER_SIZE];
+            uint16_t n_bytes = llcpPrepareMessage((uint8_t*)&status, sizeof(status), tx_buffer);
+
+            if (!serial_port.sendCharArray(tx_buffer, n_bytes)) {
+              printf("FAILED sending message with %d bytes\n", n_bytes);
+            }
+
+            break;
+          };
+
+          default: {
+
+            printf("Received unsupported message with id = %d\n", message.id);
+          }
         }
       }
     }
