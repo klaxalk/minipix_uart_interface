@@ -323,7 +323,7 @@ inline bool llcpProcessChar(const uint8_t char_in, LLCP_Receiver_t* receiver, LL
 inline uint16_t llcpPrepareMessage(uint8_t* what, uint8_t len, uint8_t* buffer) {
 
 #ifdef DEBUG_PRINT
-  printf("Preparing message, id = %d, size = %d bytes\n", id, len);
+  printf("Preparing message, id = %d, size = %d bytes\n", what[0], len);
 #endif
 
   uint8_t  checksum = 0;
