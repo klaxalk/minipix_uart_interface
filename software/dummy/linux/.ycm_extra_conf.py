@@ -21,9 +21,9 @@ add_flags = [
 # flags = default_flags
 flags = []
 
-def GetDatabase(compilation_database_folder):
-    if os.path.exists(compilation_database_folder):
-        return cindex.CompilationDatabase.fromDirectory(compilation_database_folder)
+def GetDatabase(path):
+    if os.path.exists(path):
+        return cindex.CompilationDatabase.fromDirectory(path)
     return None
 
 SOURCE_EXTENSIONS = ['.cpp', '.cxx', '.cc', '.c', '.m', '.mm']

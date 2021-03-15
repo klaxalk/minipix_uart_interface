@@ -36,7 +36,9 @@ bool SerialPort::checkConnected() {
 
 /* connect() //{ */
 
-bool SerialPort::connect(const std::string port, int baudrate) {
+bool SerialPort::connect(const std::string port, const int baudrate, const bool virtual_comm) {
+
+  this->virtual_ = virtual_comm;
 
   // Open serial port
   // O_RDWR - Read and write
@@ -173,8 +175,10 @@ void SerialPort::disconnect() {
 
 bool SerialPort::sendChar(const char c) {
   try {
-
     return write(serial_port_fd_, (const void*)&c, 1);
+    if (!virtual_) {
+      tcflush(serial_port_fd_, TCOFLUSH);
+    }
   }
   catch (int e) {
 
@@ -191,7 +195,9 @@ bool SerialPort::sendCharArray(uint8_t* buffer, int len) {
 
   try {
     bool ret_val = write(serial_port_fd_, buffer, len);
-    tcflush(serial_port_fd_, TCOFLUSH);
+    if (!virtual_) {
+      tcflush(serial_port_fd_, TCOFLUSH);
+    }
     return ret_val;
   }
   catch (int e) {

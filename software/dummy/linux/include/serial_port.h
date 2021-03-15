@@ -18,7 +18,9 @@ public:
   SerialPort();
   virtual ~SerialPort();
 
-  bool connect(const std::string port, int baudrate);
+  bool virtual_ = false;
+
+  bool connect(const std::string port, const int baudrate, const bool virtual_comm);
   void disconnect();
 
   bool sendChar(const char c);

@@ -4,47 +4,42 @@
 #include <thread>
 #include <chrono>
 
-#define SERIAL_BUFFER_SIZE 2048
-
 int main() {
 
   // the hardware serial driver
   SerialPort serial_port;
-  serial_port.connect("/tmp/ttyS0", 115200);
+  serial_port.connect("/tmp/ttyS0", 115200, true);
 
   // the bacaprotol receiver instance
   Receiver_t receiver;
   llcpInitialize(&receiver);
 
+  printf("Dummy started\n");
+
   while (true) {
 
     std::this_thread::sleep_for(std::chrono::milliseconds(1));
 
-    uint8_t read_buffer[SERIAL_BUFFER_SIZE];
-    int     bytes_read;
+    uint8_t  read_buffer[LLCP_RX_TX_BUFFER_SIZE];
+    uint16_t bytes_read;
 
-    bytes_read = serial_port.readSerial(read_buffer, SERIAL_BUFFER_SIZE);
+    bytes_read = serial_port.readSerial(read_buffer, LLCP_RX_TX_BUFFER_SIZE);
 
-    for (int i = 0; i < bytes_read; i++) {
-
-      printf("received %d chars\n", bytes_read);
+    for (uint16_t i = 0; i < bytes_read; i++) {
 
       Message_t message;
 
       if (llcpProcessChar(read_buffer[i], &receiver, &message)) {
 
-        printf("received messge\n");
+        switch ((Message_id_t)message.id) {
 
-        switch (message.id) {
+          case LLCP_MSG_ID_TEST: {
 
-          printf("id fits\n");
-
-          case MSG_ID_TEST: {
-
-            printf("received test message, %d, %d, %d\n", ((Test_t*)&message.payload)->test1, ((Test_t*)&message.payload)->test2, ((Test_t*)&message.payload)->test3);
+            printf("received test message, %d, %d, %d\n", ((Test_t*)&message.payload)->test_1, ((Test_t*)&message.payload)->test_2,
+                   ((Test_t*)&message.payload)->test_254);
 
             break;
-          }
+          };
         }
       }
     }

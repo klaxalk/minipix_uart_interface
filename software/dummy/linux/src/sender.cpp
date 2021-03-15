@@ -3,34 +3,33 @@
 
 #include <thread>
 #include <chrono>
-
 #define SERIAL_BUFFER_SIZE 2048
 
 int main() {
 
   // the hardware serial driver
   SerialPort serial_port;
-  serial_port.connect("/tmp/ttyS1", 115200);
+  serial_port.connect("/tmp/ttyS1", 115200, true);
 
-  // the bacaprotol receiver instance
-  Receiver_t receiver;
+  printf("Sender started\n");
 
   while (true) {
 
     std::this_thread::sleep_for(std::chrono::milliseconds(1000));
 
     Test_t test;
-    test.test1 = 2;
-    test.test2 = 4;
-    test.test3 = 127;
+    test.test_1   = 27;
+    test.test_2   = 39;
+    test.test_254 = 13;
 
-    Message_t message;
-    message.id = MSG_ID_TEST;
-    llcpPrepareMessage((uint8_t*)&test, sizeof(test), &message);
+    uint8_t  tx_buffer[SERIAL_BUFFER_SIZE];
+    uint16_t n_bytes = llcpPrepareMessage((uint8_t*)&test, sizeof(test), tx_buffer);
 
-    /* serial_port.sendCharArray(message.payload, message.payload_size); */
-    serial_port.sendChar('b');
-    printf("sending message with %d bytes\n", message.payload_size);
+    if (serial_port.sendCharArray(tx_buffer, n_bytes)) {
+      printf("message with %d bytes was sent\n", n_bytes);
+    } else {
+      printf("FAILED sending message with %d bytes\n", n_bytes);
+    }
   }
 
   return 0;
