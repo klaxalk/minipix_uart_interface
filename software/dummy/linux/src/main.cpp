@@ -1,4 +1,5 @@
-#include <llcp.h>
+#include <llcp/llcp.h>
+#include <llcp/llcp_minipix_messages.h>
 #include <serial_port.h>
 
 #include <thread>
