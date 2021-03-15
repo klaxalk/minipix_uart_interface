@@ -1,3 +1,5 @@
+#define LLCP_LITTLE_ENDIAN
+
 #include <llcp/llcp.h>
 #include <llcp/llcp_minipix_messages.h>
 #include <serial_port.h>
@@ -32,12 +34,24 @@ int main() {
 
       if (llcpProcessChar(read_buffer[i], &receiver, &message)) {
 
-        switch ((Message_id_t)message.id) {
+        switch ((MessageId_t)message.id) {
 
-          case LLCP_MSG_ID_TEST: {
+          case LLCP_IMAGE_DATA_MSG_ID: {
 
-            printf("received test message, %d, %d, %d\n", ((Test_t*)&message.payload)->test_1, ((Test_t*)&message.payload)->test_2,
-                   ((Test_t*)&message.payload)->test_254);
+            uint8_t n_pixels = ((ImageDataMsg_t*)&message.payload)->image_data.n_pixels;
+
+            printf("received test message, n_pixels %d, last_pixel: %d\n", n_pixels,
+                   ((ImageDataMsg_t*)&message.payload)->image_data.pixel_data[n_pixels - 1].x_coordinate);
+
+            break;
+          };
+
+          case LLCP_GET_FRAME_MSG_ID: {
+
+            GetFrameMsg_t request = *((GetFrameMsg_t*) &message.payload);
+            ntoh(&request);
+
+            printf("acquisition started with time = %d ms\n", request.acquisition_time_ms);
 
             break;
           };
