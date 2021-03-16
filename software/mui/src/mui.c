@@ -1,4 +1,4 @@
-#include <minipix_interface.h>
+#include <mui.h>
 
 /* mui_initialize() //{ */
 
@@ -16,10 +16,10 @@ void mui_initialize(MUI_Handler_t* mui_handler) {
 
 void mui_measureFrame(MUI_Handler_t* mui_handler, const uint16_t acquisition_time) {
 
-  MeasureFrameReqMsg_t get_frame;
+  LLCP_MeasureFrameReqMsg_t get_frame;
   get_frame.message_id                  = LLCP_MEASURE_FRAME_MSG_ID;
   get_frame.payload.acquisition_time_ms = acquisition_time;
-  hton_MeasureFrameReqMsg_t(&get_frame);
+  hton_LLCP_MeasureFrameReqMsg_t(&get_frame);
 
   printf("asking for acquisition %d\n", acquisition_time);
 
@@ -34,9 +34,9 @@ void mui_measureFrame(MUI_Handler_t* mui_handler, const uint16_t acquisition_tim
 
 void mui_getStatus(MUI_Handler_t* mui_handler) {
 
-  GetStatusMsg_t get_status;
+  LLCP_GetStatusMsg_t get_status;
   get_status.message_id = LLCP_GET_STATUS_MSG_ID;
-  hton_GetStatusMsg_t(&get_status);
+  hton_LLCP_GetStatusMsg_t(&get_status);
 
   uint16_t n_bytes = llcp_prepareMessage((uint8_t*)&get_status, sizeof(get_status), mui_handler->tx_buffer);
 
@@ -55,12 +55,12 @@ void mui_receiveCharCallback(MUI_Handler_t* mui_handler, const uint8_t byte_in) 
 
   if (llcp_processChar(byte_in, &mui_handler->llcp_receiver, &message_in)) {
 
-    switch ((LLCPMessageId_t)message_in.id) {
+    switch ((LLCP_MessageId_t)message_in.id) {
 
       case LLCP_IMAGE_DATA_MSG_ID: {
 
-        ImageDataMsg_t* msg = (ImageDataMsg_t*)&message_in.payload;
-        ntoh_ImageDataMsg_t(msg);
+        LLCP_ImageDataMsg_t* msg = (LLCP_ImageDataMsg_t*)&message_in.payload;
+        ntoh_LLCP_ImageDataMsg_t(msg);
 
         mui_handler->fcns.processImagePacket(&msg->payload);
 
@@ -69,8 +69,8 @@ void mui_receiveCharCallback(MUI_Handler_t* mui_handler, const uint8_t byte_in) 
 
       case LLCP_STATUS_MSG_ID: {
 
-        StatusMsg_t* msg = (StatusMsg_t*)&message_in.payload;
-        ntoh_StatusMsg_t(msg);
+        LLCP_StatusMsg_t* msg = (LLCP_StatusMsg_t*)&message_in.payload;
+        ntoh_LLCP_StatusMsg_t(msg);
 
         mui_handler->fcns.processStatus(&msg->payload);
 

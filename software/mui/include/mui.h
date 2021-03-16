@@ -1,5 +1,5 @@
-#ifndef MINIPIX_INTERFACE_H
-#define MINIPIX_INTERFACE_H
+#ifndef MUI_H
+#define MUI_H
 
 #ifdef __cplusplus
 extern "C" {
@@ -66,4 +66,4 @@ void mui_update(MUI_Handler_t *mui_handler);
 }
 #endif
 
-#endif  // MINIPIX_INTERFACE_H
+#endif  // MUI_H

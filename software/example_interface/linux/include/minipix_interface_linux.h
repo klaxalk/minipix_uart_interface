@@ -6,7 +6,7 @@
 
 #include <serial_port.h>
 
-#include <minipix_interface.h>
+#include <mui.h>
 
 extern SerialPort serial_port_minipix_;
 extern SerialPort serial_port_lander_;

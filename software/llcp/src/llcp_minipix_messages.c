@@ -12,13 +12,13 @@ void ntoh_ImageData_t(ImageData_t* data) {
 
 //}
 
-/* ImageDataMsg_t //{ */
+/* LLCP_ImageDataMsg_t //{ */
 
-void hton_ImageDataMsg_t(ImageDataMsg_t* msg) {
+void hton_LLCP_ImageDataMsg_t(LLCP_ImageDataMsg_t* msg) {
   hton_ImageData_t(&msg->payload);
 }
 
-void ntoh_ImageDataMsg_t(ImageDataMsg_t* msg) {
+void ntoh_LLCP_ImageDataMsg_t(LLCP_ImageDataMsg_t* msg) {
   ntoh_ImageData_t(&msg->payload);
 }
 
@@ -36,26 +36,26 @@ void ntoh_MeasureFrameReq_t(MeasureFrameReq_t* data) {
 
 //}
 
-/* MeasureFrameReqMsg_t //{ */
+/* LLCP_MeasureFrameReqMsg_t //{ */
 
-void hton_MeasureFrameReqMsg_t(MeasureFrameReqMsg_t* data) {
+void hton_LLCP_MeasureFrameReqMsg_t(LLCP_MeasureFrameReqMsg_t* data) {
 
   hton_MeasureFrameReq_t(&data->payload);
 }
 
-void ntoh_MeasureFrameReqMsg_t(MeasureFrameReqMsg_t* data) {
+void ntoh_LLCP_MeasureFrameReqMsg_t(LLCP_MeasureFrameReqMsg_t* data) {
 
   ntoh_MeasureFrameReq_t(&data->payload);
 }
 
 //}
 
-/* FrameDataAckMsg_t //{ */
+/* LLCP_FrameDataAckMsg_t //{ */
 
-void hton_FrameDataAckMsg_t(FrameDataAckMsg_t* data) {
+void hton_LLCP_FrameDataAckMsg_t(LLCP_FrameDataAckMsg_t* data) {
 }
 
-void ntoh_FrameDataAckMsg_t(FrameDataAckMsg_t* data) {
+void ntoh_LLCP_FrameDataAckMsg_t(LLCP_FrameDataAckMsg_t* data) {
 }
 
 //}
@@ -72,26 +72,26 @@ void ntoh_Status_t(Status_t* data) {
 
 //}
 
-/* StatusMsg_t //{ */
+/* LLCP_StatusMsg_t //{ */
 
-void hton_StatusMsg_t(StatusMsg_t* data) {
+void hton_LLCP_StatusMsg_t(LLCP_StatusMsg_t* data) {
 
   hton_Status_t(&data->payload);
 }
 
-void ntoh_StatusMsg_t(StatusMsg_t* data) {
+void ntoh_LLCP_StatusMsg_t(LLCP_StatusMsg_t* data) {
 
   ntoh_Status_t(&data->payload);
 }
 
 //}
 
-/* GetStatusMsg_t //{ */
+/* LLCP_GetStatusMsg_t //{ */
 
-void hton_GetStatusMsg_t(GetStatusMsg_t* data) {
+void hton_LLCP_GetStatusMsg_t(LLCP_GetStatusMsg_t* data) {
 }
 
-void ntoh_GetStatusMsg_t(GetStatusMsg_t* data) {
+void ntoh_LLCP_GetStatusMsg_t(LLCP_GetStatusMsg_t* data) {
 }
 
 //}

@@ -16,11 +16,11 @@ typedef enum
   LLCP_STATUS_MSG_ID         = 2,
   LLCP_GET_STATUS_MSG_ID     = 3,
   LLCP_FRAME_DATA_ACK_MSG_ID = 4,
-} LLCPMessageId_t;
+} LLCP_MessageId_t;
 
 // | -------------------------- Frame ------------------------- |
 
-/* ImageDataMsg_t //{ */
+/* LLCP_ImageDataMsg_t //{ */
 
 /* struct PixelData_t //{ */
 
@@ -50,19 +50,19 @@ void ntoh_ImageData_t(ImageData_t* data);
 
 typedef struct __attribute__((packed))
 {
-  LLCPMessageId_t message_id;
-  ImageData_t     payload;
-} ImageDataMsg_t;
+  LLCP_MessageId_t message_id;
+  ImageData_t      payload;
+} LLCP_ImageDataMsg_t;
 
-void hton_ImageDataMsg_t(ImageDataMsg_t* msg);
+void hton_LLCP_ImageDataMsg_t(LLCP_ImageDataMsg_t* msg);
 
-void ntoh_ImageDataMsg_t(ImageDataMsg_t* msg);
+void ntoh_LLCP_ImageDataMsg_t(LLCP_ImageDataMsg_t* msg);
 
-static_assert((sizeof(ImageDataMsg_t) > 255) == 0, "ImageDataMsg_t is too large");
+static_assert((sizeof(LLCP_ImageDataMsg_t) > 255) == 0, "LLCP_ImageDataMsg_t is too large");
 
 //}
 
-/* MeasureFrameReqMsg_t //{ */
+/* LLCP_MeasureFrameReqMsg_t //{ */
 
 /* MeasureFrameReq_t //{ */
 
@@ -79,36 +79,36 @@ void ntoh_MeasureFrameReq_t(MeasureFrameReq_t* data);
 
 typedef struct __attribute__((packed))
 {
-  LLCPMessageId_t   message_id;
+  LLCP_MessageId_t  message_id;
   MeasureFrameReq_t payload;
-} MeasureFrameReqMsg_t;
+} LLCP_MeasureFrameReqMsg_t;
 
-void hton_MeasureFrameReqMsg_t(MeasureFrameReqMsg_t* data);
+void hton_LLCP_MeasureFrameReqMsg_t(LLCP_MeasureFrameReqMsg_t* data);
 
-void ntoh_MeasureFrameReqMsg_t(MeasureFrameReqMsg_t* data);
+void ntoh_LLCP_MeasureFrameReqMsg_t(LLCP_MeasureFrameReqMsg_t* data);
 
-static_assert((sizeof(MeasureFrameReqMsg_t) > 255) == 0, "MeasureFrameReqMsg_t is too large");
+static_assert((sizeof(LLCP_MeasureFrameReqMsg_t) > 255) == 0, "LLCP_MeasureFrameReqMsg_t is too large");
 
 //}
 
-/* FrameDataAckMsg_t //{ */
+/* LLCP_FrameDataAckMsg_t //{ */
 
 typedef struct __attribute__((packed))
 {
-  LLCPMessageId_t message_id;
-} FrameDataAckMsg_t;
+  LLCP_MessageId_t message_id;
+} LLCP_FrameDataAckMsg_t;
 
-void hton_FrameDataAckMsg_t(FrameDataAckMsg_t* data);
+void hton_LLCP_FrameDataAckMsg_t(LLCP_FrameDataAckMsg_t* data);
 
-void ntoh_FrameDataAckMsg_t(FrameDataAckMsg_t* data);
+void ntoh_LLCP_FrameDataAckMsg_t(LLCP_FrameDataAckMsg_t* data);
 
-static_assert((sizeof(FrameDataAckMsg_t) > 255) == 0, "FrameDataAckMsg_t is too large");
+static_assert((sizeof(LLCP_FrameDataAckMsg_t) > 255) == 0, "LLCP_FrameDataAckMsg_t is too large");
 
 //}
 
 // | ------------------------- status ------------------------- |
 
-/* StatusMsg_t //{ */
+/* LLCP_StatusMsg_t //{ */
 
 /* Status_t //{ */
 
@@ -126,30 +126,30 @@ void ntoh_Status_t(Status_t* data);
 
 typedef struct __attribute__((packed))
 {
-  LLCPMessageId_t message_id;
-  Status_t        payload;
-} StatusMsg_t;
+  LLCP_MessageId_t message_id;
+  Status_t         payload;
+} LLCP_StatusMsg_t;
 
-void hton_StatusMsg_t(StatusMsg_t* data);
+void hton_LLCP_StatusMsg_t(LLCP_StatusMsg_t* data);
 
-void ntoh_StatusMsg_t(StatusMsg_t* data);
+void ntoh_LLCP_StatusMsg_t(LLCP_StatusMsg_t* data);
 
-static_assert((sizeof(StatusMsg_t) > 255) == 0, "StatusMsg_t is too large");
+static_assert((sizeof(LLCP_StatusMsg_t) > 255) == 0, "LLCP_StatusMsg_t is too large");
 
 //}
 
-/* GetStatusMsg_t //{ */
+/* LLCP_GetStatusMsg_t //{ */
 
 typedef struct __attribute__((packed))
 {
-  LLCPMessageId_t message_id;
-} GetStatusMsg_t;
+  LLCP_MessageId_t message_id;
+} LLCP_GetStatusMsg_t;
 
-void hton_GetStatusMsg_t(GetStatusMsg_t* data);
+void hton_LLCP_GetStatusMsg_t(LLCP_GetStatusMsg_t* data);
 
-void ntoh_GetStatusMsg_t(GetStatusMsg_t* data);
+void ntoh_LLCP_GetStatusMsg_t(LLCP_GetStatusMsg_t* data);
 
-static_assert((sizeof(GetStatusMsg_t) > 255) == 0, "GetStatusMsg_t is too large");
+static_assert((sizeof(LLCP_GetStatusMsg_t) > 255) == 0, "LLCP_GetStatusMsg_t is too large");
 
 //}
 

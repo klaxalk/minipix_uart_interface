@@ -21,7 +21,7 @@ add_executable(example_interface
   src/minipix_interface_linux.cpp
   src/serial_port.cpp
 
-  src/mui/minipix_interface.c
+  src/mui/mui.c
 
   src/llcp/llcp.c
   src/llcp/llcp_endian.c

@@ -1,1 +1,0 @@
-../../../../minipix_interface/src/minipix_interface.c
