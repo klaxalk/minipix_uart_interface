@@ -3,6 +3,9 @@
 SerialPort serial_port_minipix_;
 SerialPort serial_port_lander_;
 
+LLCP_Receiver_t llcp_receiver_lander;
+uint8_t         tx_buffer_lander[SERIAL_BUFFER_SIZE];
+
 /* mui_sleepHW() //{ */
 
 void mui_sleepHW(const uint16_t milliseconds) {
@@ -36,9 +39,13 @@ void mui_sendString(const uint8_t *str_out, const uint16_t len) {
 
 void mui_processImagePacket(const ImageData_t *image_data) {
 
-  uint8_t n_pixels = image_data->n_pixels;
+  LLCP_ImageDataMsg_t msg;
+  msg.message_id = LLCP_IMAGE_DATA_MSG_ID;
+  msg.payload    = *image_data;
+  hton_LLCP_ImageDataMsg_t(&msg);
 
-  printf("received image data, n_pixels %d, last_pixel_x: %d\n", n_pixels, image_data->pixel_data[n_pixels - 1].x_coordinate);
+  uint16_t n_bytes = llcp_prepareMessage((uint8_t *)&msg, sizeof(msg), tx_buffer_lander);
+  serial_port_lander_.sendCharArray(tx_buffer_lander, n_bytes);
 }
 
 //}
@@ -47,7 +54,13 @@ void mui_processImagePacket(const ImageData_t *image_data) {
 
 void mui_processStatus(const Status_t *status) {
 
-  printf("received status: boot count = %d, string: '%s'\n", status->boot_count, status->status_str);
+  LLCP_StatusMsg_t msg;
+  msg.message_id = LLCP_STATUS_MSG_ID;
+  msg.payload    = *status;
+  hton_LLCP_StatusMsg_t(&msg);
+
+  uint16_t n_bytes = llcp_prepareMessage((uint8_t *)&msg, sizeof(msg), tx_buffer_lander);
+  serial_port_lander_.sendCharArray(tx_buffer_lander, n_bytes);
 }
 
 //}

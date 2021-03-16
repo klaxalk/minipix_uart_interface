@@ -1,0 +1,16 @@
+name: minipix
+root: ./
+startup_window: main
+# pre_window: 
+windows:
+  - serials:
+      layout: tiled
+      panes:
+        - socat -d -d PTY,link=/tmp/ttyS0,rawer,echo=0 PTY,link=/tmp/ttyS1,rawer,echo=0
+        - socat -d -d PTY,link=/tmp/ttyS2,rawer,echo=0 PTY,link=/tmp/ttyS3,rawer,echo=0
+  - main:
+      layout: even-vertical
+      panes:
+        - sleep 0.3; ./minipix_dummy
+        - sleep 0.3; ./example_interface
+        - sleep 0.3; ./gatherer
