@@ -27,11 +27,11 @@ void ntoh_ImageDataMsg_t(ImageDataMsg_t* msg) {
 /* MeasureFrameReq_t //{ */
 
 void hton_MeasureFrameReq_t(MeasureFrameReq_t* data) {
-  data->acquisition_time_ms = llcp_hton16((uint16_t) data->acquisition_time_ms);
+  data->acquisition_time_ms = llcp_hton16((uint16_t)data->acquisition_time_ms);
 }
 
 void ntoh_MeasureFrameReq_t(MeasureFrameReq_t* data) {
-  data->acquisition_time_ms = llcp_ntoh16((uint16_t) data->acquisition_time_ms);
+  data->acquisition_time_ms = llcp_ntoh16((uint16_t)data->acquisition_time_ms);
 }
 
 //}

@@ -21,8 +21,6 @@ int main() {
 
   MUI_Handler_t mui_handler;
 
-  mui_ledSetHW(true);
-
   mui_handler.fcns.ledSetHW           = &mui_ledSetHW;
   mui_handler.fcns.processImagePacket = &mui_processImagePacket;
   mui_handler.fcns.processStatus      = &mui_processStatus;
