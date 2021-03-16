@@ -19,15 +19,25 @@ int main() {
 
   // | -------- initialize the MiniPIX interface library -------- |
 
-  minipix_interface_initialize();
+  MUI_Handler_t mui_handler;
+
+  mui_ledSetHW(true);
+
+  mui_handler.fcns.ledSetHW           = &mui_ledSetHW;
+  mui_handler.fcns.processImagePacket = &mui_processImagePacket;
+  mui_handler.fcns.processStatus      = &mui_processStatus;
+  mui_handler.fcns.sendChar           = &mui_sendChar;
+  mui_handler.fcns.sendString         = &mui_sendString;
+
+  mui_initialize(&mui_handler);
 
   printf("Example interface started\n");
 
   while (true) {
 
-    minipix_interface_measureFrame(13);
+    mui_measureFrame(&mui_handler, 13);
 
-    minipix_interface_getStatus();
+    mui_getStatus(&mui_handler);
 
     // | --------- receive data from the minipix interface -------- |
 
@@ -35,7 +45,7 @@ int main() {
 
     // feed all the incoming bytes into the minipix interface
     for (uint16_t i = 0; i < bytes_read; i++) {
-      minipix_interface_ReceiveCharCallback(read_buffer[i]);
+      mui_receiveCharCallback(&mui_handler, read_buffer[i]);
     }
 
     std::this_thread::sleep_for(std::chrono::milliseconds(1000));

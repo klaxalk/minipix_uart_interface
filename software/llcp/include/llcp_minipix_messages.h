@@ -1,6 +1,10 @@
 #ifndef LLCP_MINIPIX_MESSAGES_H
 #define LLCP_MINIPIX_MESSAGES_H
 
+#ifdef __cplusplus
+extern "C" {
+#endif
+
 #include <stdint.h>
 #include <assert.h>
 #include <llcp_endian.h>
@@ -148,5 +152,9 @@ void ntoh_GetStatusMsg_t(GetStatusMsg_t* data);
 static_assert((sizeof(GetStatusMsg_t) > 255) == 0, "GetStatusMsg_t is too large");
 
 //}
+
+#ifdef __cplusplus
+}
+#endif
 
 #endif  // LLCP_MINIPIX_MESSAGES_H

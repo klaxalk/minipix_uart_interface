@@ -19,6 +19,8 @@ add_executable(minipix_dummy
   src/serial_port.cpp
   src/minipix_dummy_linux.cpp
   src/minipix_dummy.cpp
+
+  src/llcp/llcp.c
   src/llcp/llcp_endian.c
   src/llcp/llcp_minipix_messages.c
 )

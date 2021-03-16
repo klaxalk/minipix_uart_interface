@@ -3,10 +3,8 @@
 
 #include <stdint.h>
 
-extern "C" {
 #include <llcp.h>
 #include <llcp_minipix_messages.h>
-}
 
 class MinipixDummy {
 

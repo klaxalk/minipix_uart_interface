@@ -1,6 +1,10 @@
 #ifndef LLCP_ENDIAN_H
 #define LLCP_ENDIAN_H
 
+#ifdef __cplusplus
+extern "C" {
+#endif
+
 #include <stdint.h>
 
 // the "network" layer runs on BIG_ENDIAN
@@ -62,5 +66,9 @@ uint64_t __attribute__((__const__)) llcp_betoh64(uint64_t be64);
 
 /* Convert 64-bit number from little endian byte order to host byte order */
 uint64_t __attribute__((__const__)) llcp_letoh64(uint64_t le64);
+
+#ifdef __cplusplus
+}
+#endif
 
 #endif  // _H

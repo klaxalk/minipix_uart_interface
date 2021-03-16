@@ -4,7 +4,7 @@
 
 MinipixDummy::MinipixDummy() {
 
-  llcpInitialize(&llcp_receiver_);
+  llcp_initialize(&llcp_receiver_);
 }
 
 //}
@@ -15,9 +15,9 @@ void MinipixDummy::serialDataCallback(const uint8_t *bytes_in, const uint16_t &l
 
   for (uint16_t i = 0; i < len; i++) {
 
-    LLCPMessage_t message;
+    LLCP_Message_t message;
 
-    if (llcpProcessChar(bytes_in[i], &llcp_receiver_, &message)) {
+    if (llcp_processChar(bytes_in[i], &llcp_receiver_, &message)) {
 
       switch ((LLCPMessageId_t)message.id) {
 
@@ -49,7 +49,7 @@ void MinipixDummy::serialDataCallback(const uint8_t *bytes_in, const uint16_t &l
             pixel->data[5]      = i;
           }
 
-          uint16_t n_bytes = llcpPrepareMessage((uint8_t *)&image_data, sizeof(image_data), tx_buffer_);
+          uint16_t n_bytes = llcp_prepareMessage((uint8_t *)&image_data, sizeof(image_data), tx_buffer_);
           sendString(tx_buffer_, n_bytes);
 
           break;
@@ -64,7 +64,7 @@ void MinipixDummy::serialDataCallback(const uint8_t *bytes_in, const uint16_t &l
           sprintf((char *)status_msg.payload.status_str, "Timepix3 is OK, but it is cold out here...");
           hton_StatusMsg_t(&status_msg);
 
-          uint16_t n_bytes = llcpPrepareMessage((uint8_t *)&status_msg, sizeof(status_msg), tx_buffer_);
+          uint16_t n_bytes = llcp_prepareMessage((uint8_t *)&status_msg, sizeof(status_msg), tx_buffer_);
           sendString(tx_buffer_, n_bytes);
 
           break;
