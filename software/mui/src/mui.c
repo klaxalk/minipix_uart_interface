@@ -16,14 +16,14 @@ void mui_initialize(MUI_Handler_t* mui_handler) {
 
 void mui_measureFrame(MUI_Handler_t* mui_handler, const uint16_t acquisition_time) {
 
-  LLCP_MeasureFrameReqMsg_t get_frame;
-  get_frame.message_id                  = LLCP_MEASURE_FRAME_MSG_ID;
-  get_frame.payload.acquisition_time_ms = acquisition_time;
-  hton_LLCP_MeasureFrameReqMsg_t(&get_frame);
+  LLCP_MeasureFrameReqMsg_t msg;
+  msg.message_id                  = LLCP_MEASURE_FRAME_MSG_ID;
+  msg.payload.acquisition_time_ms = acquisition_time;
+  hton_LLCP_MeasureFrameReqMsg_t(&msg);
 
   printf("asking for acquisition %d\n", acquisition_time);
 
-  uint16_t n_bytes = llcp_prepareMessage((uint8_t*)&get_frame, sizeof(get_frame), mui_handler->tx_buffer);
+  uint16_t n_bytes = llcp_prepareMessage((uint8_t*)&msg, sizeof(msg), mui_handler->tx_buffer);
 
   mui_handler->fcns.sendString(mui_handler->tx_buffer, n_bytes);
 }
@@ -34,11 +34,11 @@ void mui_measureFrame(MUI_Handler_t* mui_handler, const uint16_t acquisition_tim
 
 void mui_getStatus(MUI_Handler_t* mui_handler) {
 
-  LLCP_GetStatusMsg_t get_status;
-  get_status.message_id = LLCP_GET_STATUS_MSG_ID;
-  hton_LLCP_GetStatusMsg_t(&get_status);
+  LLCP_GetStatusMsg_t msg;
+  msg.message_id = LLCP_GET_STATUS_MSG_ID;
+  hton_LLCP_GetStatusMsg_t(&msg);
 
-  uint16_t n_bytes = llcp_prepareMessage((uint8_t*)&get_status, sizeof(get_status), mui_handler->tx_buffer);
+  uint16_t n_bytes = llcp_prepareMessage((uint8_t*)&msg, sizeof(msg), mui_handler->tx_buffer);
 
   mui_handler->fcns.sendString(mui_handler->tx_buffer, n_bytes);
 }
