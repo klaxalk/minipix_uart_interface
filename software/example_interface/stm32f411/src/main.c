@@ -51,8 +51,9 @@ DMA_HandleTypeDef  hdma_usart6_rx;
 
 /* USER CODE BEGIN PV */
 
-#define UART_RX_BUFFER_SIZE 128
-uint8_t usart6_rx_buffer[UART_RX_BUFFER_SIZE];
+uint8_t usart6_rx_buffer[LLCP_RX_TX_BUFFER_SIZE];
+
+MUI_Handler_t mui_handler;
 
 /* USER CODE END PV */
 
@@ -105,7 +106,17 @@ int main(void) {
   MX_USART6_UART_Init();
   /* USER CODE BEGIN 2 */
 
-  HAL_UART_Receive_DMA(&huart6, (uint8_t *)usart6_rx_buffer, UART_RX_BUFFER_SIZE);
+  HAL_UART_Receive_DMA(&huart6, (uint8_t *)usart6_rx_buffer, LLCP_RX_TX_BUFFER_SIZE);
+
+  // | -------- initialize the MiniPIX interface library -------- |
+
+  mui_handler.fcns.ledSetHW           = &mui_ledSetHW;
+  mui_handler.fcns.processImagePacket = &mui_processImagePacket;
+  mui_handler.fcns.processStatus      = &mui_processStatus;
+  mui_handler.fcns.sendChar           = &mui_sendChar;
+  mui_handler.fcns.sendString         = &mui_sendString;
+
+  mui_initialize(&mui_handler);
 
   /* USER CODE END 2 */
 
@@ -130,7 +141,7 @@ void USART_IDLECallback(UART_HandleTypeDef *huart) {
   HAL_UART_DMAStop(&huart6);
 
   // Calculate the length of the received data
-  uint8_t received_bytes = UART_RX_BUFFER_SIZE - __HAL_DMA_GET_COUNTER(&hdma_usart6_rx);
+  uint8_t received_bytes = LLCP_RX_TX_BUFFER_SIZE - __HAL_DMA_GET_COUNTER(&hdma_usart6_rx);
 
   for (uint8_t i = 0; i < received_bytes; i++) {
     /* minipix_interface.minipixReceiveCharCallback(usart6_rx_buffer[i]); */
@@ -140,7 +151,7 @@ void USART_IDLECallback(UART_HandleTypeDef *huart) {
   memset(usart6_rx_buffer, 0, received_bytes);
 
   // Restart to start DMA USART RX
-  HAL_UART_Receive_DMA(&huart6, (uint8_t *)usart6_rx_buffer, UART_RX_BUFFER_SIZE);
+  HAL_UART_Receive_DMA(&huart6, (uint8_t *)usart6_rx_buffer, LLCP_RX_TX_BUFFER_SIZE);
 }
 
 /**

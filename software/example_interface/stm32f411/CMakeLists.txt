@@ -10,21 +10,32 @@ project(example_interface C ASM) # add CXX for c++
 
 set(CMAKE_EXPORT_COMPILE_COMMANDS ON)
 
-set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -g -O0")
+set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -g -O0 -Wall -Wextra")
 
 find_package(CMSIS COMPONENTS STM32F4 REQUIRED)
 find_package(HAL COMPONENTS STM32F4 RCC UART GPIO DMA CORTEX REQUIRED)
 
-add_executable(main
-  src/main.c
-  src/stm_core/stm32f4xx_it.c
-  src/stm_core/stm32f4xx_hal_msp.c
-  src/minipix_interface_stm.c
-)
+add_definitions(-DLLCP_BIG_ENDIAN)
 
 include_directories(
   include
+  include/llcp
+  include/mui
   include/stm_core
+)
+
+add_executable(main
+  src/main.c
+
+  src/stm_core/stm32f4xx_it.c
+  src/stm_core/stm32f4xx_hal_msp.c
+
+  src/mui/mui.c
+  src/minipix_interface_stm.c
+
+  src/llcp/llcp.c
+  src/llcp/llcp_endian.c
+  src/llcp/llcp_minipix_messages.c
 )
 
 target_link_libraries(main
