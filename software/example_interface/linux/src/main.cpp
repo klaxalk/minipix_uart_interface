@@ -1,17 +1,35 @@
 #include <gatherer_interface_linux.h>
 #include <minipix_interface_linux.h>
 
-int main() {
+std::string serial_port_minipix;
+int         baud_rate_minipix;
+bool        serial_port_minipix_virtual;
 
-  // | ----------- initialize the MiniPIX serial port ----------- |
+std::string serial_port_gatherer;
+int         baud_rate_gatherer;
+bool        serial_port_gatherer_virtual;
 
-  bool serial_port_minipix_virtual = true;
-  serial_port_minipix_.connect("/tmp/ttyS1", 115200, serial_port_minipix_virtual);
+int main(int argc, char *argv[]) {
 
-  // | ------------ initialize the lander serial port ----------- |
+  if (argc == 7) {
+    serial_port_minipix         = argv[1];
+    baud_rate_minipix           = atoi(argv[2]);
+    serial_port_minipix_virtual = argv[3];
 
-  bool serial_port_lander_virtual = true;
-  serial_port_gatherer_.connect("/tmp/ttyS2", 115200, serial_port_lander_virtual);
+    serial_port_gatherer         = argv[4];
+    baud_rate_gatherer           = atoi(argv[5]);
+    serial_port_gatherer_virtual = argv[6];
+
+    printf("loaded params:\n");
+    printf("minipix: %s, %d, %s\n", serial_port_minipix.c_str(), baud_rate_minipix, serial_port_minipix_virtual ? "VIRTUAL" : "REAL");
+    printf("gatherer: %s, %d, %s\n", serial_port_gatherer.c_str(), baud_rate_gatherer, serial_port_gatherer_virtual ? "VIRTUAL" : "REAL");
+  } else {
+    printf("params not supplied\n");
+    return 0;
+  }
+
+  serial_port_minipix_.connect(serial_port_minipix, baud_rate_minipix, serial_port_minipix_virtual);
+  serial_port_gatherer_.connect(serial_port_gatherer, baud_rate_gatherer, serial_port_gatherer_virtual);
 
   // | -------- initialize the MiniPIX interface library -------- |
 

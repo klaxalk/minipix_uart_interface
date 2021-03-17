@@ -3,11 +3,26 @@
 
 #include <minipix_dummy_linux.h>
 
-int main() {
+std::string serial_port;
+int         baud_rate;
+bool        serial_port_virtual;
+
+int main(int argc, char *argv[]) {
+
+  if (argc == 4) {
+    serial_port         = argv[1];
+    baud_rate           = atoi(argv[2]);
+    serial_port_virtual = argv[3];
+
+    printf("loaded params: %s, %d, %s\n", serial_port.c_str(), baud_rate, serial_port_virtual ? "VIRTUAL" : "REAL");
+  } else {
+    printf("params not supplied\n");
+    return 0;
+  }
 
   MinipixDummyLinux minipix_dummy;
 
-  minipix_dummy.initializeSerialPort("/tmp/ttyS0", 115200, true);
+  minipix_dummy.initializeSerialPort(serial_port, baud_rate, serial_port_virtual);
 
   printf("Starting while loop\n");
 

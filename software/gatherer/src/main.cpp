@@ -8,11 +8,26 @@
 
 #define SERIAL_BUFFER_SIZE 2048
 
-int main() {
+std::string serial_port_file;
+int         baud_rate;
+bool        serial_port_virtual;
 
-  bool       serial_port_virtual = true;
+int main(int argc, char* argv[]) {
+
+  if (argc == 4) {
+    serial_port_file    = argv[1];
+    baud_rate           = atoi(argv[2]);
+    serial_port_virtual = argv[3];
+
+    printf("loaded params: %s, %d, %s\n", serial_port_file.c_str(), baud_rate, serial_port_virtual ? "VIRTUAL" : "REAL");
+  } else {
+    printf("params not supplied\n");
+    return 0;
+  }
+
   SerialPort serial_port;
-  serial_port.connect("/tmp/ttyS3", 115200, serial_port_virtual);
+
+  serial_port.connect(serial_port_file, baud_rate, serial_port_virtual);
 
   uint8_t  read_buffer[SERIAL_BUFFER_SIZE];
   uint8_t  tx_buffer[SERIAL_BUFFER_SIZE];
@@ -37,7 +52,7 @@ int main() {
 
     {
       LLCP_MeasureFrameReqMsg_t msg;
-      msg.message_id = LLCP_MEASURE_FRAME_MSG_ID;
+      msg.message_id                  = LLCP_MEASURE_FRAME_MSG_ID;
       msg.payload.acquisition_time_ms = 333;
       hton_LLCP_MeasureFrameReqMsg_t(&msg);
 
