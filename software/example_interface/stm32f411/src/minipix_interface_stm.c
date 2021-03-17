@@ -2,11 +2,22 @@
 
 #define USART_TIMEOUT 10  // # [ms]
 
-/* setMinipixUart() //{ */
+// | --------------------- initialization --------------------- |
 
-void setMinipixUart(UART_HandleTypeDef huart_minipix) {
+/* mui_stm_setUart() //{ */
 
-  huart_minipix_ptr_ = &huart_minipix;
+void mui_stm_setUart(UART_HandleTypeDef *huart_minipix) {
+
+  huart_minipix_ptr_ = huart_minipix;
+}
+
+//}
+
+/* mui_stm_setGathererHandler() //{ */
+
+void mui_stm_setGathererHandler(Gatherer_Handler_t *gatherer_handler) {
+
+  gatherer_handler_ptr_ = gatherer_handler;
 }
 
 //}
@@ -52,6 +63,8 @@ void mui_sendString(const uint8_t *str_out, const uint16_t len) {
 /* mui_processImagePacket() //{ */
 
 void mui_processImagePacket(const ImageData_t *image_data) {
+
+  gatherer_processImagePacket((Gatherer_Handler_t*) gatherer_handler_ptr_, image_data);
 }
 
 //}
@@ -59,6 +72,8 @@ void mui_processImagePacket(const ImageData_t *image_data) {
 /* mui_processStatus() //{ */
 
 void mui_processStatus(const Status_t *status) {
+
+  gatherer_processStatus((Gatherer_Handler_t*) gatherer_handler_ptr_, status);
 }
 
 //}

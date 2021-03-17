@@ -10,18 +10,19 @@ project(example_interface C ASM) # add CXX for c++
 
 set(CMAKE_EXPORT_COMPILE_COMMANDS ON)
 
-set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -g -O0 -Wall -Wextra")
+set(CMAKE_C_FLAGS "${CMAKE_C_FLAGS} -g -O0 -Wall -Wextra")
 
 find_package(CMSIS COMPONENTS STM32F4 REQUIRED)
 find_package(HAL COMPONENTS STM32F4 RCC UART GPIO DMA CORTEX REQUIRED)
 
-add_definitions(-DLLCP_BIG_ENDIAN)
+add_definitions(-DLLCP_LITTLE_ENDIAN)
 
 include_directories(
   include
+  include/stm_core
   include/llcp
   include/mui
-  include/stm_core
+  include/gatherer_interface
 )
 
 add_executable(main
@@ -32,6 +33,9 @@ add_executable(main
 
   src/mui/mui.c
   src/minipix_interface_stm.c
+
+  src/gatherer_interface/gatherer_interface.c
+  src/gatherer_interface_stm.c
 
   src/llcp/llcp.c
   src/llcp/llcp_endian.c

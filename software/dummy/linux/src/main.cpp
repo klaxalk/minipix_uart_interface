@@ -12,7 +12,7 @@ int main(int argc, char *argv[]) {
   if (argc == 4) {
     serial_port         = argv[1];
     baud_rate           = atoi(argv[2]);
-    serial_port_virtual = argv[3];
+    serial_port_virtual = atoi(argv[3]);
 
     printf("loaded params: %s, %d, %s\n", serial_port.c_str(), baud_rate, serial_port_virtual ? "VIRTUAL" : "REAL");
   } else {

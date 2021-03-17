@@ -25,17 +25,3 @@ void gatherer_sendString(const uint8_t *str_out, const uint16_t len) {
 }
 
 //}
-
-void gatherer_getStatus(MUI_Handler_t *mui_handler) {
-
-  printf("received request for status\n");
-
-  mui_getStatus(mui_handler);
-}
-
-void gatherer_measureFrame(MUI_Handler_t *mui_handler, const uint16_t acquisition_time) {
-
-  printf("received request for a frame\n");
-
-  mui_measureFrame(mui_handler, acquisition_time);
-}

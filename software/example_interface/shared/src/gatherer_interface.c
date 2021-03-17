@@ -18,24 +18,25 @@ void gatherer_receiveCharCallback(Gatherer_Handler_t *gatherer_handler, const ui
 
   LLCP_Message_t message_in;
 
-  if (llcp_processChar(byte_in, &gatherer_handler->llcp_receiver, &message_in)) {
+  if (llcp_processChar(byte_in, &(gatherer_handler->llcp_receiver), &message_in)) {
 
-    switch ((LLCP_MessageId_t)message_in.id) {
+    switch (message_in.id) {
 
       case LLCP_GET_STATUS_MSG_ID: {
 
-        gatherer_handler->fcns.getStatus(gatherer_handler->mui_handler_ptr_);
+        mui_getStatus(gatherer_handler->mui_handler_ptr_);
 
         break;
       };
 
       case LLCP_MEASURE_FRAME_MSG_ID: {
 
-        LLCP_MeasureFrameReqMsg_t *msg = (LLCP_MeasureFrameReqMsg_t *)&message_in.payload;
+        LLCP_MeasureFrameReqMsg_t *msg = (LLCP_MeasureFrameReqMsg_t *)(&message_in.payload);
         ntoh_LLCP_MeasureFrameReqMsg_t(msg);
-        MeasureFrameReq_t *req = (MeasureFrameReq_t *)&msg->payload;
 
-        gatherer_handler->fcns.measureFrame(gatherer_handler->mui_handler_ptr_, (uint16_t)req->acquisition_time_ms);
+        MeasureFrameReq_t *req = (MeasureFrameReq_t *)(&msg->payload);
+
+        mui_measureFrame(gatherer_handler->mui_handler_ptr_, req->acquisition_time_ms);
 
         break;
       };

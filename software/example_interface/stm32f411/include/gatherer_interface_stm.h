@@ -1,19 +1,19 @@
-#ifndef GATHERER_INTERFACE_LINUX_H
-#define GATHERER_INTERFACE_LINUX_H
+#ifndef GATHERER_INTERFACE_STM_H
+#define GATHERER_INTERFACE_STM_H
 
 #include <gatherer_interface.h>
 
 // need to be able to call the interfaces routines to control the minipix
-#include <minipix_interface_linux.h>
-
-#include <serial_port.h>
-#define SERIAL_BUFFER_SIZE 2048
-extern SerialPort serial_port_gatherer_;
+#include <minipix_interface_stm.h>
 
 extern Gatherer_Handler_t gatherer_handler_;
+
+UART_HandleTypeDef *huart_gatherer_ptr_;
+
+void gatherer_setUart(UART_HandleTypeDef *huart_gatherer);
 
 // hw support
 void gatherer_sendChar(const uint8_t char_out);
 void gatherer_sendString(const uint8_t *str_out, const uint16_t len);
 
-#endif  // GATHERER_INTERFACE_LINUX_H
+#endif  // GATHERER_INTERFACE_STM_H

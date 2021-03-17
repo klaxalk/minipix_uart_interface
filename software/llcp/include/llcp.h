@@ -15,7 +15,7 @@ extern "C" {
 // If COMM_HEXADECIMAL = 1, the protocol encodes data into HEXADECIMAL
 // ASCII characters, which do not spooke serial line drivers. It is also
 // much easier to debug, if all the data is human-readible.
-#define COMM_HEXADECIMAL 0
+#define COMM_HEXADECIMAL 1
 
 // should we send '\n' after each packet?
 #define APPEND_ENDL 0

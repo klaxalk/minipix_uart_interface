@@ -9,14 +9,13 @@ extern "C" {
 #include <assert.h>
 #include <llcp_endian.h>
 
-typedef enum
-{
-  LLCP_IMAGE_DATA_MSG_ID     = 0,
-  LLCP_MEASURE_FRAME_MSG_ID  = 1,
-  LLCP_STATUS_MSG_ID         = 2,
-  LLCP_GET_STATUS_MSG_ID     = 3,
-  LLCP_FRAME_DATA_ACK_MSG_ID = 4,
-} LLCP_MessageId_t;
+#define ENUM_AS_UINT8 : uint8_t
+
+#define LLCP_IMAGE_DATA_MSG_ID 0
+#define LLCP_MEASURE_FRAME_MSG_ID 1
+#define LLCP_STATUS_MSG_ID 2
+#define LLCP_GET_STATUS_MSG_ID 3
+#define LLCP_FRAME_DATA_ACK_MSG_ID 4
 
 // | -------------------------- Frame ------------------------- |
 
@@ -50,8 +49,8 @@ void ntoh_ImageData_t(ImageData_t* data);
 
 typedef struct __attribute__((packed))
 {
-  LLCP_MessageId_t message_id;
-  ImageData_t      payload;
+  uint8_t     message_id;
+  ImageData_t payload;
 } LLCP_ImageDataMsg_t;
 
 void hton_LLCP_ImageDataMsg_t(LLCP_ImageDataMsg_t* msg);
@@ -79,7 +78,7 @@ void ntoh_MeasureFrameReq_t(MeasureFrameReq_t* data);
 
 typedef struct __attribute__((packed))
 {
-  LLCP_MessageId_t  message_id;
+  uint8_t           message_id;
   MeasureFrameReq_t payload;
 } LLCP_MeasureFrameReqMsg_t;
 
@@ -95,7 +94,7 @@ static_assert((sizeof(LLCP_MeasureFrameReqMsg_t) > 255) == 0, "LLCP_MeasureFrame
 
 typedef struct __attribute__((packed))
 {
-  LLCP_MessageId_t message_id;
+  uint8_t message_id;
 } LLCP_FrameDataAckMsg_t;
 
 void hton_LLCP_FrameDataAckMsg_t(LLCP_FrameDataAckMsg_t* data);
@@ -126,8 +125,8 @@ void ntoh_Status_t(Status_t* data);
 
 typedef struct __attribute__((packed))
 {
-  LLCP_MessageId_t message_id;
-  Status_t         payload;
+  uint8_t  message_id;
+  Status_t payload;
 } LLCP_StatusMsg_t;
 
 void hton_LLCP_StatusMsg_t(LLCP_StatusMsg_t* data);
@@ -142,7 +141,7 @@ static_assert((sizeof(LLCP_StatusMsg_t) > 255) == 0, "LLCP_StatusMsg_t is too la
 
 typedef struct __attribute__((packed))
 {
-  LLCP_MessageId_t message_id;
+  uint8_t message_id;
 } LLCP_GetStatusMsg_t;
 
 void hton_LLCP_GetStatusMsg_t(LLCP_GetStatusMsg_t* data);

@@ -21,8 +21,6 @@ void mui_measureFrame(MUI_Handler_t* mui_handler, const uint16_t acquisition_tim
   msg.payload.acquisition_time_ms = acquisition_time;
   hton_LLCP_MeasureFrameReqMsg_t(&msg);
 
-  printf("asking for acquisition %d\n", acquisition_time);
-
   uint16_t n_bytes = llcp_prepareMessage((uint8_t*)&msg, sizeof(msg), mui_handler->tx_buffer);
 
   mui_handler->fcns.sendString(mui_handler->tx_buffer, n_bytes);
@@ -53,26 +51,26 @@ void mui_receiveCharCallback(MUI_Handler_t* mui_handler, const uint8_t byte_in) 
 
   LLCP_Message_t message_in;
 
-  if (llcp_processChar(byte_in, &mui_handler->llcp_receiver, &message_in)) {
+  if (llcp_processChar(byte_in, &(mui_handler->llcp_receiver), &message_in)) {
 
-    switch ((LLCP_MessageId_t)message_in.id) {
+    switch (message_in.id) {
 
       case LLCP_IMAGE_DATA_MSG_ID: {
 
-        LLCP_ImageDataMsg_t* msg = (LLCP_ImageDataMsg_t*)&message_in.payload;
+        LLCP_ImageDataMsg_t* msg = (LLCP_ImageDataMsg_t*)&(message_in.payload);
         ntoh_LLCP_ImageDataMsg_t(msg);
 
-        mui_handler->fcns.processImagePacket(&msg->payload);
+        mui_handler->fcns.processImagePacket(&(msg->payload));
 
         break;
       };
 
       case LLCP_STATUS_MSG_ID: {
 
-        LLCP_StatusMsg_t* msg = (LLCP_StatusMsg_t*)&message_in.payload;
+        LLCP_StatusMsg_t* msg = (LLCP_StatusMsg_t*)&(message_in.payload);
         ntoh_LLCP_StatusMsg_t(msg);
 
-        mui_handler->fcns.processStatus(&msg->payload);
+        mui_handler->fcns.processStatus(&(msg->payload));
 
         break;
       };

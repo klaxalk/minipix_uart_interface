@@ -48,9 +48,6 @@ int main(int argc, char *argv[]) {
   // hw support
   gatherer_handler_.fcns.sendChar   = &gatherer_sendChar;
   gatherer_handler_.fcns.sendString = &gatherer_sendString;
-  // gatherer->minipix
-  gatherer_handler_.fcns.getStatus    = &gatherer_getStatus;
-  gatherer_handler_.fcns.measureFrame = &gatherer_measureFrame;
 
   gatherer_handler_.mui_handler_ptr_ = &mui_handler;
 

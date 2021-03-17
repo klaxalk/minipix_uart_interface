@@ -22,9 +22,6 @@ typedef struct
   // hw support
   gatherer_sendChar_t   sendChar;
   gatherer_sendString_t sendString;
-  // gatherer->minipix
-  gatherer_getStatus_t    getStatus;
-  gatherer_measureFrame_t measureFrame;
   //
 } Gatherer_FcnPrototypes_t;
 

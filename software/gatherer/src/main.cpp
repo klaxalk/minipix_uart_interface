@@ -17,7 +17,7 @@ int main(int argc, char* argv[]) {
   if (argc == 4) {
     serial_port_file    = argv[1];
     baud_rate           = atoi(argv[2]);
-    serial_port_virtual = argv[3];
+    serial_port_virtual = atoi(argv[3]);
 
     printf("loaded params: %s, %d, %s\n", serial_port_file.c_str(), baud_rate, serial_port_virtual ? "VIRTUAL" : "REAL");
   } else {
@@ -40,6 +40,8 @@ int main(int argc, char* argv[]) {
 
   while (true) {
 
+    std::this_thread::sleep_for(std::chrono::milliseconds(50));
+
     {
       LLCP_GetStatusMsg_t msg;
       msg.message_id = LLCP_GET_STATUS_MSG_ID;
@@ -49,6 +51,8 @@ int main(int argc, char* argv[]) {
 
       serial_port.sendCharArray(tx_buffer, n_bytes);
     }
+
+    std::this_thread::sleep_for(std::chrono::milliseconds(50));
 
     {
       LLCP_MeasureFrameReqMsg_t msg;
@@ -61,6 +65,8 @@ int main(int argc, char* argv[]) {
       serial_port.sendCharArray(tx_buffer, n_bytes);
     }
 
+    std::this_thread::sleep_for(std::chrono::milliseconds(50));
+
     // | --------- receive data from the minipix interface -------- |
 
     bytes_read = serial_port.readSerial(read_buffer, SERIAL_BUFFER_SIZE);
@@ -72,7 +78,7 @@ int main(int argc, char* argv[]) {
 
       if (llcp_processChar(read_buffer[i], &llcp_receiver, &message_in)) {
 
-        switch ((LLCP_MessageId_t)message_in.id) {
+        switch (message_in.id) {
 
           case LLCP_IMAGE_DATA_MSG_ID: {
 

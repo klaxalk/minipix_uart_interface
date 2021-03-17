@@ -3,13 +3,19 @@
 
 // include the "virtual" example interface
 #include <main.h>
+#include <gatherer_interface_stm.h>
+
 #include <mui.h>
 
 UART_HandleTypeDef *huart_minipix_ptr_;
 
-UART_HandleTypeDef *huart_lander_ptr_;
-uint8_t             tx_buffer_lander[LLCP_RX_TX_BUFFER_SIZE];
-LLCP_Receiver_t     llcp_receiver_lander;
+Gatherer_Handler_t *gatherer_handler_ptr_;
+
+uint8_t tx_buffer_lander[LLCP_RX_TX_BUFFER_SIZE];
+/* LLCP_Receiver_t     llcp_receiver_lander; */
+
+void mui_stm_setUart(UART_HandleTypeDef *huart_minipix);
+void mui_stm_setGathererHandler(Gatherer_Handler_t *gatherer_handler);
 
 void mui_sleepHW(const uint16_t milliseconds);
 void mui_ledSetHW(bool state);

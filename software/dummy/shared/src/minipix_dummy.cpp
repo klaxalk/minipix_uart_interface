@@ -19,7 +19,7 @@ void MinipixDummy::serialDataCallback(const uint8_t *bytes_in, const uint16_t &l
 
     if (llcp_processChar(bytes_in[i], &llcp_receiver_, &message)) {
 
-      switch ((LLCP_MessageId_t)message.id) {
+      switch (message.id) {
 
         case LLCP_MEASURE_FRAME_MSG_ID: {
 

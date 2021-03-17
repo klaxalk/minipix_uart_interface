@@ -24,6 +24,7 @@
 /* USER CODE BEGIN Includes */
 
 #include <minipix_interface_stm.h>
+#include <gatherer_interface_stm.h>
 #include <string.h>
 
 /* USER CODE END Includes */
@@ -46,14 +47,19 @@
 UART_HandleTypeDef huart1;
 UART_HandleTypeDef huart2;
 UART_HandleTypeDef huart6;
+DMA_HandleTypeDef  hdma_usart1_rx;
 DMA_HandleTypeDef  hdma_usart2_rx;
 DMA_HandleTypeDef  hdma_usart6_rx;
 
 /* USER CODE BEGIN PV */
 
+uint8_t usart1_rx_buffer[LLCP_RX_TX_BUFFER_SIZE];
+uint8_t usart2_rx_buffer[LLCP_RX_TX_BUFFER_SIZE];
 uint8_t usart6_rx_buffer[LLCP_RX_TX_BUFFER_SIZE];
 
-MUI_Handler_t mui_handler;
+MUI_Handler_t mui_handler_;
+
+Gatherer_Handler_t gatherer_handler_;
 
 /* USER CODE END PV */
 
@@ -106,17 +112,34 @@ int main(void) {
   MX_USART6_UART_Init();
   /* USER CODE BEGIN 2 */
 
-  HAL_UART_Receive_DMA(&huart6, (uint8_t *)usart6_rx_buffer, LLCP_RX_TX_BUFFER_SIZE);
-
   // | -------- initialize the MiniPIX interface library -------- |
 
-  mui_handler.fcns.ledSetHW           = &mui_ledSetHW;
-  mui_handler.fcns.processImagePacket = &mui_processImagePacket;
-  mui_handler.fcns.processStatus      = &mui_processStatus;
-  mui_handler.fcns.sendChar           = &mui_sendChar;
-  mui_handler.fcns.sendString         = &mui_sendString;
+  mui_handler_.fcns.ledSetHW           = &mui_ledSetHW;
+  mui_handler_.fcns.processImagePacket = &mui_processImagePacket;
+  mui_handler_.fcns.processStatus      = &mui_processStatus;
+  mui_handler_.fcns.sendChar           = &mui_sendChar;
+  mui_handler_.fcns.sendString         = &mui_sendString;
 
-  mui_initialize(&mui_handler);
+  mui_initialize(&mui_handler_);
+
+  mui_stm_setUart(&huart6);
+  mui_stm_setGathererHandler(&gatherer_handler_);
+
+  // | ------------ initialize the Gatherer interface ----------- |
+
+  // hw support
+  gatherer_handler_.fcns.sendChar   = &gatherer_sendChar;
+  gatherer_handler_.fcns.sendString = &gatherer_sendString;
+
+  gatherer_handler_.mui_handler_ptr_ = &mui_handler_;
+
+  gatherer_initialize(&gatherer_handler_);
+
+  gatherer_setUart(&huart1);
+
+  HAL_UART_Receive_DMA(&huart1, (uint8_t *)usart1_rx_buffer, LLCP_RX_TX_BUFFER_SIZE);
+  /* HAL_UART_Receive_DMA(&huart2, (uint8_t *)usart2_rx_buffer, LLCP_RX_TX_BUFFER_SIZE); */
+  HAL_UART_Receive_DMA(&huart6, (uint8_t *)usart6_rx_buffer, LLCP_RX_TX_BUFFER_SIZE);
 
   /* USER CODE END 2 */
 
@@ -128,6 +151,9 @@ int main(void) {
 
     /* USER CODE END WHILE */
 
+    HAL_GPIO_TogglePin(LD2_GPIO_Port, LD2_Pin);
+    HAL_Delay(500);
+
     /* USER CODE BEGIN 3 */
   }
   /* USER CODE END 3 */
@@ -135,23 +161,48 @@ int main(void) {
 
 void USART_IDLECallback(UART_HandleTypeDef *huart) {
 
-  HAL_GPIO_WritePin(LD2_GPIO_Port, LD2_Pin, GPIO_PIN_SET);
+  if (huart == &huart6) {  // MiniPIX
 
-  // Stop UART DMA
-  HAL_UART_DMAStop(&huart6);
+    // Stop UART DMA
+    HAL_UART_DMAStop(&huart6);
 
-  // Calculate the length of the received data
-  uint8_t received_bytes = LLCP_RX_TX_BUFFER_SIZE - __HAL_DMA_GET_COUNTER(&hdma_usart6_rx);
+    // Calculate the length of the received data
+    uint16_t received_bytes = LLCP_RX_TX_BUFFER_SIZE - __HAL_DMA_GET_COUNTER(&hdma_usart6_rx);
 
-  for (uint8_t i = 0; i < received_bytes; i++) {
-    /* minipix_interface.minipixReceiveCharCallback(usart6_rx_buffer[i]); */
+    for (uint16_t i = 0; i < received_bytes; i++) {
+
+      mui_receiveCharCallback(&mui_handler_, usart6_rx_buffer[i]);
+
+      /* HAL_UART_Transmit(&huart1, (uint8_t *)(usart6_rx_buffer + i), 1, 10); */
+    }
+
+    // Clear Receiving Buffer
+    memset(usart6_rx_buffer, 0, received_bytes);
+
+    // Restart to start DMA USART RX
+    HAL_UART_Receive_DMA(&huart6, (uint8_t *)usart6_rx_buffer, LLCP_RX_TX_BUFFER_SIZE);
+
+  } else if (huart == &huart1) {  // gatherer
+
+    // Stop UART DMA
+    HAL_UART_DMAStop(&huart1);
+
+    // Calculate the length of the received data
+    uint16_t received_bytes = LLCP_RX_TX_BUFFER_SIZE - __HAL_DMA_GET_COUNTER(&hdma_usart1_rx);
+
+    for (uint16_t i = 0; i < received_bytes; i++) {
+
+      gatherer_receiveCharCallback(&gatherer_handler_, usart1_rx_buffer[i]);
+
+      /* HAL_UART_Transmit(&huart6, (uint8_t *) (usart1_rx_buffer + i), 1, 10); */
+    }
+
+    // Clear Receiving Buffer
+    memset(usart1_rx_buffer, 0, received_bytes);
+
+    // Restart to start DMA USART RX
+    HAL_UART_Receive_DMA(&huart1, (uint8_t *)usart1_rx_buffer, LLCP_RX_TX_BUFFER_SIZE);
   }
-
-  // Clear Receiving Buffer
-  memset(usart6_rx_buffer, 0, received_bytes);
-
-  // Restart to start DMA USART RX
-  HAL_UART_Receive_DMA(&huart6, (uint8_t *)usart6_rx_buffer, LLCP_RX_TX_BUFFER_SIZE);
 }
 
 /**
@@ -221,6 +272,11 @@ static void MX_USART1_UART_Init(void) {
   }
   /* USER CODE BEGIN USART1_Init 2 */
 
+  __HAL_UART_ENABLE_IT(&huart1, UART_IT_IDLE);  // Enable serial port idle interrupt
+
+  HAL_NVIC_SetPriority(USART1_IRQn, 0, 0);
+  HAL_NVIC_EnableIRQ(USART1_IRQn);
+
   /* USER CODE END USART1_Init 2 */
 }
 
@@ -250,6 +306,11 @@ static void MX_USART2_UART_Init(void) {
     Error_Handler();
   }
   /* USER CODE BEGIN USART2_Init 2 */
+
+  __HAL_UART_ENABLE_IT(&huart2, UART_IT_IDLE);  // Enable serial port idle interrupt
+
+  HAL_NVIC_SetPriority(USART2_IRQn, 0, 0);
+  HAL_NVIC_EnableIRQ(USART2_IRQn);
 
   /* USER CODE END USART2_Init 2 */
 }
@@ -281,7 +342,6 @@ static void MX_USART6_UART_Init(void) {
   }
   /* USER CODE BEGIN USART6_Init 2 */
 
-  /* __HAL_LINKDMA(&huart6, hdmarx, hdma_usart6_rx); */
   __HAL_UART_ENABLE_IT(&huart6, UART_IT_IDLE);  // Enable serial port idle interrupt
 
   HAL_NVIC_SetPriority(USART6_IRQn, 0, 0);
@@ -303,10 +363,12 @@ static void MX_DMA_Init(void) {
   /* DMA1_Stream5_IRQn interrupt configuration */
   HAL_NVIC_SetPriority(DMA1_Stream5_IRQn, 0, 0);
   HAL_NVIC_EnableIRQ(DMA1_Stream5_IRQn);
-
   /* DMA2_Stream1_IRQn interrupt configuration */
   HAL_NVIC_SetPriority(DMA2_Stream1_IRQn, 0, 0);
   HAL_NVIC_EnableIRQ(DMA2_Stream1_IRQn);
+  /* DMA2_Stream2_IRQn interrupt configuration */
+  HAL_NVIC_SetPriority(DMA2_Stream2_IRQn, 0, 0);
+  HAL_NVIC_EnableIRQ(DMA2_Stream2_IRQn);
 }
 
 /**

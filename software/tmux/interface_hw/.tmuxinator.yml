@@ -1,0 +1,11 @@
+name: minipix
+root: ./
+startup_window: main
+# pre_window: 
+windows:
+  - main:
+      layout: even-vertical
+      pre_window: echo pes
+      panes:
+        - ./minipix_dummy /dev/ttyUSB1 115200 0
+        - ./gatherer /dev/ttyUSB0 115200 0
