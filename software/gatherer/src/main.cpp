@@ -38,81 +38,80 @@ int main(int argc, char* argv[]) {
 
   printf("Starting while loop\n");
 
+  /* { */
+  /*   LLCP_GetStatusMsg_t msg; */
+  /*   msg.message_id = LLCP_GET_STATUS_MSG_ID; */
+  /*   hton_LLCP_GetStatusMsg_t(&msg); */
+
+  /*   uint16_t n_bytes = llcp_prepareMessage((uint8_t*)&msg, sizeof(msg), tx_buffer); */
+
+  /*   serial_port.sendCharArray(tx_buffer, n_bytes); */
+  /* } */
+
+  /*     std::this_thread::sleep_for(std::chrono::milliseconds(50)); */
+
+  {
+    LLCP_MeasureFrameReqMsg_t msg;
+    msg.message_id                  = LLCP_MEASURE_FRAME_MSG_ID;
+    msg.payload.acquisition_time_ms = 333;
+    hton_LLCP_MeasureFrameReqMsg_t(&msg);
+
+    uint16_t n_bytes = llcp_prepareMessage((uint8_t*)&msg, sizeof(msg), tx_buffer);
+
+    serial_port.sendCharArray(tx_buffer, n_bytes);
+  }
+
   while (true) {
-
-    std::this_thread::sleep_for(std::chrono::milliseconds(50));
-
-    {
-      LLCP_GetStatusMsg_t msg;
-      msg.message_id = LLCP_GET_STATUS_MSG_ID;
-      hton_LLCP_GetStatusMsg_t(&msg);
-
-      uint16_t n_bytes = llcp_prepareMessage((uint8_t*)&msg, sizeof(msg), tx_buffer);
-
-      serial_port.sendCharArray(tx_buffer, n_bytes);
-    }
-
-    std::this_thread::sleep_for(std::chrono::milliseconds(50));
-
-    {
-      LLCP_MeasureFrameReqMsg_t msg;
-      msg.message_id                  = LLCP_MEASURE_FRAME_MSG_ID;
-      msg.payload.acquisition_time_ms = 333;
-      hton_LLCP_MeasureFrameReqMsg_t(&msg);
-
-      uint16_t n_bytes = llcp_prepareMessage((uint8_t*)&msg, sizeof(msg), tx_buffer);
-
-      serial_port.sendCharArray(tx_buffer, n_bytes);
-    }
-
-    std::this_thread::sleep_for(std::chrono::milliseconds(50));
 
     // | --------- receive data from the minipix interface -------- |
 
     bytes_read = serial_port.readSerial(read_buffer, SERIAL_BUFFER_SIZE);
 
-    // feed all the incoming bytes into the minipix interface
-    for (uint16_t i = 0; i < bytes_read; i++) {
+    if (bytes_read > 0) {
 
-      LLCP_Message_t message_in;
+      // feed all the incoming bytes into the minipix interface
+      for (uint16_t i = 0; i < bytes_read; i++) {
 
-      if (llcp_processChar(read_buffer[i], &llcp_receiver, &message_in)) {
+        LLCP_Message_t message_in;
 
-        switch (message_in.id) {
+        if (llcp_processChar(read_buffer[i], &llcp_receiver, &message_in)) {
 
-          case LLCP_IMAGE_DATA_MSG_ID: {
+          switch (message_in.id) {
 
-            LLCP_ImageDataMsg_t* msg = (LLCP_ImageDataMsg_t*)&message_in.payload;
-            ntoh_LLCP_ImageDataMsg_t(msg);
+            case LLCP_IMAGE_DATA_MSG_ID: {
 
-            ImageData_t* image = (ImageData_t*)&msg->payload;
+              LLCP_ImageDataMsg_t* msg = (LLCP_ImageDataMsg_t*)&message_in.payload;
+              ntoh_LLCP_ImageDataMsg_t(msg);
 
-            uint8_t n_pixels = image->n_pixels;
+              ImageData_t* image = (ImageData_t*)&msg->payload;
 
-            printf("received image data, n_pixels %d, last_pixel_x: %d\n", n_pixels, image->pixel_data[n_pixels - 1].x_coordinate);
+              uint8_t n_pixels = image->n_pixels;
 
-            break;
-          };
+              printf("received image data, n_pixels %d, last_pixel_x: %d\n", n_pixels, image->pixel_data[n_pixels - 1].x_coordinate);
 
-          case LLCP_STATUS_MSG_ID: {
+              break;
+            };
 
-            LLCP_StatusMsg_t* msg = (LLCP_StatusMsg_t*)&message_in.payload;
-            ntoh_LLCP_StatusMsg_t(msg);
-            Status_t* status = (Status_t*)&msg->payload;
+            case LLCP_STATUS_MSG_ID: {
 
-            printf("received status: boot count = %d, string: '%s'\n", status->boot_count, status->status_str);
+              LLCP_StatusMsg_t* msg = (LLCP_StatusMsg_t*)&message_in.payload;
+              ntoh_LLCP_StatusMsg_t(msg);
+              Status_t* status = (Status_t*)&msg->payload;
 
-            break;
-          };
+              printf("received status: boot count = %d, string: '%s'\n", status->boot_count, status->status_str);
 
-          default: {
+              break;
+            };
 
-            printf("Received unsupported message with id = %d\n", message_in.id);
+            default: {
+
+              printf("Received unsupported message with id = %d\n", message_in.id);
+            }
           }
         }
       }
+    } else {
+      std::this_thread::sleep_for(std::chrono::milliseconds(1));
     }
-
-    std::this_thread::sleep_for(std::chrono::milliseconds(1000));
   }
 }

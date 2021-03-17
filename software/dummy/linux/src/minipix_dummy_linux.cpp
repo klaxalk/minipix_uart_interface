@@ -29,6 +29,15 @@ void MinipixDummyLinux::sendByte(const uint8_t& byte_out) {
 
 //}
 
+/* sendByte() //{ */
+
+void MinipixDummyLinux::sleep(const uint16_t& milliseconds) {
+
+  std::this_thread::sleep_for(std::chrono::milliseconds(milliseconds));
+}
+
+//}
+
 /* sendString() //{ */
 
 void MinipixDummyLinux::sendString(const uint8_t* bytes_out, const uint16_t& len) {
@@ -48,8 +57,12 @@ void MinipixDummyLinux::update(void) {
 
   uint16_t bytes_read = serial_port_.readSerial(rx_buffer_, SERIAL_BUFFER_SIZE);
 
-  // feed all the incoming bytes into the minipix interface
-  serialDataCallback(rx_buffer_, bytes_read);
+  if (bytes_read > 0) {
+    // feed all the incoming bytes into the minipix interface
+    serialDataCallback(rx_buffer_, bytes_read);
+  } else {
+    sleep(1);
+  }
 }
 
 //}

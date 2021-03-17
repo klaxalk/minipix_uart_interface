@@ -14,6 +14,7 @@ public:
   virtual void sendByte([[maybe_unused]] const uint8_t &byte_out){};
   virtual void sendString([[maybe_unused]] const uint8_t *bytes_out, [[maybe_unused]] const uint16_t &len){};
   void         serialDataCallback(const uint8_t *bytes_in, const uint16_t &len);
+  virtual void sleep([[maybe_unused]] const uint16_t &milliseconds){};
 
   virtual void update(void){};
 

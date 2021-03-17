@@ -30,27 +30,32 @@ void MinipixDummy::serialDataCallback(const uint8_t *bytes_in, const uint16_t &l
 
           printf("starting acquisition (%d ms)\n", req->acquisition_time_ms);
 
-          uint8_t n_pixels = 31;
+          for (int j = 0; j < 100; j++) {
 
-          LLCP_ImageDataMsg_t image_data;
-          image_data.message_id = LLCP_IMAGE_DATA_MSG_ID;
+            uint8_t n_pixels = 31;
 
-          image_data.payload.n_pixels = n_pixels;
+            LLCP_ImageDataMsg_t image_data;
+            image_data.message_id = LLCP_IMAGE_DATA_MSG_ID;
 
-          for (int i = 0; i < n_pixels; i++) {
-            PixelData_t *pixel  = (PixelData_t *)&image_data.payload.pixel_data[i];
-            pixel->x_coordinate = i;
-            pixel->y_coordinate = i;
-            pixel->data[0]      = i;
-            pixel->data[1]      = i;
-            pixel->data[2]      = i;
-            pixel->data[3]      = i;
-            pixel->data[4]      = i;
-            pixel->data[5]      = i;
+            image_data.payload.n_pixels = n_pixels;
+
+            for (int i = 0; i < n_pixels; i++) {
+              PixelData_t *pixel  = (PixelData_t *)&image_data.payload.pixel_data[i];
+              pixel->x_coordinate = j;
+              pixel->y_coordinate = j;
+              pixel->data[0]      = j;
+              pixel->data[1]      = j;
+              pixel->data[2]      = j;
+              pixel->data[3]      = j;
+              pixel->data[4]      = j;
+              pixel->data[5]      = j;
+            }
+
+            uint16_t n_bytes = llcp_prepareMessage((uint8_t *)&image_data, sizeof(image_data), tx_buffer_);
+            sendString(tx_buffer_, n_bytes);
+
+            sleep(10);
           }
-
-          uint16_t n_bytes = llcp_prepareMessage((uint8_t *)&image_data, sizeof(image_data), tx_buffer_);
-          sendString(tx_buffer_, n_bytes);
 
           break;
         };
