@@ -18,13 +18,14 @@
  */
 /* USER CODE END Header */
 /* Includes ------------------------------------------------------------------*/
-#include "main.h"
+#include <main.h>
 
 /* Private includes ----------------------------------------------------------*/
 /* USER CODE BEGIN Includes */
 
 #include <minipix_interface_stm.h>
 #include <gatherer_interface_stm.h>
+
 #include <string.h>
 
 /* USER CODE END Includes */

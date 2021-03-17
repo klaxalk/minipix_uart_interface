@@ -1,7 +1,6 @@
 name: minipix
 root: ./
 startup_window: main
-# pre_window: 
 windows:
   - main:
       layout: even-vertical

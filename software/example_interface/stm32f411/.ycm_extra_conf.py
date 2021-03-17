@@ -11,17 +11,28 @@ compilation_database_folder = os.path.dirname(os.path.abspath( __file__))+'/buil
 
 add_flags = [
     '-I',
+    '/usr/lib/gcc/arm-none-eabi/9.2.1/',
+    '-I',
+    '/usr/lib/gcc/arm-none-eabi/9.2.1/include/',
+    '-I',
+    '/usr/include/x86_64-linux-gnu/sys/',
+    '-I',
+    '/usr/include/newlib/sys/cdefs.h',
+    '-I',
     '/usr/include/',
     '-I',
     '/usr/lib',
+    '-I',
+    '/usr/include/c++/9/',
+
 ]
 
 # flags = default_flags
 flags = []
 
-def GetDatabase(compilation_database_folder):
-    if os.path.exists(compilation_database_folder):
-        return cindex.CompilationDatabase.fromDirectory(compilation_database_folder)
+def GetDatabase(path):
+    if os.path.exists(path):
+        return cindex.CompilationDatabase.fromDirectory(path)
     return None
 
 SOURCE_EXTENSIONS = ['.cpp', '.cxx', '.cc', '.c', '.m', '.mm']

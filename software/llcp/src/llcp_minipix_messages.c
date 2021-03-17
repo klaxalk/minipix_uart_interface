@@ -1,5 +1,7 @@
 #include <llcp_minipix_messages.h>
 
+#define UNUSED(x) (void)(x)
+
 /* LLCP_ImageDataMsg_t //{ */
 
 /* ImageData_t //{ */
@@ -55,9 +57,11 @@ void ntoh_LLCP_MeasureFrameReqMsg_t(LLCP_MeasureFrameReqMsg_t* data) {
 /* Ack_t //{ */
 
 void hton_Ack_t(Ack_t* data) {
+  UNUSED(data);
 }
 
 void ntoh_Ack_t(Ack_t* data) {
+  UNUSED(data);
 }
 
 //}
@@ -103,9 +107,11 @@ void ntoh_LLCP_StatusMsg_t(LLCP_StatusMsg_t* data) {
 /* LLCP_GetStatusMsg_t //{ */
 
 void hton_LLCP_GetStatusMsg_t(LLCP_GetStatusMsg_t* data) {
+  UNUSED(data);
 }
 
 void ntoh_LLCP_GetStatusMsg_t(LLCP_GetStatusMsg_t* data) {
+  UNUSED(data);
 }
 
 //}

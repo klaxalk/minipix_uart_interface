@@ -17,11 +17,6 @@
 
 * Example implementatio of the MiniPIX interface on the STM32F411RE Nucleo board
 
-## DPD - Data packet definitions
-
-* C header library / python library
-* Definition of the data packets provided by the MiniPIX interface
-
 ## Dummy - MiniPIX emulator
 
 1. over USB<->FTDI<->UART
