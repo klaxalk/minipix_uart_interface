@@ -1,10 +1,11 @@
 #include <minipix_interface_linux.h>
+#include <gatherer_interface_linux.h>
 
 SerialPort serial_port_minipix_;
-SerialPort serial_port_lander_;
 
-LLCP_Receiver_t llcp_receiver_lander;
-uint8_t         tx_buffer_lander[SERIAL_BUFFER_SIZE];
+Gatherer_Handler_t gatherer_handler_;
+
+uint8_t tx_buffer_lander[SERIAL_BUFFER_SIZE];
 
 /* mui_sleepHW() //{ */
 
@@ -39,13 +40,7 @@ void mui_sendString(const uint8_t *str_out, const uint16_t len) {
 
 void mui_processImagePacket(const ImageData_t *image_data) {
 
-  LLCP_ImageDataMsg_t msg;
-  msg.message_id = LLCP_IMAGE_DATA_MSG_ID;
-  msg.payload    = *image_data;
-  hton_LLCP_ImageDataMsg_t(&msg);
-
-  uint16_t n_bytes = llcp_prepareMessage((uint8_t *)&msg, sizeof(msg), tx_buffer_lander);
-  serial_port_lander_.sendCharArray(tx_buffer_lander, n_bytes);
+  gatherer_processImagePacket(&gatherer_handler_, image_data);
 }
 
 //}
@@ -54,13 +49,7 @@ void mui_processImagePacket(const ImageData_t *image_data) {
 
 void mui_processStatus(const Status_t *status) {
 
-  LLCP_StatusMsg_t msg;
-  msg.message_id = LLCP_STATUS_MSG_ID;
-  msg.payload    = *status;
-  hton_LLCP_StatusMsg_t(&msg);
-
-  uint16_t n_bytes = llcp_prepareMessage((uint8_t *)&msg, sizeof(msg), tx_buffer_lander);
-  serial_port_lander_.sendCharArray(tx_buffer_lander, n_bytes);
+  gatherer_processStatus(&gatherer_handler_, status);
 }
 
 //}

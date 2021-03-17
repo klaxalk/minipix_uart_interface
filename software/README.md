@@ -6,7 +6,7 @@
 * UART link layer between MiniPIX and the example interface
 * to be used in the MiniPIX interface and in the MiniPIX itself
 
-## MiniPIX interface
+## MUI - MiniPIX UART Interface
 
 * C++ header library
   * contains virtual classes to be implemented by the HW integrator

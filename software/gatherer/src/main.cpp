@@ -38,6 +38,7 @@ int main() {
     {
       LLCP_MeasureFrameReqMsg_t msg;
       msg.message_id = LLCP_MEASURE_FRAME_MSG_ID;
+      msg.payload.acquisition_time_ms = 333;
       hton_LLCP_MeasureFrameReqMsg_t(&msg);
 
       uint16_t n_bytes = llcp_prepareMessage((uint8_t*)&msg, sizeof(msg), tx_buffer);

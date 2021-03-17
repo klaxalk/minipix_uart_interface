@@ -11,6 +11,7 @@ include_directories(
   include
   include/llcp
   include/mui
+  include/gatherer_interface
 )
 
 add_definitions(-DLLCP_LITTLE_ENDIAN)
@@ -19,7 +20,10 @@ add_executable(example_interface
   src/main.cpp
 
   src/minipix_interface_linux.cpp
+  src/gatherer_interface_linux.cpp
   src/serial_port.cpp
+
+  src/gatherer_interface/gatherer_interface.c
 
   src/mui/mui.c
 

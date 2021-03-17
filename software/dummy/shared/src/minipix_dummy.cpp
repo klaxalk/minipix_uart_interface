@@ -57,6 +57,8 @@ void MinipixDummy::serialDataCallback(const uint8_t *bytes_in, const uint16_t &l
 
         case LLCP_GET_STATUS_MSG_ID: {
 
+          printf("received status request\n");
+
           LLCP_StatusMsg_t status_msg;
           status_msg.message_id         = LLCP_STATUS_MSG_ID;
           status_msg.payload.boot_count = boot_count_++;

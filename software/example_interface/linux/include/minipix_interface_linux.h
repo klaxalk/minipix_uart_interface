@@ -12,11 +12,6 @@
 
 extern SerialPort serial_port_minipix_;
 
-extern SerialPort serial_port_lander_;
-extern LLCP_Receiver_t llcp_receiver_lander;
-
-extern uint8_t tx_buffer_lander[SERIAL_BUFFER_SIZE];
-
 void mui_sleepHW(const uint16_t milliseconds);
 void mui_ledSetHW(bool state);
 void mui_sendChar(const uint8_t char_out);
