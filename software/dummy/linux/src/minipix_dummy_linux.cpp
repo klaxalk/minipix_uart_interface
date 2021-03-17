@@ -3,6 +3,9 @@
 /* constructor MinipixDummyLinux() //{ */
 
 MinipixDummyLinux::MinipixDummyLinux(void) {
+
+  thread_serial_port_ = std::thread(&MinipixDummyLinux::threadSerialPort, this);
+  /* thread_serial_port_.join(); */
 }
 
 //}
@@ -12,6 +15,7 @@ MinipixDummyLinux::MinipixDummyLinux(void) {
 void MinipixDummyLinux::initializeSerialPort(const std::string& file, const int& baud, const bool virtual_port) {
 
   serial_port_.connect(file, baud, virtual_port);
+  serial_port_initialized_ = true;
 }
 
 //}
@@ -49,20 +53,39 @@ void MinipixDummyLinux::sendString(const uint8_t* bytes_out, const uint16_t& len
 
 //}
 
+/* threadSerialPort() //{ */
+
+void MinipixDummyLinux::threadSerialPort(void) {
+
+  printf("waiting for serial\n");
+
+  while (!serial_port_initialized_) {
+    sleep(100);
+  }
+
+  printf("starting serial thread\n");
+
+  while (true) {
+
+    // | --------- receive data from the minipix interface -------- |
+
+    uint16_t bytes_read = serial_port_.readSerial(rx_buffer_, SERIAL_BUFFER_SIZE);
+
+    if (bytes_read > 0) {
+      // feed all the incoming bytes into the minipix interface
+      serialDataCallback(rx_buffer_, bytes_read);
+    } else {
+      sleep(1);
+    }
+  }
+}
+
+//}
+
 /* update() //{ */
 
-void MinipixDummyLinux::update(void) {
-
-  // | --------- receive data from the minipix interface -------- |
-
-  uint16_t bytes_read = serial_port_.readSerial(rx_buffer_, SERIAL_BUFFER_SIZE);
-
-  if (bytes_read > 0) {
-    // feed all the incoming bytes into the minipix interface
-    serialDataCallback(rx_buffer_, bytes_read);
-  } else {
-    sleep(1);
-  }
+void MinipixDummyLinux::update_linux(void) {
+  this->update();
 }
 
 //}

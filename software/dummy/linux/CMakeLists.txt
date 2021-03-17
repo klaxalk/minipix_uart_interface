@@ -14,6 +14,8 @@ include_directories(
 
 add_definitions(-DLLCP_LITTLE_ENDIAN)
 
+find_package(Threads) # only for linux
+
 add_executable(minipix_dummy
   src/main.cpp
   src/serial_port.cpp
@@ -23,4 +25,8 @@ add_executable(minipix_dummy
   src/llcp/llcp.c
   src/llcp/llcp_endian.c
   src/llcp/llcp_minipix_messages.c
+)
+
+target_link_libraries(minipix_dummy
+  Threads::Threads # only for linux
 )

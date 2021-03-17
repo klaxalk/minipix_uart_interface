@@ -9,15 +9,13 @@ extern "C" {
 #include <assert.h>
 #include <llcp_endian.h>
 
-#define ENUM_AS_UINT8 : uint8_t
-
 #define LLCP_IMAGE_DATA_MSG_ID 0
 #define LLCP_MEASURE_FRAME_MSG_ID 1
 #define LLCP_STATUS_MSG_ID 2
 #define LLCP_GET_STATUS_MSG_ID 3
-#define LLCP_FRAME_DATA_ACK_MSG_ID 4
+#define LLCP_ACK_MSG_ID 4
 
-// | -------------------------- Frame ------------------------- |
+// | ------------- Frame data (integrated images) ------------- |
 
 /* LLCP_ImageDataMsg_t //{ */
 
@@ -90,18 +88,34 @@ static_assert((sizeof(LLCP_MeasureFrameReqMsg_t) > 255) == 0, "LLCP_MeasureFrame
 
 //}
 
-/* LLCP_FrameDataAckMsg_t //{ */
+// | ------------------- Ackwnoledge message ------------------ |
+
+/* LLCP_AckMsg_t //{ */
+
+/* Ack_t //{ */
+
+typedef struct __attribute__((packed))
+{
+  uint8_t success;
+} Ack_t;
+
+void hton_Ack_t(Ack_t* data);
+
+void ntoh_Ack_t(Ack_t* data);
+
+//}
 
 typedef struct __attribute__((packed))
 {
   uint8_t message_id;
-} LLCP_FrameDataAckMsg_t;
+  Ack_t   payload;
+} LLCP_AckMsg_t;
 
-void hton_LLCP_FrameDataAckMsg_t(LLCP_FrameDataAckMsg_t* data);
+void hton_LLCP_AckMsg_t(LLCP_AckMsg_t* data);
 
-void ntoh_LLCP_FrameDataAckMsg_t(LLCP_FrameDataAckMsg_t* data);
+void ntoh_LLCP_AckMsg_t(LLCP_AckMsg_t* data);
 
-static_assert((sizeof(LLCP_FrameDataAckMsg_t) > 255) == 0, "LLCP_FrameDataAckMsg_t is too large");
+static_assert((sizeof(LLCP_AckMsg_t) > 255) == 0, "LLCP_AckMsg_t is too large");
 
 //}
 

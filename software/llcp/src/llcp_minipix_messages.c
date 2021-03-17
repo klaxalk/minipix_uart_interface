@@ -1,5 +1,7 @@
 #include <llcp_minipix_messages.h>
 
+/* LLCP_ImageDataMsg_t //{ */
+
 /* ImageData_t //{ */
 
 void hton_ImageData_t(ImageData_t* data) {
@@ -12,8 +14,6 @@ void ntoh_ImageData_t(ImageData_t* data) {
 
 //}
 
-/* LLCP_ImageDataMsg_t //{ */
-
 void hton_LLCP_ImageDataMsg_t(LLCP_ImageDataMsg_t* msg) {
   hton_ImageData_t(&msg->payload);
 }
@@ -23,6 +23,8 @@ void ntoh_LLCP_ImageDataMsg_t(LLCP_ImageDataMsg_t* msg) {
 }
 
 //}
+
+/* LLCP_MeasureFrameReqMsg_t //{ */
 
 /* MeasureFrameReq_t //{ */
 
@@ -36,8 +38,6 @@ void ntoh_MeasureFrameReq_t(MeasureFrameReq_t* data) {
 
 //}
 
-/* LLCP_MeasureFrameReqMsg_t //{ */
-
 void hton_LLCP_MeasureFrameReqMsg_t(LLCP_MeasureFrameReqMsg_t* data) {
 
   hton_MeasureFrameReq_t(&data->payload);
@@ -50,15 +50,31 @@ void ntoh_LLCP_MeasureFrameReqMsg_t(LLCP_MeasureFrameReqMsg_t* data) {
 
 //}
 
-/* LLCP_FrameDataAckMsg_t //{ */
+/* LLCP_AckMsg_t //{ */
 
-void hton_LLCP_FrameDataAckMsg_t(LLCP_FrameDataAckMsg_t* data) {
+/* Ack_t //{ */
+
+void hton_Ack_t(Ack_t* data) {
 }
 
-void ntoh_LLCP_FrameDataAckMsg_t(LLCP_FrameDataAckMsg_t* data) {
+void ntoh_Ack_t(Ack_t* data) {
 }
 
 //}
+
+void hton_LLCP_AckMsg_t(LLCP_AckMsg_t* data) {
+
+  hton_Ack_t(&data->payload);
+}
+
+void ntoh_LLCP_AckMsg_t(LLCP_AckMsg_t* data) {
+
+  ntoh_Ack_t(&data->payload);
+}
+
+//}
+
+/* LLCP_StatusMsg_t //{ */
 
 /* Status_t //{ */
 
@@ -71,8 +87,6 @@ void ntoh_Status_t(Status_t* data) {
 }
 
 //}
-
-/* LLCP_StatusMsg_t //{ */
 
 void hton_LLCP_StatusMsg_t(LLCP_StatusMsg_t* data) {
 

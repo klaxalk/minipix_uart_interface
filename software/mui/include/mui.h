@@ -48,6 +48,8 @@ void mui_measureFrame(MUI_Handler_t *mui_handler, const uint16_t acquisition_tim
 
 void mui_getStatus(MUI_Handler_t *mui_handle);
 
+void mui_sendAck(MUI_Handler_t *mui_handler, const bool success);
+
 // | ------------- UART communication with MiniPIX ------------ |
 
 void mui_receiveCharCallback(MUI_Handler_t *mui_handler, const uint8_t byte_in);

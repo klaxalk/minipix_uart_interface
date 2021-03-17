@@ -1,6 +1,10 @@
 #ifndef MINIPIX_DUMMY_H
 #define MINIPIX_DUMMY_H
 
+#include <atomic>
+#include <list>
+#include <mutex>
+
 #include <stdint.h>
 
 #include <llcp.h>
@@ -16,15 +20,22 @@ public:
   void         serialDataCallback(const uint8_t *bytes_in, const uint16_t &len);
   virtual void sleep([[maybe_unused]] const uint16_t &milliseconds){};
 
-  virtual void update(void){};
-
 protected:
   LLCP_Receiver_t llcp_receiver_;
 
   uint16_t boot_count_ = 0;
 
+  void update(void);
+
 private:
   uint8_t tx_buffer_[LLCP_RX_TX_BUFFER_SIZE];
+
+  void ingegralFrameMeasurement(const uint16_t &acquisition_time);
+
+  std::atomic<bool> ack = false;
+
+  std::list<LLCP_Message_t> message_buffer_;
+  std::mutex                mutex_message_buffer_;
 };
 
 #endif  // MINIPIX_DUMMY_H

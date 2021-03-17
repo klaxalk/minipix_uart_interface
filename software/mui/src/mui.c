@@ -43,6 +43,22 @@ void mui_getStatus(MUI_Handler_t* mui_handler) {
 
 //}
 
+/* mui_getStatus() //{ */
+
+void mui_sendAck(MUI_Handler_t* mui_handler, const bool success) {
+
+  LLCP_AckMsg_t msg;
+  msg.message_id = LLCP_ACK_MSG_ID;
+  msg.payload.success = success;
+  hton_LLCP_AckMsg_t(&msg);
+
+  uint16_t n_bytes = llcp_prepareMessage((uint8_t*)&msg, sizeof(msg), mui_handler->tx_buffer);
+
+  mui_handler->fcns.sendString(mui_handler->tx_buffer, n_bytes);
+}
+
+//}
+
 // | ------------- UART communication with MiniPIX ------------ |
 
 /* mui_receiveCharCallback() //{ */
@@ -62,6 +78,8 @@ void mui_receiveCharCallback(MUI_Handler_t* mui_handler, const uint8_t byte_in) 
 
         mui_handler->fcns.processImagePacket(&(msg->payload));
 
+        mui_sendAck(mui_handler, true);
+
         break;
       };
 
@@ -71,6 +89,8 @@ void mui_receiveCharCallback(MUI_Handler_t* mui_handler, const uint8_t byte_in) 
         ntoh_LLCP_StatusMsg_t(msg);
 
         mui_handler->fcns.processStatus(&(msg->payload));
+
+        mui_sendAck(mui_handler, true);
 
         break;
       };

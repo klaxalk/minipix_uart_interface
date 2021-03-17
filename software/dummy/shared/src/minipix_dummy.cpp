@@ -9,6 +9,80 @@ MinipixDummy::MinipixDummy() {
 
 //}
 
+/* integralFrameMeasurement() //{ */
+
+void MinipixDummy::ingegralFrameMeasurement(const uint16_t &acquisition_time) {
+
+  printf("starting acquisition (%d ms)\n", acquisition_time);
+
+  sleep(acquisition_time);
+
+  for (int j = 0; j < 100; j++) {
+
+    uint8_t n_pixels = 31;
+
+    LLCP_ImageDataMsg_t image_data;
+    image_data.message_id = LLCP_IMAGE_DATA_MSG_ID;
+
+    image_data.payload.n_pixels = n_pixels;
+
+    for (int i = 0; i < n_pixels; i++) {
+      PixelData_t *pixel  = (PixelData_t *)&image_data.payload.pixel_data[i];
+      pixel->x_coordinate = j;
+      pixel->y_coordinate = j;
+      pixel->data[0]      = j;
+      pixel->data[1]      = j;
+      pixel->data[2]      = j;
+      pixel->data[3]      = j;
+      pixel->data[4]      = j;
+      pixel->data[5]      = j;
+    }
+
+    uint16_t n_bytes = llcp_prepareMessage((uint8_t *)&image_data, sizeof(image_data), tx_buffer_);
+    sendString(tx_buffer_, n_bytes);
+
+    while (!ack) {
+    }
+
+    ack = false;
+  }
+}
+
+//}
+
+/* update() //{ */
+
+void MinipixDummy::update(void) {
+
+  std::scoped_lock lock(mutex_message_buffer_);
+
+  if (!message_buffer_.empty()) {
+
+    LLCP_Message_t message = message_buffer_.front();
+    message_buffer_.pop_front();
+
+    switch (message.id) {
+      case LLCP_MEASURE_FRAME_MSG_ID: {
+
+        LLCP_MeasureFrameReqMsg_t *msg = (LLCP_MeasureFrameReqMsg_t *)(&message.payload);
+        ntoh_LLCP_MeasureFrameReqMsg_t(msg);
+
+        MeasureFrameReq_t *req = (MeasureFrameReq_t *)(&msg->payload);
+
+        ingegralFrameMeasurement(req->acquisition_time_ms);
+
+        break;
+      };
+
+      default: {
+        break;
+      };
+    }
+  }
+}
+
+//}
+
 /* serialDataCallback() //{ */
 
 void MinipixDummy::serialDataCallback(const uint8_t *bytes_in, const uint16_t &len) {
@@ -23,39 +97,9 @@ void MinipixDummy::serialDataCallback(const uint8_t *bytes_in, const uint16_t &l
 
         case LLCP_MEASURE_FRAME_MSG_ID: {
 
-          LLCP_MeasureFrameReqMsg_t *msg = (LLCP_MeasureFrameReqMsg_t *)(&message.payload);
-          ntoh_LLCP_MeasureFrameReqMsg_t(msg);
+          std::scoped_lock lock(mutex_message_buffer_);
 
-          MeasureFrameReq_t *req = (MeasureFrameReq_t *)(&msg->payload);
-
-          printf("starting acquisition (%d ms)\n", req->acquisition_time_ms);
-
-          for (int j = 0; j < 100; j++) {
-
-            uint8_t n_pixels = 31;
-
-            LLCP_ImageDataMsg_t image_data;
-            image_data.message_id = LLCP_IMAGE_DATA_MSG_ID;
-
-            image_data.payload.n_pixels = n_pixels;
-
-            for (int i = 0; i < n_pixels; i++) {
-              PixelData_t *pixel  = (PixelData_t *)&image_data.payload.pixel_data[i];
-              pixel->x_coordinate = j;
-              pixel->y_coordinate = j;
-              pixel->data[0]      = j;
-              pixel->data[1]      = j;
-              pixel->data[2]      = j;
-              pixel->data[3]      = j;
-              pixel->data[4]      = j;
-              pixel->data[5]      = j;
-            }
-
-            uint16_t n_bytes = llcp_prepareMessage((uint8_t *)&image_data, sizeof(image_data), tx_buffer_);
-            sendString(tx_buffer_, n_bytes);
-
-            sleep(10);
-          }
+          message_buffer_.push_back(message);
 
           break;
         };
@@ -73,6 +117,13 @@ void MinipixDummy::serialDataCallback(const uint8_t *bytes_in, const uint16_t &l
 
           uint16_t n_bytes = llcp_prepareMessage((uint8_t *)&status_msg, sizeof(status_msg), tx_buffer_);
           sendString(tx_buffer_, n_bytes);
+
+          break;
+        };
+
+        case LLCP_ACK_MSG_ID: {
+
+          ack = true;
 
           break;
         };
