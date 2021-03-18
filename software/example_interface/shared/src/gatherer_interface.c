@@ -55,12 +55,12 @@ void gatherer_receiveCharCallback(Gatherer_Handler_t *gatherer_handler, const ui
 
 /* gatherer_processImagePacket() //{ */
 
-void gatherer_processImagePacket(Gatherer_Handler_t *gatherer_handler, const ImageData_t *image_data) {
+void gatherer_processImagePacket(Gatherer_Handler_t *gatherer_handler, const LLCP_FrameData_t *image_data) {
 
-  LLCP_ImageDataMsg_t msg;
+  LLCP_FrameDataMsg_t msg;
   msg.message_id = LLCP_IMAGE_DATA_MSG_ID;
   msg.payload    = *image_data;
-  hton_LLCP_ImageDataMsg_t(&msg);
+  hton_LLCP_FrameDataMsg_t(&msg);
 
   uint16_t n_bytes = llcp_prepareMessage((uint8_t *)&msg, sizeof(msg), gatherer_handler->tx_buffer);
   gatherer_handler->fcns.sendString(gatherer_handler->tx_buffer, n_bytes);
@@ -70,7 +70,7 @@ void gatherer_processImagePacket(Gatherer_Handler_t *gatherer_handler, const Ima
 
 /* gatherer_processStatus() //{ */
 
-void gatherer_processStatus(Gatherer_Handler_t *gatherer_handler, const Status_t *status) {
+void gatherer_processStatus(Gatherer_Handler_t *gatherer_handler, const LLCP_Status_t *status) {
 
   LLCP_StatusMsg_t msg;
   msg.message_id = LLCP_STATUS_MSG_ID;

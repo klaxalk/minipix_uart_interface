@@ -80,10 +80,10 @@ int main(int argc, char* argv[]) {
 
             case LLCP_IMAGE_DATA_MSG_ID: {
 
-              LLCP_ImageDataMsg_t* msg = (LLCP_ImageDataMsg_t*)&message_in.payload;
-              ntoh_LLCP_ImageDataMsg_t(msg);
+              LLCP_FrameDataMsg_t* msg = (LLCP_FrameDataMsg_t*)&message_in.payload;
+              ntoh_LLCP_FrameDataMsg_t(msg);
 
-              ImageData_t* image = (ImageData_t*)&msg->payload;
+              LLCP_FrameData_t* image = (LLCP_FrameData_t*)&msg->payload;
 
               uint8_t n_pixels = image->n_pixels;
 
@@ -96,7 +96,7 @@ int main(int argc, char* argv[]) {
 
               LLCP_StatusMsg_t* msg = (LLCP_StatusMsg_t*)&message_in.payload;
               ntoh_LLCP_StatusMsg_t(msg);
-              Status_t* status = (Status_t*)&msg->payload;
+              LLCP_Status_t* status = (LLCP_Status_t*)&msg->payload;
 
               printf("received status: boot count = %d, string: '%s'\n", status->boot_count, status->status_str);
 

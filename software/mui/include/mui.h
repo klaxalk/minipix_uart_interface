@@ -15,8 +15,8 @@ extern "C" {
 typedef void (*mui_ledSetHW_t)(const bool);
 typedef void (*mui_sendChar_t)(const uint8_t char_out);
 typedef void (*mui_sendString_t)(const uint8_t *str_out, const uint16_t len);
-typedef void (*mui_processImagePacket_t)(const ImageData_t *image_data);
-typedef void (*mui_processStatus_t)(const Status_t *status_data);
+typedef void (*mui_processImagePacket_t)(const LLCP_FrameData_t *image_data);
+typedef void (*mui_processStatus_t)(const LLCP_Status_t *status_data);
 typedef void (*mui_sleepHW_t)(const uint16_t duration);
 
 typedef struct

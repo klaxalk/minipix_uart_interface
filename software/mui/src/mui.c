@@ -48,7 +48,7 @@ void mui_getStatus(MUI_Handler_t* mui_handler) {
 void mui_sendAck(MUI_Handler_t* mui_handler, const bool success) {
 
   LLCP_AckMsg_t msg;
-  msg.message_id = LLCP_ACK_MSG_ID;
+  msg.message_id      = LLCP_ACK_MSG_ID;
   msg.payload.success = success;
   hton_LLCP_AckMsg_t(&msg);
 
@@ -73,8 +73,8 @@ void mui_receiveCharCallback(MUI_Handler_t* mui_handler, const uint8_t byte_in) 
 
       case LLCP_IMAGE_DATA_MSG_ID: {
 
-        LLCP_ImageDataMsg_t* msg = (LLCP_ImageDataMsg_t*)&(message_in.payload);
-        ntoh_LLCP_ImageDataMsg_t(msg);
+        LLCP_FrameDataMsg_t* msg = (LLCP_FrameDataMsg_t*)&(message_in.payload);
+        ntoh_LLCP_FrameDataMsg_t(msg);
 
         mui_handler->fcns.processImagePacket(&(msg->payload));
 

@@ -62,7 +62,7 @@ void mui_sendString(const uint8_t *str_out, const uint16_t len) {
 
 /* mui_processImagePacket() //{ */
 
-void mui_processImagePacket(const ImageData_t *image_data) {
+void mui_processImagePacket(const LLCP_FrameData_t *image_data) {
 
   gatherer_processImagePacket((Gatherer_Handler_t*) gatherer_handler_ptr_, image_data);
 }
@@ -71,7 +71,7 @@ void mui_processImagePacket(const ImageData_t *image_data) {
 
 /* mui_processStatus() //{ */
 
-void mui_processStatus(const Status_t *status) {
+void mui_processStatus(const LLCP_Status_t *status) {
 
   gatherer_processStatus((Gatherer_Handler_t*) gatherer_handler_ptr_, status);
 }

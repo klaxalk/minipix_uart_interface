@@ -16,7 +16,7 @@ void mui_sleepHW(const uint16_t milliseconds);
 void mui_ledSetHW(bool state);
 void mui_sendChar(const uint8_t char_out);
 void mui_sendString(const uint8_t *str_out, const uint16_t len);
-void mui_processImagePacket(const ImageData_t *image_data);
-void mui_processStatus(const Status_t *status);
+void mui_processImagePacket(const LLCP_FrameData_t *image_data);
+void mui_processStatus(const LLCP_Status_t *status);
 
 #endif  // MINIPIX_INTERFACE_LINUX_H

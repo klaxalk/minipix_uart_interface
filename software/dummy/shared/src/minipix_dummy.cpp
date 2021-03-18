@@ -21,21 +21,21 @@ void MinipixDummy::ingegralFrameMeasurement(const uint16_t &acquisition_time) {
 
     uint8_t n_pixels = 31;
 
-    LLCP_ImageDataMsg_t image_data;
+    LLCP_FrameDataMsg_t image_data;
     image_data.message_id = LLCP_IMAGE_DATA_MSG_ID;
 
     image_data.payload.n_pixels = n_pixels;
 
     for (int i = 0; i < n_pixels; i++) {
-      PixelData_t *pixel  = (PixelData_t *)&image_data.payload.pixel_data[i];
-      pixel->x_coordinate = j;
-      pixel->y_coordinate = j;
-      pixel->data[0]      = j;
-      pixel->data[1]      = j;
-      pixel->data[2]      = j;
-      pixel->data[3]      = j;
-      pixel->data[4]      = j;
-      pixel->data[5]      = j;
+      LLCP_PixelData_t *pixel = (LLCP_PixelData_t *)&image_data.payload.pixel_data[i];
+      pixel->x_coordinate     = j;
+      pixel->y_coordinate     = j;
+      pixel->data[0]          = j;
+      pixel->data[1]          = j;
+      pixel->data[2]          = j;
+      pixel->data[3]          = j;
+      pixel->data[4]          = j;
+      pixel->data[5]          = j;
     }
 
     uint16_t n_bytes = llcp_prepareMessage((uint8_t *)&image_data, sizeof(image_data), tx_buffer_);
