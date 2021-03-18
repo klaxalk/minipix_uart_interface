@@ -44,7 +44,7 @@ void gatherer_receiveCharCallback(Gatherer_Handler_t *gatherer_handler, const ui
 
 // | ----------------- callbacks called by MUI ---------------- |
 
-void gatherer_processImagePacket(Gatherer_Handler_t *gatherer_handler, const LLCP_FrameData_t *image_data);
+void gatherer_processFrameData(Gatherer_Handler_t *gatherer_handler, const LLCP_FrameData_t *image_data);
 void gatherer_processStatus(Gatherer_Handler_t *gatherer_handler, const LLCP_Status_t *status);
 
 #ifdef __cplusplus

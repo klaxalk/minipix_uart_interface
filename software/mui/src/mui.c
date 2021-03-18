@@ -91,7 +91,7 @@ void mui_receiveCharCallback(MUI_Handler_t* mui_handler, const uint8_t byte_in) 
         ntoh_LLCP_FrameDataMsg_t(msg);
 
         // call the user's callback
-        mui_handler->fcns.processImagePacket(&(msg->payload));
+        mui_handler->fcns.processFrameData(&(msg->payload));
 
         // send ack back to MiniPIX
         mui_sendAck(mui_handler, true);

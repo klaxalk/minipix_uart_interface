@@ -35,11 +35,11 @@ int main(int argc, char *argv[]) {
 
   MUI_Handler_t mui_handler;
 
-  mui_handler.fcns.ledSetHW           = &mui_ledSetHW;
-  mui_handler.fcns.processImagePacket = &mui_processImagePacket;
-  mui_handler.fcns.processStatus      = &mui_processStatus;
-  mui_handler.fcns.sendChar           = &mui_sendChar;
-  mui_handler.fcns.sendString         = &mui_sendString;
+  mui_handler.fcns.ledSetHW         = &mui_ledSetHW;
+  mui_handler.fcns.processFrameData = &mui_processFrameData;
+  mui_handler.fcns.processStatus    = &mui_processStatus;
+  mui_handler.fcns.sendChar         = &mui_sendChar;
+  mui_handler.fcns.sendString       = &mui_sendString;
 
   mui_initialize(&mui_handler);
 

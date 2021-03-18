@@ -60,11 +60,11 @@ void mui_sendString(const uint8_t *str_out, const uint16_t len) {
 
 //}
 
-/* mui_processImagePacket() //{ */
+/* mui_processFrameData() //{ */
 
-void mui_processImagePacket(const LLCP_FrameData_t *image_data) {
+void mui_processFrameData(const LLCP_FrameData_t *image_data) {
 
-  gatherer_processImagePacket((Gatherer_Handler_t*) gatherer_handler_ptr_, image_data);
+  gatherer_processFrameData((Gatherer_Handler_t*) gatherer_handler_ptr_, image_data);
 }
 
 //}

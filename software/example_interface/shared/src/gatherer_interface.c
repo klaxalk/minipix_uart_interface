@@ -53,15 +53,18 @@ void gatherer_receiveCharCallback(Gatherer_Handler_t *gatherer_handler, const ui
 
 // | -------------------- minipix->gatherer ------------------- |
 
-/* gatherer_processImagePacket() //{ */
+/* gatherer_processFrameData() //{ */
 
-void gatherer_processImagePacket(Gatherer_Handler_t *gatherer_handler, const LLCP_FrameData_t *image_data) {
+void gatherer_processFrameData(Gatherer_Handler_t *gatherer_handler, const LLCP_FrameData_t *image_data) {
 
+  // create the message
   LLCP_FrameDataMsg_t msg;
   init_LLCP_FrameDataMsg_t(&msg);
 
+  // fill in the payload
   msg.payload = *image_data;
 
+  // convert it to the network endian
   hton_LLCP_FrameDataMsg_t(&msg);
 
   uint16_t n_bytes = llcp_prepareMessage((uint8_t *)&msg, sizeof(msg), gatherer_handler->tx_buffer);
@@ -74,11 +77,14 @@ void gatherer_processImagePacket(Gatherer_Handler_t *gatherer_handler, const LLC
 
 void gatherer_processStatus(Gatherer_Handler_t *gatherer_handler, const LLCP_Status_t *status) {
 
+  // create the message
   LLCP_StatusMsg_t msg;
   init_LLCP_StatusMsg_t(&msg);
 
+  // fill in the payload
   msg.payload = *status;
 
+  // convert it to the network endian
   hton_LLCP_StatusMsg_t(&msg);
 
   uint16_t n_bytes = llcp_prepareMessage((uint8_t *)&msg, sizeof(msg), gatherer_handler->tx_buffer);

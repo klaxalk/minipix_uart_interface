@@ -38,9 +38,9 @@ void mui_sendString(const uint8_t *str_out, const uint16_t len) {
 
 /* mui_processImagePacket() //{ */
 
-void mui_processImagePacket(const LLCP_FrameData_t *image_data) {
+void mui_processFrameData(const LLCP_FrameData_t *image_data) {
 
-  gatherer_processImagePacket(&gatherer_handler_, image_data);
+  gatherer_processFrameData(&gatherer_handler_, image_data);
 }
 
 //}
