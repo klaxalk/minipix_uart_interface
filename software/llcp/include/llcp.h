@@ -50,6 +50,9 @@ extern "C" {
 /* struct LLCP_ReceiverState_t //{ */
 
 #if COMM_HEXADECIMAL == 0
+/**
+ * @brief state machine states for the LLCP receiver (binary transfer)
+ */
 typedef enum
 {
   WAITING_FOR_MESSSAGE = 0,
@@ -58,6 +61,9 @@ typedef enum
   EXPECTING_CHECKSUM   = 3,
 } LLCP_ReceiverState_t;
 #else
+/**
+ * @brief state machine states for the LLCP receiver (hexadecimal transfer)
+ */
 typedef enum
 {
   WAITING_FOR_MESSSAGE = 0,
