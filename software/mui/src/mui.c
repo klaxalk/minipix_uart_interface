@@ -17,7 +17,7 @@ void mui_initialize(MUI_Handler_t* mui_handler) {
 void mui_measureFrame(MUI_Handler_t* mui_handler, const uint16_t acquisition_time) {
 
   LLCP_MeasureFrameReqMsg_t msg;
-  msg.message_id                  = LLCP_MEASURE_FRAME_MSG_ID;
+  msg.message_id                  = LLCP_MEASURE_FRAME_REQ_MSG_ID;
   msg.payload.acquisition_time_ms = acquisition_time;
   hton_LLCP_MeasureFrameReqMsg_t(&msg);
 
@@ -71,7 +71,7 @@ void mui_receiveCharCallback(MUI_Handler_t* mui_handler, const uint8_t byte_in) 
 
     switch (message_in.id) {
 
-      case LLCP_IMAGE_DATA_MSG_ID: {
+      case LLCP_FRAME_DATA_MSG_ID: {
 
         LLCP_FrameDataMsg_t* msg = (LLCP_FrameDataMsg_t*)&(message_in.payload);
         ntoh_LLCP_FrameDataMsg_t(msg);
