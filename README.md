@@ -5,7 +5,11 @@
 | Build status | [![Build](https://github.com/klaxalk/minipix_uart_interface/workflows/Build/badge.svg)](https://github.com/klaxalk/minipix_uart_interface/actions) | [![Docs](https://github.com/klaxalk/minipix_uart_interface/workflows/Docs/badge.svg)](https://github.com/klaxalk/minipix_uart_interface/actions) |
 |--------------|----------------------------------------------------------------------------------------------------------------------------------------------------|--------------------------------------------------------------------------------------------------------------------------------------------------|
 
-Doxygen documentation: [https://klaxalk.github.io/minipix_uart_interface/](https://klaxalk.github.io/minipix_uart_interface/)
+### [Documentation](https://klaxalk.github.io/minipix_uart_interface/)
+
+MiniPIX UART Interface: [mui.h](https://klaxalk.github.io/minipix_uart_interface/mui_2include_2mui_8h.html)
+
+Message definitions: [llcp_minipix_messages.h](https://klaxalk.github.io/minipix_uart_interface/mui_2include_2llcp_2llcp__minipix__messages_8h.html)
 
 ## Additional material
 
