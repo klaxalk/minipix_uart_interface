@@ -1,3 +1,15 @@
+/**
+ * @brief Platform-independent communication interface between MUI and the gatherer example.
+ * The data and commands are sent over UART using the same LLCP that is used for communication
+ * between MUI and the MiniPIX. Similarly to MUI, prototype function implementation is required
+ * to provide platform-specific code (UART handling).
+ *
+ * Dear NASA, this is not a suggested way ho to handle the data onboard any spacecraft!
+ * This is just debugging tool.
+ *
+ * @author Tomas Baca
+ */
+
 #ifndef GATHERER_INTERFACE_H
 #define GATHERER_INTERFACE_H
 
@@ -13,13 +25,10 @@ extern "C" {
 // hw support
 typedef void (*gatherer_sendChar_t)(const uint8_t char_out);
 typedef void (*gatherer_sendString_t)(const uint8_t *str_out, const uint16_t len);
-// gatherer->minipix
-typedef void (*gatherer_getStatus_t)(MUI_Handler_t *mui_handler);
-typedef void (*gatherer_measureFrame_t)(MUI_Handler_t *mui_handler, const uint16_t acquisition_time);
 
 typedef struct
 {
-  // hw support
+  // | ---------- platform-specific function prototypes --------- |
   gatherer_sendChar_t   sendChar;
   gatherer_sendString_t sendString;
   //
@@ -34,12 +43,16 @@ typedef struct
   Gatherer_FcnPrototypes_t fcns;
 } Gatherer_Handler_t;
 
-//}
-
 void gatherer_initialize(Gatherer_Handler_t *gatherer_handler);
 
 // | ------------- UART communication with MiniPIX ------------ |
 
+/**
+ * @brief callback called by a user with new bytes coming from the UART connected to PC
+ *
+ * @param gatherer_handler
+ * @param byte_in
+ */
 void gatherer_receiveCharCallback(Gatherer_Handler_t *gatherer_handler, const uint8_t byte_in);
 
 // | ----------------- callbacks called by MUI ---------------- |
