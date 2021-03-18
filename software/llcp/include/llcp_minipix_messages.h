@@ -9,12 +9,35 @@ extern "C" {
 #include <assert.h>
 #include <llcp_endian.h>
 
-#define LLCP_STATUS_MSG_ID 0
-#define LLCP_GET_STATUS_MSG_ID 1
-#define LLCP_ACK_MSG_ID 2
-#define LLCP_IMAGE_DATA_MSG_ID 3
-#define LLCP_MEASURE_FRAME_MSG_ID 4
-#define LLCP_UPDATE_PIXEL_MASK_REQ_MSG_ID 5
+/* definition of message IDs //{ */
+
+// I don't want to have 0 or 1, due to debugging
+// 0 or 1 is too common
+//
+// the ids are grouped by tens according to
+// common usage
+
+// status
+#define LLCP_STATUS_MSG_ID 10
+#define LLCP_GET_STATUS_MSG_ID 11
+
+// frame-based measurement
+#define LLCP_FRAME_DATA_MSG_ID 20
+#define LLCP_MEASURE_FRAME_REQ_MSG_ID 21
+
+// stream-based measurement
+#define LLCP_STREAM_DATA_MSG_ID 31
+#define LLCP_MEASURE_STREAM_REQ_MSG_ID 32
+#define LLCP_STOP_STREAM_REQ_MSG_ID 33
+#define LLCP_FLUSH_BUFFER_REQ_MSG_ID 34
+
+// ack
+#define LLCP_ACK_MSG_ID 40
+
+// masking
+#define LLCP_UPDATE_PIXEL_MASK_REQ_MSG_ID 50
+
+//}
 
 // | ------- Pixel data, common to frame and stream mode ------ |
 
@@ -299,6 +322,34 @@ void hton_LLCP_StopStreamReqMsg_t(LLCP_StopStreamReqMsg_t* data);
 void ntoh_LLCP_StopStreamReqMsg_t(LLCP_StopStreamReqMsg_t* data);
 
 static_assert((sizeof(LLCP_StopStreamReqMsg_t) > 255) == 0, "LLCP_StopStreamReqMsg_t is too large");
+
+//}
+
+/* LLCP_FlushBufferReqMsg_t //{ */
+
+/**
+ * @brief LLCP Message for requesting of flushing the event buffer in the MiniPIX
+ */
+typedef struct __attribute__((packed))
+{
+  uint8_t message_id;
+} LLCP_FlushBufferReqMsg_t;
+
+/**
+ * @brief host-to-network conversion for LLCP_FlushBufferReqMsg_t
+ *
+ * @param data
+ */
+void hton_LLCP_FlushBufferReqMsg_t(LLCP_FlushBufferReqMsg_t* data);
+
+/**
+ * @brief network-to-host conversion for LLCP_FlushBufferReqMsg_t
+ *
+ * @param data
+ */
+void ntoh_LLCP_FlushBufferReqMsg_t(LLCP_FlushBufferReqMsg_t* data);
+
+static_assert((sizeof(LLCP_FlushBufferReqMsg_t) > 255) == 0, "LLCP_FlushBufferReqMsg_t is too large");
 
 //}
 
