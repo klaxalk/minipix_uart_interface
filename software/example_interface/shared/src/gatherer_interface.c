@@ -53,6 +53,18 @@ void gatherer_receiveCharCallback(Gatherer_Handler_t *gatherer_handler, const ui
         break;
       };
 
+      case LLCP_UPDATE_PIXEL_MASK_REQ_MSG_ID: {
+
+        LLCP_UpdatePixelMaskReqMsg_t *msg = (LLCP_UpdatePixelMaskReqMsg_t *)(&message_in.payload);
+        ntoh_LLCP_UpdatePixelMaskReqMsg_t(msg);
+
+        LLCP_UpdatePixelMaskReq_t *req = (LLCP_UpdatePixelMaskReq_t *)(&msg->payload);
+
+        mui_updatePixelMask(gatherer_handler->mui_handler_ptr_, req);
+
+        break;
+      };
+
       default: {
 
         printf("Received unsupported message with id = %d\n", message_in.id);

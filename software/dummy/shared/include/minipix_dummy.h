@@ -41,6 +41,7 @@ private:
   std::mutex                mutex_message_buffer_;
 
   void sendMessage([[maybe_unused]] const uint8_t *bytes_out, [[maybe_unused]] const uint16_t &len);
+  void sendMessageNoAck([[maybe_unused]] const uint8_t *bytes_out, [[maybe_unused]] const uint16_t &len);
 
   std::atomic<bool> stream_measurement_on_ = false;
   uint16_t stream_measurement_duty_cycle = 0;

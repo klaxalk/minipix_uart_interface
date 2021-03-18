@@ -197,6 +197,22 @@ void mui_receiveCharCallback(MUI_Handler_t* mui_handler, const uint8_t byte_in) 
         break;
       };
 
+      case LLCP_ACK_MSG_ID: {
+
+        // load up the message and convert it to our endian
+        LLCP_AckMsg_t* msg = (LLCP_AckMsg_t*)&(message_in.payload);
+        ntoh_LLCP_AckMsg_t(msg);
+
+        // TODO what to do with the ack?
+        // call the user's callback
+        /* mui_handler->fcns.processAck(&(msg->payload)); */
+
+        // send ack back to MiniPIX
+        mui_sendAck(mui_handler, true);
+
+        break;
+      };
+
       default: {
 
         printf("Received unsupported message with id = %d\n", message_in.id);

@@ -36,14 +36,14 @@ void getStatus() {
 
 /* measureFrame() //{ */
 
-void measureFrame() {
+void measureFrame(const uint16_t& acquisition_time_ms) {
 
   // create the message
   LLCP_MeasureFrameReqMsg_t msg;
   init_LLCP_MeasureFrameReqMsg_t(&msg);
 
   // fill in the payload
-  msg.payload.acquisition_time_ms = 333;
+  msg.payload.acquisition_time_ms = acquisition_time_ms;
 
   // convert to network endian
   hton_LLCP_MeasureFrameReqMsg_t(&msg);
@@ -76,6 +76,29 @@ void startStream(const uint16_t& duty_cycle) {
 
 //}
 
+/* maskPixel() //{ */
+
+void maskPixel(const uint8_t& x, const uint8_t& y) {
+
+  // create the message
+  LLCP_UpdatePixelMaskReqMsg_t msg;
+  init_LLCP_UpdatePixelMaskReqMsg_t(&msg);
+
+  // fill in the payload
+  msg.payload.masked       = 1;
+  msg.payload.x_coordinate = x;
+  msg.payload.y_coordinate = y;
+
+  // convert to network endian
+  hton_LLCP_UpdatePixelMaskReqMsg_t(&msg);
+
+  uint16_t n_bytes = llcp_prepareMessage((uint8_t*)&msg, sizeof(msg), tx_buffer);
+
+  serial_port.sendCharArray(tx_buffer, n_bytes);
+}
+
+//}
+
 int main(int argc, char* argv[]) {
 
   if (argc == 4) {
@@ -99,7 +122,9 @@ int main(int argc, char* argv[]) {
 
   printf("Starting while loop\n");
 
-  startStream(200);
+  measureFrame(1200);
+  /* maskPixel(10, 20); */
+  /* startStream(200); */
 
   while (true) {
 
@@ -127,7 +152,7 @@ int main(int argc, char* argv[]) {
 
               uint8_t n_pixels = image->n_pixels;
 
-              printf("received frame data, n_pixels %d, last_pixel_x: %d\n", n_pixels, image->pixel_data[n_pixels - 1].x_coordinate);
+              printf("received frame datam, id %d, n_pixels %d, last_pixel_x: %d\n", image->frame_id, n_pixels, image->pixel_data[n_pixels - 1].x_coordinate);
 
               break;
             };

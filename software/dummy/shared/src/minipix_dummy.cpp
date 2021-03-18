@@ -24,6 +24,15 @@ void MinipixDummy::sendMessage([[maybe_unused]] const uint8_t *bytes_out, [[mayb
 
 //}
 
+/* sendMessageNoAck() //{ */
+
+void MinipixDummy::sendMessageNoAck([[maybe_unused]] const uint8_t *bytes_out, [[maybe_unused]] const uint16_t &len) {
+
+  sendString(bytes_out, len);
+}
+
+//}
+
 /* integralFrameMeasurement() //{ */
 
 void MinipixDummy::ingegralFrameMeasurement(const uint16_t &acquisition_time) {
@@ -42,7 +51,7 @@ void MinipixDummy::ingegralFrameMeasurement(const uint16_t &acquisition_time) {
 
     // | ------------------- fill in the payload ------------------ |
 
-    image_data.payload.frame_id = frame_id_++;
+    image_data.payload.frame_id = frame_id_;
 
     image_data.payload.n_pixels = n_pixels;
 
@@ -64,6 +73,8 @@ void MinipixDummy::ingegralFrameMeasurement(const uint16_t &acquisition_time) {
     uint16_t n_bytes = llcp_prepareMessage((uint8_t *)&image_data, sizeof(image_data), tx_buffer_);
     sendMessage(tx_buffer_, n_bytes);
   }
+
+  frame_id_++;
 }
 
 //}
@@ -208,6 +219,29 @@ void MinipixDummy::serialDataCallback(const uint8_t *bytes_in, const uint16_t &l
           std::scoped_lock lock(mutex_message_buffer_);
 
           message_buffer_.push_back(message);
+
+          break;
+        };
+
+        case LLCP_UPDATE_PIXEL_MASK_REQ_MSG_ID: {
+
+          LLCP_UpdatePixelMaskReqMsg_t *msg = (LLCP_UpdatePixelMaskReqMsg_t *)(&message.payload);
+          ntoh_LLCP_UpdatePixelMaskReqMsg_t(msg);
+
+          LLCP_UpdatePixelMaskReq_t *req = (LLCP_UpdatePixelMaskReq_t *)(&msg->payload);
+
+          printf("received pixel mask update, x = %d, y = %d, masked = %s\n", req->x_coordinate, req->y_coordinate, req->masked ? "MASK" : "UNMASK");
+
+          LLCP_AckMsg_t ack_msg;
+          init_LLCP_AckMsg_t(&ack_msg);
+
+          // convert to network endian
+          hton_LLCP_AckMsg_t(&ack_msg);
+
+          // TODO do something
+
+          uint16_t n_bytes = llcp_prepareMessage((uint8_t *)&ack_msg, sizeof(ack_msg), tx_buffer_);
+          sendMessage(tx_buffer_, n_bytes);
 
           break;
         };
