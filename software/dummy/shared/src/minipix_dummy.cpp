@@ -9,23 +9,20 @@ MinipixDummy::MinipixDummy() {
 
 //}
 
-/* waitForAck() //{ */
+/* sendMessage() //{ */
 
-void MinipixDummy::clearToSend(void) {
+void MinipixDummy::sendMessage([[maybe_unused]] const uint8_t *bytes_out, [[maybe_unused]] const uint16_t &len) {
 
   // TODO timeout
   while (!clear_to_send_) {
   }
-}
-
-//}
-
-void MinipixDummy::sendMessage([[maybe_unused]] const uint8_t *bytes_out, [[maybe_unused]] const uint16_t &len) {
 
   sendString(bytes_out, len);
 
   clear_to_send_ = false;
 }
+
+//}
 
 /* integralFrameMeasurement() //{ */
 
@@ -64,8 +61,6 @@ void MinipixDummy::ingegralFrameMeasurement(const uint16_t &acquisition_time) {
 
     uint16_t n_bytes = llcp_prepareMessage((uint8_t *)&image_data, sizeof(image_data), tx_buffer_);
     sendMessage(tx_buffer_, n_bytes);
-
-    clearToSend();
   }
 }
 
@@ -84,6 +79,8 @@ void MinipixDummy::update(void) {
 
     switch (message.id) {
       case LLCP_MEASURE_FRAME_REQ_MSG_ID: {
+
+        printf("processing frame measurement request from the queue");
 
         LLCP_MeasureFrameReqMsg_t *msg = (LLCP_MeasureFrameReqMsg_t *)(&message.payload);
         ntoh_LLCP_MeasureFrameReqMsg_t(msg);
@@ -118,6 +115,8 @@ void MinipixDummy::serialDataCallback(const uint8_t *bytes_in, const uint16_t &l
 
         case LLCP_MEASURE_FRAME_REQ_MSG_ID: {
 
+          printf("received frame measurement request\n");
+
           std::scoped_lock lock(mutex_message_buffer_);
 
           message_buffer_.push_back(message);
@@ -149,6 +148,7 @@ void MinipixDummy::serialDataCallback(const uint8_t *bytes_in, const uint16_t &l
 
         case LLCP_ACK_MSG_ID: {
 
+          // we received acks from MUI, we are clear to send
           clear_to_send_ = true;
 
           break;

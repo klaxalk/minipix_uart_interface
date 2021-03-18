@@ -86,11 +86,14 @@ void mui_receiveCharCallback(MUI_Handler_t* mui_handler, const uint8_t byte_in) 
 
       case LLCP_FRAME_DATA_MSG_ID: {
 
+        // load up the message and convert it to our endian
         LLCP_FrameDataMsg_t* msg = (LLCP_FrameDataMsg_t*)&(message_in.payload);
         ntoh_LLCP_FrameDataMsg_t(msg);
 
+        // call the user's callback
         mui_handler->fcns.processImagePacket(&(msg->payload));
 
+        // send ack back to MiniPIX
         mui_sendAck(mui_handler, true);
 
         break;
@@ -98,11 +101,14 @@ void mui_receiveCharCallback(MUI_Handler_t* mui_handler, const uint8_t byte_in) 
 
       case LLCP_STATUS_MSG_ID: {
 
+        // load up the message and convert it to our endian
         LLCP_StatusMsg_t* msg = (LLCP_StatusMsg_t*)&(message_in.payload);
         ntoh_LLCP_StatusMsg_t(msg);
 
+        // call the user's callback
         mui_handler->fcns.processStatus(&(msg->payload));
 
+        // send ack back to MiniPIX
         mui_sendAck(mui_handler, true);
 
         break;
