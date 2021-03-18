@@ -7,27 +7,29 @@ Gatherer_Handler_t gatherer_handler_;
 
 uint8_t tx_buffer_lander[SERIAL_BUFFER_SIZE];
 
-/* mui_sleepHW() //{ */
+// | --------- Linux-specific implementations for MUI --------- |
 
-void mui_sleepHW(const uint16_t milliseconds) {
+/* mui_linux_sleepHW() //{ */
+
+void mui_linux_sleepHW(const uint16_t milliseconds) {
 
   std::this_thread::sleep_for(std::chrono::milliseconds(milliseconds));
 }
 
 //}
 
-/* mui_sendChar() //{ */
+/* mui_linux_sendChar() //{ */
 
-void mui_sendChar(const uint8_t char_out) {
+void mui_linux_sendChar(const uint8_t char_out) {
 
   serial_port_minipix_.sendChar(char_out);
 }
 
 //}
 
-/* mui_sendString() //{ */
+/* mui_linux_sendString() //{ */
 
-void mui_sendString(const uint8_t *str_out, const uint16_t len) {
+void mui_linux_sendString(const uint8_t *str_out, const uint16_t len) {
 
   if (!serial_port_minipix_.sendCharArray((unsigned char *)str_out, len)) {
     printf("FAILED sending message with %d bytes\n", len);
@@ -36,27 +38,36 @@ void mui_sendString(const uint8_t *str_out, const uint16_t len) {
 
 //}
 
-/* mui_processImagePacket() //{ */
+/* mui_linux_processFrameData() //{ */
 
-void mui_processFrameData(const LLCP_FrameData_t *image_data) {
+void mui_linux_processFrameData(const LLCP_FrameData_t *data) {
 
-  gatherer_processFrameData(&gatherer_handler_, image_data);
+  gatherer_processFrameData(&gatherer_handler_, data);
 }
 
 //}
 
-/* mui_processStatus() //{ */
+/* mui_linux_processStreamData() //{ */
 
-void mui_processStatus(const LLCP_Status_t *status) {
+void mui_linux_processStreamData(const LLCP_StreamData_t *data) {
+
+  gatherer_processStreamData(&gatherer_handler_, data);
+}
+
+//}
+
+/* mui_linux_processStatus() //{ */
+
+void mui_linux_processStatus(const LLCP_Status_t *status) {
 
   gatherer_processStatus(&gatherer_handler_, status);
 }
 
 //}
 
-/* mui_ledSetHW() //{ */
+/* mui_linux_ledSetHW() //{ */
 
-void mui_ledSetHW([[maybe_unused]] bool state) {
+void mui_linux_ledSetHW([[maybe_unused]] bool state) {
   // do nothing, we don't have LEDs on LINUX
 }
 

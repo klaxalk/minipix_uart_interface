@@ -41,6 +41,18 @@ void gatherer_receiveCharCallback(Gatherer_Handler_t *gatherer_handler, const ui
         break;
       };
 
+      case LLCP_MEASURE_STREAM_REQ_MSG_ID: {
+
+        LLCP_MeasureStreamReqMsg_t *msg = (LLCP_MeasureStreamReqMsg_t *)(&message_in.payload);
+        ntoh_LLCP_MeasureStreamReqMsg_t(msg);
+
+        LLCP_MeasureStreamReq_t *req = (LLCP_MeasureStreamReq_t *)(&msg->payload);
+
+        mui_measureStream(gatherer_handler->mui_handler_ptr_, req->duty_cycle_ms);
+
+        break;
+      };
+
       default: {
 
         printf("Received unsupported message with id = %d\n", message_in.id);
@@ -55,17 +67,37 @@ void gatherer_receiveCharCallback(Gatherer_Handler_t *gatherer_handler, const ui
 
 /* gatherer_processFrameData() //{ */
 
-void gatherer_processFrameData(Gatherer_Handler_t *gatherer_handler, const LLCP_FrameData_t *image_data) {
+void gatherer_processFrameData(Gatherer_Handler_t *gatherer_handler, const LLCP_FrameData_t *data) {
 
   // create the message
   LLCP_FrameDataMsg_t msg;
   init_LLCP_FrameDataMsg_t(&msg);
 
   // fill in the payload
-  msg.payload = *image_data;
+  msg.payload = *data;
 
   // convert it to the network endian
   hton_LLCP_FrameDataMsg_t(&msg);
+
+  uint16_t n_bytes = llcp_prepareMessage((uint8_t *)&msg, sizeof(msg), gatherer_handler->tx_buffer);
+  gatherer_handler->fcns.sendString(gatherer_handler->tx_buffer, n_bytes);
+}
+
+//}
+
+/* gatherer_processStreamData() //{ */
+
+void gatherer_processStreamData(Gatherer_Handler_t *gatherer_handler, const LLCP_StreamData_t *data) {
+
+  // create the message
+  LLCP_StreamDataMsg_t msg;
+  init_LLCP_StreamDataMsg_t(&msg);
+
+  // fill in the payload
+  msg.payload = *data;
+
+  // convert it to the network endian
+  hton_LLCP_StreamDataMsg_t(&msg);
 
   uint16_t n_bytes = llcp_prepareMessage((uint8_t *)&msg, sizeof(msg), gatherer_handler->tx_buffer);
   gatherer_handler->fcns.sendString(gatherer_handler->tx_buffer, n_bytes);

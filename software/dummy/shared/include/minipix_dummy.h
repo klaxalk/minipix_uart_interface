@@ -24,6 +24,7 @@ protected:
   LLCP_Receiver_t llcp_receiver_;
 
   uint16_t boot_count_ = 0;
+  uint16_t frame_id_ = 0;
 
   void update(void);
 
@@ -31,6 +32,7 @@ private:
   uint8_t tx_buffer_[LLCP_RX_TX_BUFFER_SIZE];
 
   void ingegralFrameMeasurement(const uint16_t &acquisition_time);
+  void continuousStreamMeasurement();
 
   void clearToSend(void);
   std::atomic<bool> clear_to_send_ = true;
@@ -39,6 +41,9 @@ private:
   std::mutex                mutex_message_buffer_;
 
   void sendMessage([[maybe_unused]] const uint8_t *bytes_out, [[maybe_unused]] const uint16_t &len);
+
+  std::atomic<bool> stream_measurement_on_ = false;
+  uint16_t stream_measurement_duty_cycle = 0;
 };
 
 #endif  // MINIPIX_DUMMY_H

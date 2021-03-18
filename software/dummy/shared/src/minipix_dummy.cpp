@@ -42,6 +42,8 @@ void MinipixDummy::ingegralFrameMeasurement(const uint16_t &acquisition_time) {
 
     // | ------------------- fill in the payload ------------------ |
 
+    image_data.payload.frame_id = frame_id_++;
+
     image_data.payload.n_pixels = n_pixels;
 
     for (int i = 0; i < n_pixels; i++) {
@@ -66,36 +68,111 @@ void MinipixDummy::ingegralFrameMeasurement(const uint16_t &acquisition_time) {
 
 //}
 
+/* continuousStreamMeasurement() //{ */
+
+void MinipixDummy::continuousStreamMeasurement() {
+
+  uint16_t duty_cycle = stream_measurement_duty_cycle;  // TODO mutex
+
+  printf("starting stream acquisition (duty %d/1000)\n", duty_cycle);
+
+  uint16_t sleep_time;
+  if (duty_cycle < 1000) {
+    sleep_time = 1000 - duty_cycle;
+  } else {
+    sleep_time = 0;
+  }
+
+  sleep(sleep_time);
+
+  for (int j = 0; j < duty_cycle; j++) {
+
+    uint8_t n_pixels = 31;
+
+    // create the message
+    LLCP_StreamDataMsg_t image_data;
+    init_LLCP_StreamDataMsg_t(&image_data);
+
+    // | ------------------- fill in the payload ------------------ |
+
+    image_data.payload.n_pixels = n_pixels;
+
+    for (int i = 0; i < n_pixels; i++) {
+      LLCP_PixelData_t *pixel = (LLCP_PixelData_t *)&image_data.payload.pixel_data[i];
+      pixel->x_coordinate     = j;
+      pixel->y_coordinate     = j;
+      pixel->data[0]          = j;
+      pixel->data[1]          = j;
+      pixel->data[2]          = j;
+      pixel->data[3]          = j;
+      pixel->data[4]          = j;
+      pixel->data[5]          = j;
+    }
+
+    // convert to network endian
+    hton_LLCP_StreamDataMsg_t(&image_data);
+
+    uint16_t n_bytes = llcp_prepareMessage((uint8_t *)&image_data, sizeof(image_data), tx_buffer_);
+    sendMessage(tx_buffer_, n_bytes);
+
+    sleep(1);
+  }
+}
+
+//}
+
 /* update() //{ */
 
 void MinipixDummy::update(void) {
 
-  std::scoped_lock lock(mutex_message_buffer_);
+  {
+    std::scoped_lock lock(mutex_message_buffer_);
 
-  if (!message_buffer_.empty()) {
+    if (!message_buffer_.empty()) {
 
-    LLCP_Message_t message = message_buffer_.front();
-    message_buffer_.pop_front();
+      LLCP_Message_t message = message_buffer_.front();
+      message_buffer_.pop_front();
 
-    switch (message.id) {
-      case LLCP_MEASURE_FRAME_REQ_MSG_ID: {
+      switch (message.id) {
 
-        printf("processing frame measurement request from the queue");
+        case LLCP_MEASURE_FRAME_REQ_MSG_ID: {
 
-        LLCP_MeasureFrameReqMsg_t *msg = (LLCP_MeasureFrameReqMsg_t *)(&message.payload);
-        ntoh_LLCP_MeasureFrameReqMsg_t(msg);
+          printf("processing frame measurement request from the queue");
 
-        LLCP_MeasureFrameReq_t *req = (LLCP_MeasureFrameReq_t *)(&msg->payload);
+          LLCP_MeasureFrameReqMsg_t *msg = (LLCP_MeasureFrameReqMsg_t *)(&message.payload);
+          ntoh_LLCP_MeasureFrameReqMsg_t(msg);
 
-        ingegralFrameMeasurement(req->acquisition_time_ms);
+          LLCP_MeasureFrameReq_t *req = (LLCP_MeasureFrameReq_t *)(&msg->payload);
 
-        break;
-      };
+          ingegralFrameMeasurement(req->acquisition_time_ms);
 
-      default: {
-        break;
-      };
+          break;
+        };
+
+        case LLCP_MEASURE_STREAM_REQ_MSG_ID: {
+
+          printf("processing stream measurement request from the queue");
+
+          LLCP_MeasureStreamReqMsg_t *msg = (LLCP_MeasureStreamReqMsg_t *)(&message.payload);
+          ntoh_LLCP_MeasureStreamReqMsg_t(msg);
+
+          LLCP_MeasureStreamReq_t *req = (LLCP_MeasureStreamReq_t *)(&msg->payload);
+
+          stream_measurement_duty_cycle = req->duty_cycle_ms;
+          stream_measurement_on_        = true;
+
+          break;
+        };
+
+        default: {
+          break;
+        };
+      }
     }
+  }
+
+  if (stream_measurement_on_) {
+    continuousStreamMeasurement();
   }
 }
 
@@ -116,6 +193,17 @@ void MinipixDummy::serialDataCallback(const uint8_t *bytes_in, const uint16_t &l
         case LLCP_MEASURE_FRAME_REQ_MSG_ID: {
 
           printf("received frame measurement request\n");
+
+          std::scoped_lock lock(mutex_message_buffer_);
+
+          message_buffer_.push_back(message);
+
+          break;
+        };
+
+        case LLCP_MEASURE_STREAM_REQ_MSG_ID: {
+
+          printf("received stream measurement request\n");
 
           std::scoped_lock lock(mutex_message_buffer_);
 

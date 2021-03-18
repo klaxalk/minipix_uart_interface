@@ -24,56 +24,65 @@ void mui_stm_setGathererHandler(Gatherer_Handler_t *gatherer_handler) {
 
 // | ------------------ the prototype methods ----------------- |
 
-/* mui_ledSetHW() //{ */
+/* mui_stm_ledSetHW() //{ */
 
-void mui_ledSetHW(const bool new_state) {
+void mui_stm_ledSetHW(const bool new_state) {
 
   HAL_GPIO_WritePin(LD2_GPIO_Port, LD2_Pin, new_state ? GPIO_PIN_SET : GPIO_PIN_RESET);
 }
 
 //}
 
-/* mui_sleepHW() //{ */
+/* mui_stm_sleepHW() //{ */
 
-void mui_sleepHW(const uint16_t milliseconds) {
+void mui_stm_sleepHW(const uint16_t milliseconds) {
 
   HAL_Delay(milliseconds);
 }
 
 //}
 
-/* mui_sendChar() //{ */
+/* mui_stm_sendChar() //{ */
 
-void mui_sendChar(const uint8_t char_out) {
+void mui_stm_sendChar(const uint8_t char_out) {
 
   HAL_UART_Transmit(huart_minipix_ptr_, (uint8_t *)&char_out, 1, USART_TIMEOUT);
 }
 
 //}
 
-/* mui_sendString() //{ */
+/* mui_stm_sendString() //{ */
 
-void mui_sendString(const uint8_t *str_out, const uint16_t len) {
+void mui_stm_sendString(const uint8_t *str_out, const uint16_t len) {
 
   HAL_UART_Transmit(huart_minipix_ptr_, (uint8_t *)str_out, len, USART_TIMEOUT);
 }
 
 //}
 
-/* mui_processFrameData() //{ */
+/* mui_stm_processFrameData() //{ */
 
-void mui_processFrameData(const LLCP_FrameData_t *image_data) {
+void mui_stm_processFrameData(const LLCP_FrameData_t *data) {
 
-  gatherer_processFrameData((Gatherer_Handler_t*) gatherer_handler_ptr_, image_data);
+  gatherer_processFrameData((Gatherer_Handler_t *)gatherer_handler_ptr_, data);
 }
 
 //}
 
-/* mui_processStatus() //{ */
+/* mui_stm_processStreamData() //{ */
 
-void mui_processStatus(const LLCP_Status_t *status) {
+void mui_stm_processStreamData(const LLCP_StreamData_t *data) {
 
-  gatherer_processStatus((Gatherer_Handler_t*) gatherer_handler_ptr_, status);
+  gatherer_processStreamData((Gatherer_Handler_t *)gatherer_handler_ptr_, data);
+}
+
+//}
+
+/* mui_stm_processStatus() //{ */
+
+void mui_stm_processStatus(const LLCP_Status_t *status) {
+
+  gatherer_processStatus((Gatherer_Handler_t *)gatherer_handler_ptr_, status);
 }
 
 //}

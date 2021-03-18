@@ -14,11 +14,11 @@ extern "C" {
 
 // | ---------- function pointers to user's callbacks --------- |
 
-  /**
-   * @brief Function pointer for implementation of seting an LED state.
-   *
-   * @param true = light is on, false = light is of
-   */
+/**
+ * @brief Function pointer for implementation of seting an LED state.
+ *
+ * @param true = light is on, false = light is of
+ */
 typedef void (*mui_ledSetHW_t)(const bool);
 
 /**
@@ -48,6 +48,14 @@ typedef void (*mui_processFrameData_t)(const LLCP_FrameData_t *image_data);
 
 /**
  * @brief Function pointer to user implementation of callback to process
+ * incoming Stream data.
+ *
+ * @param pointer to the structure with the data
+ */
+typedef void (*mui_processStreamData_t)(const LLCP_StreamData_t *image_data);
+
+/**
+ * @brief Function pointer to user implementation of callback to process
  * incoming Status message.
  *
  * @param pointer to the structure with the data
@@ -68,12 +76,13 @@ typedef void (*mui_sleepHW_t)(const uint16_t duration);
  */
 typedef struct
 {
-  mui_ledSetHW_t         ledSetHW;
-  mui_sendChar_t         sendChar;
-  mui_sendString_t       sendString;
-  mui_processFrameData_t processFrameData;
-  mui_processStatus_t    processStatus;
-  mui_sleepHW_t          sleepHW;
+  mui_ledSetHW_t          ledSetHW;
+  mui_sendChar_t          sendChar;
+  mui_sendString_t        sendString;
+  mui_processFrameData_t  processFrameData;
+  mui_processStreamData_t processStreamData;
+  mui_processStatus_t     processStatus;
+  mui_sleepHW_t           sleepHW;
 } MUI_FcnPrototypes_t;
 
 typedef struct
@@ -110,6 +119,40 @@ void mui_initialize(MUI_Handler_t *mui_handler);
  * @param acquisition_time
  */
 void mui_measureFrame(MUI_Handler_t *mui_handler, const uint16_t acquisition_time);
+
+/**
+ * @brief Command to start measurement in the form of the event stream.
+ * As a result, packets with event data will be comming until stopped
+ * with the mui_stopStream() function. The incoming data will cause the
+ *                        processStreamData()
+ * to be called.
+ *
+ * @param mui_handler
+ * @param duty_cycle how many milliseconds in a second should the stream be outputed.
+ */
+void mui_measureStream(MUI_Handler_t *mui_handler, const uint16_t duty_cycle);
+
+/**
+ * @brief Command to step the measurement in the form of the event stream.
+ *
+ * @param mui_handler
+ */
+void mui_stopStream(MUI_Handler_t *mui_handler);
+
+/**
+ * @brief Command to flush the stream buffer in the MiniPIX.
+ *
+ * @param mui_handler
+ */
+void mui_flushBuffer(MUI_Handler_t *mui_handler);
+
+/**
+ * @brief Command to update a mask of a particular pixel.
+ *
+ * @param mui_handler
+ * @param LLCP_UpdatePixelMaskReq_t
+ */
+void mui_updatePixelMask(MUI_Handler_t *mui_handler, LLCP_UpdatePixelMaskReq_t *data);
 
 /**
  * @brief Command to get the status of the MinixPIX HW. As a result,

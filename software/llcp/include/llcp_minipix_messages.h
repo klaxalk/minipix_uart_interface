@@ -194,7 +194,7 @@ void init_LLCP_MeasureFrameReq_t(LLCP_MeasureFrameReq_t* data);
  */
 typedef struct __attribute__((packed))
 {
-  uint8_t           message_id;
+  uint8_t                message_id;
   LLCP_MeasureFrameReq_t payload;
 } LLCP_MeasureFrameReqMsg_t;
 
@@ -490,21 +490,21 @@ typedef struct __attribute__((packed))
  *
  * @param msg
  */
-void hton_UpdatePixelMaskReqMsg_t(LLCP_UpdatePixelMaskReqMsg_t* msg);
+void hton_LLCP_UpdatePixelMaskReqMsg_t(LLCP_UpdatePixelMaskReqMsg_t* msg);
 
 /**
  * @brief network-to-host conversion for LLCP_UpdatePixelMaskReqMsg_t
  *
  * @param msg
  */
-void ntoh_UpdatePixelMaskReqMsg_t(LLCP_UpdatePixelMaskReqMsg_t* msg);
+void ntoh_LLCP_UpdatePixelMaskReqMsg_t(LLCP_UpdatePixelMaskReqMsg_t* msg);
 
 /**
  * @brief "constructor" for LLCP_UpdatePixelMaskReqMsg_t
  *
  * @param msg
  */
-void init_UpdatePixelMaskReqMsg_t(LLCP_UpdatePixelMaskReqMsg_t* msg);
+void init_LLCP_UpdatePixelMaskReqMsg_t(LLCP_UpdatePixelMaskReqMsg_t* msg);
 
 static_assert((sizeof(LLCP_UpdatePixelMaskReqMsg_t) > 255) == 0, "LLCP_UpdatePixelMaskReqMsg_t is too large");
 

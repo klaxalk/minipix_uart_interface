@@ -262,22 +262,22 @@ void init_LLCP_UpdatePixelMaskReq_t(LLCP_UpdatePixelMaskReq_t* data) {
 
   data->x_coordinate = 0;
   data->y_coordinate = 0;
-  data->masked = 0;
+  data->masked       = 0;
 }
 
 //}
 
-void hton_UpdatePixelMaskReqMsg_t(LLCP_UpdatePixelMaskReqMsg_t* data) {
+void hton_LLCP_UpdatePixelMaskReqMsg_t(LLCP_UpdatePixelMaskReqMsg_t* data) {
 
   hton_LLCP_UpdatePixelMaskReq_t(&data->payload);
 }
 
-void ntoh_UpdatePixelMaskReqMsg_t(LLCP_UpdatePixelMaskReqMsg_t* data) {
+void ntoh_LLCP_UpdatePixelMaskReqMsg_t(LLCP_UpdatePixelMaskReqMsg_t* data) {
 
   ntoh_LLCP_UpdatePixelMaskReq_t(&data->payload);
 }
 
-void init_UpdatePixelMaskReqMsg_t(LLCP_UpdatePixelMaskReqMsg_t* msg) {
+void init_LLCP_UpdatePixelMaskReqMsg_t(LLCP_UpdatePixelMaskReqMsg_t* msg) {
 
   msg->message_id = LLCP_UPDATE_PIXEL_MASK_REQ_MSG_ID;
 
