@@ -16,9 +16,14 @@ void mui_initialize(MUI_Handler_t* mui_handler) {
 
 void mui_measureFrame(MUI_Handler_t* mui_handler, const uint16_t acquisition_time) {
 
+  // create the message
   LLCP_MeasureFrameReqMsg_t msg;
-  msg.message_id                  = LLCP_MEASURE_FRAME_REQ_MSG_ID;
+  init_LLCP_MeasureFrameReqMsg_t(&msg);
+
+  // fill in the payload
   msg.payload.acquisition_time_ms = acquisition_time;
+
+  // convert to network endian
   hton_LLCP_MeasureFrameReqMsg_t(&msg);
 
   uint16_t n_bytes = llcp_prepareMessage((uint8_t*)&msg, sizeof(msg), mui_handler->tx_buffer);
@@ -32,8 +37,11 @@ void mui_measureFrame(MUI_Handler_t* mui_handler, const uint16_t acquisition_tim
 
 void mui_getStatus(MUI_Handler_t* mui_handler) {
 
+  // create the message
   LLCP_GetStatusMsg_t msg;
-  msg.message_id = LLCP_GET_STATUS_MSG_ID;
+  init_LLCP_GetStatusMsg_t(&msg);
+
+  // convert to network endian
   hton_LLCP_GetStatusMsg_t(&msg);
 
   uint16_t n_bytes = llcp_prepareMessage((uint8_t*)&msg, sizeof(msg), mui_handler->tx_buffer);
@@ -47,9 +55,14 @@ void mui_getStatus(MUI_Handler_t* mui_handler) {
 
 void mui_sendAck(MUI_Handler_t* mui_handler, const bool success) {
 
+  // create the message
   LLCP_AckMsg_t msg;
-  msg.message_id      = LLCP_ACK_MSG_ID;
+  init_LLCP_AckMsg_t(&msg);
+
+  // fill in the payload
   msg.payload.success = success;
+
+  // convert to network endian
   hton_LLCP_AckMsg_t(&msg);
 
   uint16_t n_bytes = llcp_prepareMessage((uint8_t*)&msg, sizeof(msg), mui_handler->tx_buffer);

@@ -9,6 +9,24 @@ MinipixDummy::MinipixDummy() {
 
 //}
 
+/* waitForAck() //{ */
+
+void MinipixDummy::clearToSend(void) {
+
+  // TODO timeout
+  while (!clear_to_send_) {
+  }
+}
+
+//}
+
+void MinipixDummy::sendMessage([[maybe_unused]] const uint8_t *bytes_out, [[maybe_unused]] const uint16_t &len) {
+
+  sendString(bytes_out, len);
+
+  clear_to_send_ = false;
+}
+
 /* integralFrameMeasurement() //{ */
 
 void MinipixDummy::ingegralFrameMeasurement(const uint16_t &acquisition_time) {
@@ -21,8 +39,11 @@ void MinipixDummy::ingegralFrameMeasurement(const uint16_t &acquisition_time) {
 
     uint8_t n_pixels = 31;
 
+    // create the message
     LLCP_FrameDataMsg_t image_data;
-    image_data.message_id = LLCP_IMAGE_DATA_MSG_ID;
+    init_LLCP_FrameDataMsg_t(&image_data);
+
+    // | ------------------- fill in the payload ------------------ |
 
     image_data.payload.n_pixels = n_pixels;
 
@@ -38,13 +59,13 @@ void MinipixDummy::ingegralFrameMeasurement(const uint16_t &acquisition_time) {
       pixel->data[5]          = j;
     }
 
+    // convert to network endian
+    hton_LLCP_FrameDataMsg_t(&image_data);
+
     uint16_t n_bytes = llcp_prepareMessage((uint8_t *)&image_data, sizeof(image_data), tx_buffer_);
-    sendString(tx_buffer_, n_bytes);
+    sendMessage(tx_buffer_, n_bytes);
 
-    while (!ack) {
-    }
-
-    ack = false;
+    clearToSend();
   }
 }
 
@@ -62,12 +83,12 @@ void MinipixDummy::update(void) {
     message_buffer_.pop_front();
 
     switch (message.id) {
-      case LLCP_MEASURE_FRAME_MSG_ID: {
+      case LLCP_MEASURE_FRAME_REQ_MSG_ID: {
 
         LLCP_MeasureFrameReqMsg_t *msg = (LLCP_MeasureFrameReqMsg_t *)(&message.payload);
         ntoh_LLCP_MeasureFrameReqMsg_t(msg);
 
-        MeasureFrameReq_t *req = (MeasureFrameReq_t *)(&msg->payload);
+        LLCP_MeasureFrameReq_t *req = (LLCP_MeasureFrameReq_t *)(&msg->payload);
 
         ingegralFrameMeasurement(req->acquisition_time_ms);
 
@@ -95,7 +116,7 @@ void MinipixDummy::serialDataCallback(const uint8_t *bytes_in, const uint16_t &l
 
       switch (message.id) {
 
-        case LLCP_MEASURE_FRAME_MSG_ID: {
+        case LLCP_MEASURE_FRAME_REQ_MSG_ID: {
 
           std::scoped_lock lock(mutex_message_buffer_);
 
@@ -108,22 +129,27 @@ void MinipixDummy::serialDataCallback(const uint8_t *bytes_in, const uint16_t &l
 
           printf("received status request\n");
 
+          // create the message
           LLCP_StatusMsg_t status_msg;
-          status_msg.message_id         = LLCP_STATUS_MSG_ID;
+          init_LLCP_StatusMsg_t(&status_msg);
+
+          // fill in the payload
           status_msg.payload.boot_count = boot_count_++;
           memset(&status_msg.payload.status_str, 0, sizeof(status_msg.payload.status_str));
           sprintf((char *)status_msg.payload.status_str, "Timepix3 is OK, but it is cold out here...");
+
+          // convert to network endian
           hton_LLCP_StatusMsg_t(&status_msg);
 
           uint16_t n_bytes = llcp_prepareMessage((uint8_t *)&status_msg, sizeof(status_msg), tx_buffer_);
-          sendString(tx_buffer_, n_bytes);
+          sendMessage(tx_buffer_, n_bytes);
 
           break;
         };
 
         case LLCP_ACK_MSG_ID: {
 
-          ack = true;
+          clear_to_send_ = true;
 
           break;
         };

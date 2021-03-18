@@ -7,5 +7,4 @@ add_subdirectory(./mui)
 add_subdirectory(./dummy/linux)
 add_subdirectory(./example_interface/linux)
 add_subdirectory(./gatherer)
-
 # add_subdirectory(./example_interface/stm32f411)

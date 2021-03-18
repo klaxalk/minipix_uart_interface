@@ -32,10 +32,13 @@ private:
 
   void ingegralFrameMeasurement(const uint16_t &acquisition_time);
 
-  std::atomic<bool> ack = false;
+  void clearToSend(void);
+  std::atomic<bool> clear_to_send_ = true;
 
   std::list<LLCP_Message_t> message_buffer_;
   std::mutex                mutex_message_buffer_;
+
+  void sendMessage([[maybe_unused]] const uint8_t *bytes_out, [[maybe_unused]] const uint16_t &len);
 };
 
 #endif  // MINIPIX_DUMMY_H

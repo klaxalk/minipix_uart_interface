@@ -38,22 +38,28 @@ int main(int argc, char* argv[]) {
 
   printf("Starting while loop\n");
 
-  /* { */
-  /*   LLCP_GetStatusMsg_t msg; */
-  /*   msg.message_id = LLCP_GET_STATUS_MSG_ID; */
-  /*   hton_LLCP_GetStatusMsg_t(&msg); */
+  {
+    // create the message
+    LLCP_GetStatusMsg_t msg;
+    init_LLCP_GetStatusMsg_t(&msg);
 
-  /*   uint16_t n_bytes = llcp_prepareMessage((uint8_t*)&msg, sizeof(msg), tx_buffer); */
+    // convert to network endian
+    hton_LLCP_GetStatusMsg_t(&msg);
 
-  /*   serial_port.sendCharArray(tx_buffer, n_bytes); */
-  /* } */
+    uint16_t n_bytes = llcp_prepareMessage((uint8_t*)&msg, sizeof(msg), tx_buffer);
 
-  /*     std::this_thread::sleep_for(std::chrono::milliseconds(50)); */
+    serial_port.sendCharArray(tx_buffer, n_bytes);
+  }
 
   {
+    // create the message
     LLCP_MeasureFrameReqMsg_t msg;
-    msg.message_id                  = LLCP_MEASURE_FRAME_MSG_ID;
+    init_LLCP_MeasureFrameReqMsg_t(&msg);
+
+    // fill in the payload
     msg.payload.acquisition_time_ms = 333;
+
+    // convert to network endian
     hton_LLCP_MeasureFrameReqMsg_t(&msg);
 
     uint16_t n_bytes = llcp_prepareMessage((uint8_t*)&msg, sizeof(msg), tx_buffer);
@@ -78,7 +84,7 @@ int main(int argc, char* argv[]) {
 
           switch (message_in.id) {
 
-            case LLCP_IMAGE_DATA_MSG_ID: {
+            case LLCP_FRAME_DATA_MSG_ID: {
 
               LLCP_FrameDataMsg_t* msg = (LLCP_FrameDataMsg_t*)&message_in.payload;
               ntoh_LLCP_FrameDataMsg_t(msg);

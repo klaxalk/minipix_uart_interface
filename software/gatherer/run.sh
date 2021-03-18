@@ -4,4 +4,4 @@ MY_PATH=`( cd "$MY_PATH" && pwd )`
 
 cd $MY_PATH
 
-./build/gatherer
+./build/gatherer /tmp/ttyS3 921600 1

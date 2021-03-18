@@ -6,4 +6,4 @@ MY_PATH=`( cd "$MY_PATH" && pwd )`
 
 cd $MY_PATH
 
-./build/example_interface
+./build/example_interface /tmp/ttyS1 921600 1 /tmp/ttyS2 921600 1

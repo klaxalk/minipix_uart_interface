@@ -14,6 +14,14 @@ void ntoh_LLCP_PixelData_t(LLCP_PixelData_t* data) {
   UNUSED(data);
 }
 
+void init_LLCP_PixelData_t(LLCP_PixelData_t* data) {
+
+  data->x_coordinate = 0;
+  data->y_coordinate = 0;
+
+  memset(&data->data, 0, LLCP_PIXEL_BYTES);
+}
+
 //}
 
 /* LLCP_FrameDataMsg_t //{ */
@@ -38,6 +46,16 @@ void ntoh_LLCP_FrameData_t(LLCP_FrameData_t* data) {
   }
 }
 
+void init_LLCP_FrameData_t(LLCP_FrameData_t* data) {
+
+  data->frame_id = 0;
+  data->n_pixels = 0;
+
+  for (uint8_t i = 0; i < LLCP_FRAME_DATA_N_PIXELS; i++) {
+    init_LLCP_PixelData_t(&data->pixel_data[i]);
+  }
+}
+
 //}
 
 void hton_LLCP_FrameDataMsg_t(LLCP_FrameDataMsg_t* msg) {
@@ -50,32 +68,51 @@ void ntoh_LLCP_FrameDataMsg_t(LLCP_FrameDataMsg_t* msg) {
   ntoh_LLCP_FrameData_t(&msg->payload);
 }
 
+void init_LLCP_FrameDataMsg_t(LLCP_FrameDataMsg_t* msg) {
+
+  msg->message_id = LLCP_FRAME_DATA_MSG_ID;
+
+  init_LLCP_FrameData_t(&msg->payload);
+}
+
 //}
 
 /* LLCP_MeasureFrameReqMsg_t //{ */
 
 /* LLCP_MeasureFrameReq_t //{ */
 
-void hton_MeasureFrameReq_t(MeasureFrameReq_t* data) {
+void hton_MeasureFrameReq_t(LLCP_MeasureFrameReq_t* data) {
 
   data->acquisition_time_ms = llcp_hton16((uint16_t)data->acquisition_time_ms);
 }
 
-void ntoh_MeasureFrameReq_t(MeasureFrameReq_t* data) {
+void ntoh_MeasureFrameReq_t(LLCP_MeasureFrameReq_t* data) {
 
   data->acquisition_time_ms = llcp_ntoh16((uint16_t)data->acquisition_time_ms);
 }
 
-//}
+void init_LLCP_MeasureFrameReq_t(LLCP_MeasureFrameReq_t* data) {
 
-void hton_LLCP_MeasureFrameReqMsg_t(LLCP_MeasureFrameReqMsg_t* data) {
-
-  hton_MeasureFrameReq_t(&data->payload);
+  data->acquisition_time_ms = 0;
 }
 
-void ntoh_LLCP_MeasureFrameReqMsg_t(LLCP_MeasureFrameReqMsg_t* data) {
+//}
 
-  ntoh_MeasureFrameReq_t(&data->payload);
+void hton_LLCP_MeasureFrameReqMsg_t(LLCP_MeasureFrameReqMsg_t* msg) {
+
+  hton_MeasureFrameReq_t(&msg->payload);
+}
+
+void ntoh_LLCP_MeasureFrameReqMsg_t(LLCP_MeasureFrameReqMsg_t* msg) {
+
+  ntoh_MeasureFrameReq_t(&msg->payload);
+}
+
+void init_LLCP_MeasureFrameReqMsg_t(LLCP_MeasureFrameReqMsg_t* msg) {
+
+  msg->message_id = LLCP_MEASURE_FRAME_REQ_MSG_ID;
+
+  init_LLCP_MeasureFrameReq_t(&msg->payload);
 }
 
 //}
@@ -98,6 +135,16 @@ void ntoh_LLCP_StreamData_t(LLCP_StreamData_t* data) {
   }
 };
 
+void init_LLCP_StreamData_t(LLCP_StreamData_t* data) {
+
+  data->full_buffer = 0;
+  data->n_pixels    = 0;
+
+  for (uint8_t i = 0; i < LLCP_STREAM_DATA_N_PIXELS; i++) {
+    init_LLCP_PixelData_t(&data->pixel_data[i]);
+  }
+}
+
 //}
 
 void hton_LLCP_StreamDataMsg_t(LLCP_StreamDataMsg_t* msg) {
@@ -110,46 +157,89 @@ void ntoh_LLCP_StreamDataMsg_t(LLCP_StreamDataMsg_t* msg) {
   ntoh_LLCP_StreamData_t(&msg->payload);
 }
 
+void init_LLCP_StreamDataMsg_t(LLCP_StreamDataMsg_t* msg) {
+
+  msg->message_id = LLCP_STREAM_DATA_MSG_ID;
+
+  init_LLCP_StreamData_t(&msg->payload);
+}
+
 //}
 
 /* LLCP_MeasureStreamReqMsg_t //{ */
 
-void hton_LLCP_MeasureStreamReqMsg_t(LLCP_MeasureStreamReqMsg_t* data) {
+/* LLCP_MeasureStreamReq_t //{ */
 
-  UNUSED(data);
+void hton_LLCP_MeasureStreamReq_t(LLCP_MeasureStreamReq_t* data) {
+
+  data->duty_cycle_ms = llcp_hton16(data->duty_cycle_ms);
 }
 
-void ntoh_LLCP_MeasureStreamReqMsg_t(LLCP_MeasureStreamReqMsg_t* data) {
+void ntoh_LLCP_MeasureStreamReq_t(LLCP_MeasureStreamReq_t* data) {
 
-  UNUSED(data);
+  data->duty_cycle_ms = llcp_ntoh16(data->duty_cycle_ms);
+}
+
+void init_LLCP_MeasureStreamReq_t(LLCP_MeasureStreamReq_t* data) {
+
+  data->duty_cycle_ms = 0;
+}
+
+//}
+
+void hton_LLCP_MeasureStreamReqMsg_t(LLCP_MeasureStreamReqMsg_t* msg) {
+
+  hton_LLCP_MeasureStreamReq_t(&msg->payload);
+}
+
+void ntoh_LLCP_MeasureStreamReqMsg_t(LLCP_MeasureStreamReqMsg_t* msg) {
+
+  ntoh_LLCP_MeasureStreamReq_t(&msg->payload);
+}
+
+void init_LLCP_MeasureStreamReqMsg_t(LLCP_MeasureStreamReqMsg_t* msg) {
+
+  msg->message_id = LLCP_MEASURE_STREAM_REQ_MSG_ID;
+
+  init_LLCP_MeasureStreamReq_t(&msg->payload);
 }
 
 //}
 
 /* LLCP_StopStreamReqMsg_t //{ */
 
-void hton_LLCP_StopStreamReqMsg_t(LLCP_StopStreamReqMsg_t* data) {
+void hton_LLCP_StopStreamReqMsg_t(LLCP_StopStreamReqMsg_t* msg) {
 
-  UNUSED(data);
+  UNUSED(msg);
 }
 
-void ntoh_LLCP_StopStreamReqMsg_t(LLCP_StopStreamReqMsg_t* data) {
+void ntoh_LLCP_StopStreamReqMsg_t(LLCP_StopStreamReqMsg_t* msg) {
 
-  UNUSED(data);
+  UNUSED(msg);
+}
+
+void init_LLCP_StopStreamReqMsg_t(LLCP_StopStreamReqMsg_t* msg) {
+
+  msg->message_id = LLCP_STOP_STREAM_REQ_MSG_ID;
 }
 
 //}
 
 /* LLCP_FlushBufferReqMsg_t //{ */
 
-void hton_LLCP_FlushBufferReqMsg_t(LLCP_FlushBufferReqMsg_t* data) {
+void hton_LLCP_FlushBufferReqMsg_t(LLCP_FlushBufferReqMsg_t* msg) {
 
-  UNUSED(data);
+  UNUSED(msg);
 }
 
-void ntoh_LLCP_FlushBufferReqMsg_t(LLCP_FlushBufferReqMsg_t* data) {
+void ntoh_LLCP_FlushBufferReqMsg_t(LLCP_FlushBufferReqMsg_t* msg) {
 
-  UNUSED(data);
+  UNUSED(msg);
+}
+
+void init_LLCP_FlushBufferReqMsg_t(LLCP_FlushBufferReqMsg_t* msg) {
+
+  msg->message_id = LLCP_FLUSH_BUFFER_REQ_MSG_ID;
 }
 
 //}
@@ -168,6 +258,13 @@ void ntoh_LLCP_UpdatePixelMaskReq_t(LLCP_UpdatePixelMaskReq_t* data) {
   UNUSED(data);
 }
 
+void init_LLCP_UpdatePixelMaskReq_t(LLCP_UpdatePixelMaskReq_t* data) {
+
+  data->x_coordinate = 0;
+  data->y_coordinate = 0;
+  data->masked = 0;
+}
+
 //}
 
 void hton_UpdatePixelMaskReqMsg_t(LLCP_UpdatePixelMaskReqMsg_t* data) {
@@ -178,6 +275,13 @@ void hton_UpdatePixelMaskReqMsg_t(LLCP_UpdatePixelMaskReqMsg_t* data) {
 void ntoh_UpdatePixelMaskReqMsg_t(LLCP_UpdatePixelMaskReqMsg_t* data) {
 
   ntoh_LLCP_UpdatePixelMaskReq_t(&data->payload);
+}
+
+void init_UpdatePixelMaskReqMsg_t(LLCP_UpdatePixelMaskReqMsg_t* msg) {
+
+  msg->message_id = LLCP_UPDATE_PIXEL_MASK_REQ_MSG_ID;
+
+  init_LLCP_UpdatePixelMaskReq_t(&msg->payload);
 }
 
 //}
@@ -196,16 +300,28 @@ void ntoh_LLCP_Ack_t(LLCP_Ack_t* data) {
   UNUSED(data);
 }
 
-//}
+void init_Ack_t(LLCP_Ack_t* data) {
 
-void hton_LLCP_AckMsg_t(LLCP_AckMsg_t* data) {
-
-  hton_LLCP_Ack_t(&data->payload);
+  data->success = 1;
 }
 
-void ntoh_LLCP_AckMsg_t(LLCP_AckMsg_t* data) {
+//}
 
-  ntoh_LLCP_Ack_t(&data->payload);
+void hton_LLCP_AckMsg_t(LLCP_AckMsg_t* msg) {
+
+  hton_LLCP_Ack_t(&msg->payload);
+}
+
+void ntoh_LLCP_AckMsg_t(LLCP_AckMsg_t* msg) {
+
+  ntoh_LLCP_Ack_t(&msg->payload);
+}
+
+void init_LLCP_AckMsg_t(LLCP_AckMsg_t* msg) {
+
+  msg->message_id = LLCP_ACK_MSG_ID;
+
+  init_Ack_t(&msg->payload);
 }
 
 //}
@@ -224,30 +340,49 @@ void ntoh_LLCP_Status_t(LLCP_Status_t* data) {
   data->boot_count = llcp_ntoh16(data->boot_count);
 }
 
-//}
+void init_LLCP_Status_t(LLCP_Status_t* data) {
 
-void hton_LLCP_StatusMsg_t(LLCP_StatusMsg_t* data) {
+  data->boot_count = 0;
 
-  hton_LLCP_Status_t(&data->payload);
+  memset(&data->status_str, 0, LLCP_STATUS_STR_LEN);
 }
 
-void ntoh_LLCP_StatusMsg_t(LLCP_StatusMsg_t* data) {
+//}
 
-  ntoh_LLCP_Status_t(&data->payload);
+void hton_LLCP_StatusMsg_t(LLCP_StatusMsg_t* msg) {
+
+  hton_LLCP_Status_t(&msg->payload);
+}
+
+void ntoh_LLCP_StatusMsg_t(LLCP_StatusMsg_t* msg) {
+
+  ntoh_LLCP_Status_t(&msg->payload);
+}
+
+void init_LLCP_StatusMsg_t(LLCP_StatusMsg_t* msg) {
+
+  msg->message_id = LLCP_STATUS_MSG_ID;
+
+  init_LLCP_Status_t(&msg->payload);
 }
 
 //}
 
 /* LLCP_GetStatusMsg_t //{ */
 
-void hton_LLCP_GetStatusMsg_t(LLCP_GetStatusMsg_t* data) {
+void hton_LLCP_GetStatusMsg_t(LLCP_GetStatusMsg_t* msg) {
 
-  UNUSED(data);
+  UNUSED(msg);
 }
 
-void ntoh_LLCP_GetStatusMsg_t(LLCP_GetStatusMsg_t* data) {
+void ntoh_LLCP_GetStatusMsg_t(LLCP_GetStatusMsg_t* msg) {
 
-  UNUSED(data);
+  UNUSED(msg);
+}
+
+void init_LLCP_GetStatusMsg_t(LLCP_GetStatusMsg_t* msg) {
+
+  msg->message_id = LLCP_GET_STATUS_MSG_ID;
 }
 
 //}

@@ -29,12 +29,12 @@ void gatherer_receiveCharCallback(Gatherer_Handler_t *gatherer_handler, const ui
         break;
       };
 
-      case LLCP_MEASURE_FRAME_MSG_ID: {
+      case LLCP_MEASURE_FRAME_REQ_MSG_ID: {
 
         LLCP_MeasureFrameReqMsg_t *msg = (LLCP_MeasureFrameReqMsg_t *)(&message_in.payload);
         ntoh_LLCP_MeasureFrameReqMsg_t(msg);
 
-        MeasureFrameReq_t *req = (MeasureFrameReq_t *)(&msg->payload);
+        LLCP_MeasureFrameReq_t *req = (LLCP_MeasureFrameReq_t *)(&msg->payload);
 
         mui_measureFrame(gatherer_handler->mui_handler_ptr_, req->acquisition_time_ms);
 
@@ -58,8 +58,10 @@ void gatherer_receiveCharCallback(Gatherer_Handler_t *gatherer_handler, const ui
 void gatherer_processImagePacket(Gatherer_Handler_t *gatherer_handler, const LLCP_FrameData_t *image_data) {
 
   LLCP_FrameDataMsg_t msg;
-  msg.message_id = LLCP_IMAGE_DATA_MSG_ID;
-  msg.payload    = *image_data;
+  init_LLCP_FrameDataMsg_t(&msg);
+
+  msg.payload = *image_data;
+
   hton_LLCP_FrameDataMsg_t(&msg);
 
   uint16_t n_bytes = llcp_prepareMessage((uint8_t *)&msg, sizeof(msg), gatherer_handler->tx_buffer);
@@ -73,8 +75,10 @@ void gatherer_processImagePacket(Gatherer_Handler_t *gatherer_handler, const LLC
 void gatherer_processStatus(Gatherer_Handler_t *gatherer_handler, const LLCP_Status_t *status) {
 
   LLCP_StatusMsg_t msg;
-  msg.message_id = LLCP_STATUS_MSG_ID;
-  msg.payload    = *status;
+  init_LLCP_StatusMsg_t(&msg);
+
+  msg.payload = *status;
+
   hton_LLCP_StatusMsg_t(&msg);
 
   uint16_t n_bytes = llcp_prepareMessage((uint8_t *)&msg, sizeof(msg), gatherer_handler->tx_buffer);
