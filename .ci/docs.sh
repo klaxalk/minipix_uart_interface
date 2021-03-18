@@ -1,7 +1,7 @@
 #!/bin/bash
 set -e
 
-sudo apt-get install doxygen doxygen-latex graphviz
+sudo apt-get -y install doxygen doxygen-latex graphviz
 
 cd software
 
