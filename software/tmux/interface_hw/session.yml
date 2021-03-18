@@ -7,4 +7,4 @@ windows:
       pre_window: echo pes
       panes:
         - ./minipix_dummy /dev/ttyUSB0 921600 0
-        - ./gatherer /dev/ttyUSB1 921600 0
+        - sleep 1; ./gatherer /dev/ttyUSB1 921600 0
