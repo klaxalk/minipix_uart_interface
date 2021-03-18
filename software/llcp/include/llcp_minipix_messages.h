@@ -18,7 +18,7 @@ extern "C" {
 
 // | ------- Pixel data, common to frame and stream mode ------ |
 
-/* struct LLCP_PixelData_t //{ */
+/* LLCP_PixelData_t //{ */
 
 /**
  * @brief Structure for holding pixel coordinates and measured pixel values.
