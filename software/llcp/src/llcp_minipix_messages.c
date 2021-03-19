@@ -368,19 +368,19 @@ void init_LLCP_StatusMsg_t(LLCP_StatusMsg_t* msg) {
 
 //}
 
-/* LLCP_GetStatusMsg_t //{ */
+/* LLCP_GetStatusReqMsg_t //{ */
 
-void hton_LLCP_GetStatusMsg_t(LLCP_GetStatusMsg_t* msg) {
-
-  UNUSED(msg);
-}
-
-void ntoh_LLCP_GetStatusMsg_t(LLCP_GetStatusMsg_t* msg) {
+void hton_LLCP_GetStatusReqMsg_t(LLCP_GetStatusReqMsg_t* msg) {
 
   UNUSED(msg);
 }
 
-void init_LLCP_GetStatusMsg_t(LLCP_GetStatusMsg_t* msg) {
+void ntoh_LLCP_GetStatusReqMsg_t(LLCP_GetStatusReqMsg_t* msg) {
+
+  UNUSED(msg);
+}
+
+void init_LLCP_GetStatusReqMsg_t(LLCP_GetStatusReqMsg_t* msg) {
 
   msg->message_id = LLCP_GET_STATUS_MSG_ID;
 }

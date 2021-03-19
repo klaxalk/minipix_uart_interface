@@ -21,11 +21,11 @@ uint8_t tx_buffer[SERIAL_BUFFER_SIZE];
 void getStatus() {
 
   // create the message
-  LLCP_GetStatusMsg_t msg;
-  init_LLCP_GetStatusMsg_t(&msg);
+  LLCP_GetStatusReqMsg_t msg;
+  init_LLCP_GetStatusReqMsg_t(&msg);
 
   // convert to network endian
-  hton_LLCP_GetStatusMsg_t(&msg);
+  hton_LLCP_GetStatusReqMsg_t(&msg);
 
   uint16_t n_bytes = llcp_prepareMessage((uint8_t*)&msg, sizeof(msg), tx_buffer);
 
@@ -122,7 +122,8 @@ int main(int argc, char* argv[]) {
 
   printf("Starting while loop\n");
 
-  measureFrame(1200);
+  getStatus();
+  /* measureFrame(1200); */
   /* maskPixel(10, 20); */
   /* startStream(200); */
 

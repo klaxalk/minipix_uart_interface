@@ -655,7 +655,7 @@ static_assert((sizeof(LLCP_StatusMsg_t) > 255) == 0, "LLCP_StatusMsg_t is too la
 
 //}
 
-/* LLCP_GetStatusMsg_t //{ */
+/* LLCP_GetStatusReqMsg_t //{ */
 
 /**
  * @brief LLCP Message for requesting a MiniPIX status.
@@ -663,30 +663,30 @@ static_assert((sizeof(LLCP_StatusMsg_t) > 255) == 0, "LLCP_StatusMsg_t is too la
 typedef struct __attribute__((packed))
 {
   uint8_t message_id;
-} LLCP_GetStatusMsg_t;
+} LLCP_GetStatusReqMsg_t;
 
 /**
- * @brief host-to-network conversion for LLCP_GetStatusMsg_t
+ * @brief host-to-network conversion for LLCP_GetStatusReqMsg_t
  *
  * @param msg
  */
-void hton_LLCP_GetStatusMsg_t(LLCP_GetStatusMsg_t* msg);
+void hton_LLCP_GetStatusReqMsg_t(LLCP_GetStatusReqMsg_t* msg);
 
 /**
- * @brief network-to-host conversion for LLCP_GetStatusMsg_t
+ * @brief network-to-host conversion for LLCP_GetStatusReqMsg_t
  *
  * @param msg
  */
-void ntoh_LLCP_GetStatusMsg_t(LLCP_GetStatusMsg_t* msg);
+void ntoh_LLCP_GetStatusReqMsg_t(LLCP_GetStatusReqMsg_t* msg);
 
 /**
- * @brief "constructor" for LLCP_GetStatusMsg_t
+ * @brief "constructor" for LLCP_GetStatusReqMsg_t
  *
  * @param msg
  */
-void init_LLCP_GetStatusMsg_t(LLCP_GetStatusMsg_t* msg);
+void init_LLCP_GetStatusReqMsg_t(LLCP_GetStatusReqMsg_t* msg);
 
-static_assert((sizeof(LLCP_GetStatusMsg_t) > 255) == 0, "LLCP_GetStatusMsg_t is too large");
+static_assert((sizeof(LLCP_GetStatusReqMsg_t) > 255) == 0, "LLCP_GetStatusReqMsg_t is too large");
 
 //}
 

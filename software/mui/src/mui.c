@@ -127,11 +127,11 @@ void mui_updatePixelMask(MUI_Handler_t* mui_handler, LLCP_UpdatePixelMaskReq_t* 
 void mui_getStatus(MUI_Handler_t* mui_handler) {
 
   // create the message
-  LLCP_GetStatusMsg_t msg;
-  init_LLCP_GetStatusMsg_t(&msg);
+  LLCP_GetStatusReqMsg_t msg;
+  init_LLCP_GetStatusReqMsg_t(&msg);
 
   // convert to network endian
-  hton_LLCP_GetStatusMsg_t(&msg);
+  hton_LLCP_GetStatusReqMsg_t(&msg);
 
   uint16_t n_bytes = llcp_prepareMessage((uint8_t*)&msg, sizeof(msg), mui_handler->tx_buffer);
 
