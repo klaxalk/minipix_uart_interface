@@ -59,6 +59,7 @@ void gatherer_receiveCharCallback(Gatherer_Handler_t *gatherer_handler, const ui
 
 void gatherer_processFrameData(Gatherer_Handler_t *gatherer_handler, const LLCP_FrameData_t *data);
 void gatherer_processStreamData(Gatherer_Handler_t *gatherer_handler, const LLCP_StreamData_t *data);
+void gatherer_processFrameDataTerminator(Gatherer_Handler_t *gatherer_handler, const LLCP_FrameDataTerminator_t *data);
 void gatherer_processStatus(Gatherer_Handler_t *gatherer_handler, const LLCP_Status_t *status);
 
 #ifdef __cplusplus

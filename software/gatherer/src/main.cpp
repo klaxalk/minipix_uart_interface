@@ -179,7 +179,7 @@ int main(int argc, char* argv[]) {
 
   /* std::this_thread::sleep_for(std::chrono::milliseconds(100)); */
 
-  pwr(false);
+  /* pwr(false); */
 
   while (true) {
 
@@ -212,14 +212,14 @@ int main(int argc, char* argv[]) {
 #ifdef GUI
               for (int pix = 0; pix < n_pixels; pix++) {
 
-                uint8_t  x   = image->pixel_data[pix].x_coordinate;
-                uint8_t  y   = image->pixel_data[pix].y_coordinate;
-                float toa = float(image->pixel_data[pix].toa);
-                float tot = float(image->pixel_data[pix].tot);
+                uint8_t x   = image->pixel_data[pix].x_coordinate;
+                uint8_t y   = image->pixel_data[pix].y_coordinate;
+                float   toa = float(image->pixel_data[pix].toa);
+                float   tot = float(image->pixel_data[pix].tot);
 
-                cv::Vec3f tot_color(0, 0, 1e3+pow(tot, 2.0)); // BGR
+                cv::Vec3f tot_color(0, 0, 1e3 + pow(tot, 2.0));  // BGR
 
-                cv::Vec3f toa_color(0, 1e3+pow(toa, 2.0), 0); // BGR
+                cv::Vec3f toa_color(0, 1e3 + pow(toa, 2.0), 0);  // BGR
 
                 printf("toa %.2f\n", toa);
 
@@ -252,6 +252,17 @@ int main(int argc, char* argv[]) {
               LLCP_Status_t* status = (LLCP_Status_t*)&msg->payload;
 
               printf("received status: boot count = %d, string: '%s'\n", status->boot_count, status->status_str);
+
+              break;
+            };
+
+            case LLCP_FRAME_DATA_TERMINATOR_MSG_ID: {
+
+              LLCP_FrameDataTerminatorMsg_t* msg = (LLCP_FrameDataTerminatorMsg_t*)&message_in.payload;
+              ntoh_LLCP_FrameDataTerminatorMsg_t(msg);
+              LLCP_FrameDataTerminator_t* terminator = (LLCP_FrameDataTerminator_t*)&msg->payload;
+
+              printf("received frame data terminator: frame id %d, packet count: %d\n", terminator->frame_id, terminator->n_packets);
 
               break;
             };

@@ -27,7 +27,8 @@ void init_LLCP_PixelData_t(LLCP_PixelData_t* data) {
 
 void hton_LLCP_FrameData_t(LLCP_FrameData_t* data) {
 
-  data->frame_id = llcp_hton16(data->frame_id);
+  data->frame_id  = llcp_hton16(data->frame_id);
+  data->packet_id = llcp_hton16(data->packet_id);
 
   for (uint8_t i = 0; i < data->n_pixels; i++) {
     hton_LLCP_PixelData_t(&(data->pixel_data[i]));
@@ -36,7 +37,8 @@ void hton_LLCP_FrameData_t(LLCP_FrameData_t* data) {
 
 void ntoh_LLCP_FrameData_t(LLCP_FrameData_t* data) {
 
-  data->frame_id = llcp_ntoh16(data->frame_id);
+  data->frame_id  = llcp_ntoh16(data->frame_id);
+  data->packet_id = llcp_ntoh16(data->packet_id);
 
   for (uint8_t i = 0; i < data->n_pixels; i++) {
     hton_LLCP_PixelData_t(&(data->pixel_data[i]));
@@ -45,8 +47,9 @@ void ntoh_LLCP_FrameData_t(LLCP_FrameData_t* data) {
 
 void init_LLCP_FrameData_t(LLCP_FrameData_t* data) {
 
-  data->frame_id = 0;
-  data->n_pixels = 0;
+  data->frame_id  = 0;
+  data->packet_id = 0;
+  data->n_pixels  = 0;
 
   for (uint8_t i = 0; i < LLCP_FRAME_DATA_N_PIXELS; i++) {
     init_LLCP_PixelData_t(&data->pixel_data[i]);
@@ -70,6 +73,49 @@ void init_LLCP_FrameDataMsg_t(LLCP_FrameDataMsg_t* msg) {
   msg->message_id = LLCP_FRAME_DATA_MSG_ID;
 
   init_LLCP_FrameData_t(&msg->payload);
+}
+
+//}
+
+/* LLCP_FrameDataTerminatorMsg_t //{ */
+
+/* LLCP_FrameDataTerminator_t //{ */
+
+void hton_LLCP_FrameDataTerminator_t(LLCP_FrameDataTerminator_t* data) {
+
+  data->frame_id  = llcp_hton16(data->frame_id);
+  data->n_packets = llcp_hton16(data->n_packets);
+}
+
+void ntoh_LLCP_FrameDataTerminator_t(LLCP_FrameDataTerminator_t* data) {
+
+  data->frame_id  = llcp_ntoh16(data->frame_id);
+  data->n_packets = llcp_ntoh16(data->n_packets);
+}
+
+void init_LLCP_FrameDataTerminator_t(LLCP_FrameDataTerminator_t* data) {
+
+  data->frame_id  = 0;
+  data->n_packets = 0;
+}
+
+//}
+
+void hton_LLCP_FrameDataTerminatorMsg_t(LLCP_FrameDataTerminatorMsg_t* msg) {
+
+  hton_LLCP_FrameDataTerminator_t(&msg->payload);
+}
+
+void ntoh_LLCP_FrameDataTerminatorMsg_t(LLCP_FrameDataTerminatorMsg_t* msg) {
+
+  ntoh_LLCP_FrameDataTerminator_t(&msg->payload);
+}
+
+void init_LLCP_FrameDataTerminatorMsg_t(LLCP_FrameDataTerminatorMsg_t* msg) {
+
+  msg->message_id = LLCP_FRAME_DATA_TERMINATOR_MSG_ID;
+
+  init_LLCP_FrameDataTerminator_t(&msg->payload);
 }
 
 //}
@@ -260,6 +306,86 @@ void init_LLCP_UpdatePixelMaskReqMsg_t(LLCP_UpdatePixelMaskReqMsg_t* msg) {
   msg->message_id = LLCP_UPDATE_PIXEL_MASK_REQ_MSG_ID;
 
   init_LLCP_UpdatePixelMaskReq_t(&msg->payload);
+}
+
+//}
+
+/* LLCP_SetThresholdReqMsg_t //{ */
+
+/* LLCP_SetThresholdReq_t //{ */
+
+void hton_LLCP_SetThresholdReq_t(LLCP_SetThresholdReq_t* data) {
+
+  data->threshold = llcp_hton16(data->threshold);
+}
+
+void ntoh_LLCP_SetThresholdReq_t(LLCP_SetThresholdReq_t* data) {
+
+  data->threshold = llcp_ntoh16(data->threshold);
+}
+
+void init_LLCP_SetThresholdReq_t(LLCP_SetThresholdReq_t* data) {
+
+  data->threshold = 0;
+}
+
+//}
+
+void hton_LLCP_SetThresholdReqMsg_t(LLCP_SetThresholdReqMsg_t* msg) {
+
+  hton_LLCP_SetThresholdReq_t(&msg->payload);
+}
+
+void ntoh_LLCP_SetThresholdReqMsg_t(LLCP_SetThresholdReqMsg_t* msg) {
+
+  ntoh_LLCP_SetThresholdReq_t(&msg->payload);
+}
+
+void init_LLCP_SetThresholdReqMsg_t(LLCP_SetThresholdReqMsg_t* msg) {
+
+  msg->message_id = LLCP_SET_THRESHOLD_REQ_MSG_ID;
+
+  init_LLCP_SetThresholdReq_t(&msg->payload);
+}
+
+//}
+
+/* LLCP_SetConfigurationPresetReqMsg_t //{ */
+
+/* LLCP_SetConfigurationPresetReq_t //{ */
+
+void hton_LLCP_SetConfigurationPresetReq_t(LLCP_SetConfigurationPresetReq_t* data) {
+
+  UNUSED(data);
+}
+
+void ntoh_LLCP_SetConfigurationPresetReq_t(LLCP_SetConfigurationPresetReq_t* data) {
+
+  UNUSED(data);
+}
+
+void init_LLCP_SetConfigurationPresetReq_t(LLCP_SetConfigurationPresetReq_t* data) {
+
+  data->preset = 0;
+}
+
+//}
+
+void hton_LLCP_SetConfigurationPresetReqMsg_t(LLCP_SetConfigurationPresetReqMsg_t* msg) {
+
+  hton_LLCP_SetConfigurationPresetReq_t(&msg->payload);
+}
+
+void ntoh_LLCP_SetConfigurationPresetReqMsg_t(LLCP_SetConfigurationPresetReqMsg_t* msg) {
+
+  ntoh_LLCP_SetConfigurationPresetReq_t(&msg->payload);
+}
+
+void init_LLCP_SetConfigurationPresetReqMsg_t(LLCP_SetConfigurationPresetReqMsg_t* msg) {
+
+  msg->message_id = LLCP_SET_CONFIGURATION_PRESET_REQ_MSG_ID;
+
+  init_LLCP_SetConfigurationPresetReq_t(&msg->payload);
 }
 
 //}

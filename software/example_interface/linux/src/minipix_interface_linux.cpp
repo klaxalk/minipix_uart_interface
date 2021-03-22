@@ -47,6 +47,15 @@ void mui_linux_processFrameData(const LLCP_FrameData_t *data) {
 
 //}
 
+/* mui_linux_processFrameDataTerminator() //{ */
+
+void mui_linux_processFrameDataTerminator(const LLCP_FrameDataTerminator_t *data) {
+
+  gatherer_processFrameDataTerminator(&gatherer_handler_, data);
+}
+
+//}
+
 /* mui_linux_processStreamData() //{ */
 
 void mui_linux_processStreamData(const LLCP_StreamData_t *data) {

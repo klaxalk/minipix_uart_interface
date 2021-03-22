@@ -115,13 +115,14 @@ int main(void) {
 
   // | -------- initialize the MiniPIX interface library -------- |
 
-  mui_handler_.fcns.ledSetHW          = &mui_stm_ledSetHW;
-  mui_handler_.fcns.sleepHW           = &mui_stm_sleepHW;
-  mui_handler_.fcns.processFrameData  = &mui_stm_processFrameData;
-  mui_handler_.fcns.processStreamData = &mui_stm_processStreamData;
-  mui_handler_.fcns.processStatus     = &mui_stm_processStatus;
-  mui_handler_.fcns.sendChar          = &mui_stm_sendChar;
-  mui_handler_.fcns.sendString        = &mui_stm_sendString;
+  mui_handler_.fcns.ledSetHW                   = &mui_stm_ledSetHW;
+  mui_handler_.fcns.sleepHW                    = &mui_stm_sleepHW;
+  mui_handler_.fcns.processFrameData           = &mui_stm_processFrameData;
+  mui_handler_.fcns.processFrameDataTerminator = &mui_stm_processFrameDataTerminator;
+  mui_handler_.fcns.processStreamData          = &mui_stm_processStreamData;
+  mui_handler_.fcns.processStatus              = &mui_stm_processStatus;
+  mui_handler_.fcns.sendChar                   = &mui_stm_sendChar;
+  mui_handler_.fcns.sendString                 = &mui_stm_sendString;
 
   mui_initialize(&mui_handler_);
 

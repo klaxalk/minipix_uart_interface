@@ -18,7 +18,7 @@ void mui_initialize(MUI_Handler_t* mui_handler) {
 
 /* mui_pwr() //{ */
 
-void mui_pwr(MUI_Handler_t *mui_handler, const bool state) {
+void mui_pwr(MUI_Handler_t* mui_handler, const bool state) {
 
   // create the message
   LLCP_PwrReqMsg_t msg;
@@ -163,6 +163,21 @@ void mui_receiveCharCallback(MUI_Handler_t* mui_handler, const uint8_t byte_in) 
 
         // call the user's callback
         mui_handler->fcns.processFrameData(&(msg->payload));
+
+        // send ack back to MiniPIX
+        mui_sendAck(mui_handler, true);
+
+        break;
+      };
+
+      case LLCP_FRAME_DATA_TERMINATOR_MSG_ID: {
+
+        // load up the message and convert it to our endian
+        LLCP_FrameDataTerminatorMsg_t* msg = (LLCP_FrameDataTerminatorMsg_t*)&(message_in.payload);
+        ntoh_LLCP_FrameDataTerminatorMsg_t(msg);
+
+        // call the user's callback
+        mui_handler->fcns.processFrameDataTerminator(&(msg->payload));
 
         // send ack back to MiniPIX
         mui_sendAck(mui_handler, true);

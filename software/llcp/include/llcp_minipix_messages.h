@@ -26,6 +26,7 @@ extern "C" {
 // frame-based measurement
 #define LLCP_FRAME_DATA_MSG_ID 20
 #define LLCP_MEASURE_FRAME_REQ_MSG_ID 21
+#define LLCP_FRAME_DATA_TERMINATOR_MSG_ID 22
 
 // stream-based measurement
 #define LLCP_STREAM_DATA_MSG_ID 31
@@ -41,6 +42,12 @@ extern "C" {
 
 // power
 #define LLCP_PWR_REQ_MSG_ID 60
+
+// threshold
+#define LLCP_SET_THRESHOLD_REQ_MSG_ID 70
+
+// configuration presets
+#define LLCP_SET_CONFIGURATION_PRESET_REQ_MSG_ID 80
 
 //}
 
@@ -156,6 +163,76 @@ void ntoh_LLCP_FrameDataMsg_t(LLCP_FrameDataMsg_t* msg);
 void init_LLCP_FrameDataMsg_t(LLCP_FrameDataMsg_t* msg);
 
 static_assert((sizeof(LLCP_FrameDataMsg_t) > 255) == 0, "LLCP_FrameDataMsg_t is too large");
+
+//}
+
+/* LLCP_FrameDataTerminatorMsg_t //{ */
+
+/* struct LLCP_FrameDataTerminator_t //{ */
+
+/**
+ * @brief Message data for LLCP_FrameDataTerminatorMsg_t
+ */
+typedef struct __attribute__((packed))
+{
+  uint16_t frame_id;   // a unique identifier of the frame, can be used to stitch the packets together
+  uint16_t n_packets;  // how many packets were sent
+} LLCP_FrameDataTerminator_t;
+
+/**
+ * @brief host-to-network conversion for LLCP_FrameDataTerminator_t
+ *
+ * @param data
+ */
+void hton_LLCP_FrameDataTerminator_t(LLCP_FrameDataTerminator_t* data);
+
+/**
+ * @brief network-to-host conversion for LLCP_FrameDataTerminator_t
+ *
+ * @param data
+ */
+void ntoh_LLCP_FrameDataTerminator_t(LLCP_FrameDataTerminator_t* data);
+
+/**
+ * @brief "constructor" for LLCP_FrameDataTerminator_t
+ *
+ * @param data
+ */
+void init_LLCP_FrameDataTerminator_t(LLCP_FrameDataTerminator_t* data);
+
+//}
+
+/**
+ * @brief LLCP Message for sending image data.
+ */
+typedef struct __attribute__((packed))
+{
+  uint8_t                    message_id;
+  LLCP_FrameDataTerminator_t payload;
+} LLCP_FrameDataTerminatorMsg_t;
+
+/**
+ * @brief host-to-network conversion for LLCP_FrameDataTerminatorMsg_t
+ *
+ * @param data
+ */
+void hton_LLCP_FrameDataTerminatorMsg_t(LLCP_FrameDataTerminatorMsg_t* msg);
+
+/**
+ * @brief network-to-host conversion for LLCP_FrameDataTerminatorMsg_t
+ *
+ * @param data
+ */
+void ntoh_LLCP_FrameDataTerminatorMsg_t(LLCP_FrameDataTerminatorMsg_t* msg);
+
+/**
+ * @brief "constructor" for LLCP_FrameDataTerminatorMsg_t
+ *
+ * @param data
+ */
+void init_LLCP_FrameDataTerminatorMsg_t(LLCP_FrameDataTerminatorMsg_t* msg);
+
+static_assert((sizeof(LLCP_FrameDataTerminatorMsg_t) > 255) == 0, "LLCP_FrameDataTerminatorMsg_t is too large");
 
 //}
 
@@ -477,6 +554,148 @@ void ntoh_LLCP_UpdatePixelMaskReqMsg_t(LLCP_UpdatePixelMaskReqMsg_t* msg);
 void init_LLCP_UpdatePixelMaskReqMsg_t(LLCP_UpdatePixelMaskReqMsg_t* msg);
 
 static_assert((sizeof(LLCP_UpdatePixelMaskReqMsg_t) > 255) == 0, "LLCP_UpdatePixelMaskReqMsg_t is too large");
+
+//}
+
+// | ------------------------ Threshold ----------------------- |
+
+/* LLCP_SetThresholdReqMsg_t //{ */
+
+/* struct LLCP_SetThresholdReq_t //{ */
+
+/**
+ * @brief Message data for LLCP_SetThresholdReqMsg_t.
+ */
+typedef struct __attribute__((packed))
+{
+  uint16_t threshold;
+} LLCP_SetThresholdReq_t;
+
+/**
+ * @brief host-to-network conversion for LLCP_SetThresholdReq_t
+ *
+ * @param data
+ */
+void hton_LLCP_SetThresholdReq_t(LLCP_SetThresholdReq_t* data);
+
+/**
+ * @brief network-to-host conversion for LLCP_SetThresholdReq_t
+ *
+ * @param data
+ */
+void ntoh_LLCP_SetThresholdReq_t(LLCP_SetThresholdReq_t* data);
+
+/**
+ * @brief "constructor" for LLCP_SetThresholdReq_t
+ *
+ * @param data
+ */
+void init_LLCP_SetThresholdReq_t(LLCP_SetThresholdReq_t* data);
+
+//}
+
+/**
+ * @brief LLCP Message for updating a pixel mask.
+ */
+typedef struct __attribute__((packed))
+{
+  uint8_t                message_id;
+  LLCP_SetThresholdReq_t payload;
+} LLCP_SetThresholdReqMsg_t;
+
+/**
+ * @brief host-to-network conversion for LLCP_SetThresholdReqMsg_t
+ *
+ * @param msg
+ */
+void hton_LLCP_SetThresholdReqMsg_t(LLCP_SetThresholdReqMsg_t* msg);
+
+/**
+ * @brief network-to-host conversion for LLCP_SetThresholdReqMsg_t
+ *
+ * @param msg
+ */
+void ntoh_LLCP_SetThresholdReqMsg_t(LLCP_SetThresholdReqMsg_t* msg);
+
+/**
+ * @brief "constructor" for LLCP_SetThresholdReqMsg_t
+ *
+ * @param msg
+ */
+void init_LLCP_SetThresholdReqMsg_t(LLCP_SetThresholdReqMsg_t* msg);
+
+static_assert((sizeof(LLCP_SetThresholdReqMsg_t) > 255) == 0, "LLCP_SetThresholdReqMsg_t is too large");
+
+//}
+
+// | ---------------------- Configuration --------------------- |
+
+/* LLCP_SetConfigurationPresetReqMsg_t //{ */
+
+/* struct LLCP_SetConfigurationPresetReq_t //{ */
+
+/**
+ * @brief Message data for LLCP_SetConfigurationPresetReqMsg_t.
+ */
+typedef struct __attribute__((packed))
+{
+  uint8_t preset;
+} LLCP_SetConfigurationPresetReq_t;
+
+/**
+ * @brief host-to-network conversion for LLCP_SetConfigurationPresetReq_t
+ *
+ * @param data
+ */
+void hton_LLCP_SetConfigurationPresetReq_t(LLCP_SetConfigurationPresetReq_t* data);
+
+/**
+ * @brief network-to-host conversion for LLCP_SetConfigurationPresetReq_t
+ *
+ * @param data
+ */
+void ntoh_LLCP_SetConfigurationPresetReq_t(LLCP_SetConfigurationPresetReq_t* data);
+
+/**
+ * @brief "constructor" for LLCP_SetConfigurationPresetReq_t
+ *
+ * @param data
+ */
+void init_LLCP_SetConfigurationPresetReq_t(LLCP_SetConfigurationPresetReq_t* data);
+
+//}
+
+/**
+ * @brief LLCP Message for updating a pixel mask.
+ */
+typedef struct __attribute__((packed))
+{
+  uint8_t                          message_id;
+  LLCP_SetConfigurationPresetReq_t payload;
+} LLCP_SetConfigurationPresetReqMsg_t;
+
+/**
+ * @brief host-to-network conversion for LLCP_SetConfigurationPresetReqMsg_t
+ *
+ * @param msg
+ */
+void hton_LLCP_SetConfigurationPresetReqMsg_t(LLCP_SetConfigurationPresetReqMsg_t* msg);
+
+/**
+ * @brief network-to-host conversion for LLCP_SetConfigurationPresetReqMsg_t
+ *
+ * @param msg
+ */
+void ntoh_LLCP_SetConfigurationPresetReqMsg_t(LLCP_SetConfigurationPresetReqMsg_t* msg);
+
+/**
+ * @brief "constructor" for LLCP_SetConfigurationPresetReqMsg_t
+ *
+ * @param msg
+ */
+void init_LLCP_SetConfigurationPresetReqMsg_t(LLCP_SetConfigurationPresetReqMsg_t* msg);
+
+static_assert((sizeof(LLCP_SetConfigurationPresetReqMsg_t) > 255) == 0, "LLCP_SetConfigurationPresetReqMsg_t is too large");
 
 //}
 

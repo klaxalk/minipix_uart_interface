@@ -22,6 +22,7 @@ void mui_stm_ledSetHW(bool state);
 void mui_stm_sendChar(const uint8_t char_out);
 void mui_stm_sendString(const uint8_t *str_out, const uint16_t len);
 void mui_stm_processFrameData(const LLCP_FrameData_t *data);
+void mui_stm_processFrameDataTerminator(const LLCP_FrameDataTerminator_t *data);
 void mui_stm_processStreamData(const LLCP_StreamData_t *data);
 void mui_stm_processStatus(const LLCP_Status_t *status);
 

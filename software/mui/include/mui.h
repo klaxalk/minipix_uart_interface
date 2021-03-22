@@ -48,6 +48,14 @@ typedef void (*mui_processFrameData_t)(const LLCP_FrameData_t *image_data);
 
 /**
  * @brief Function pointer to user implementation of callback to process
+ * incoming Frame data terminator (the last packet).
+ *
+ * @param pointer to the structure with the data
+ */
+typedef void (*mui_processFrameDataTerminator_t)(const LLCP_FrameDataTerminator_t *terminator);
+
+/**
+ * @brief Function pointer to user implementation of callback to process
  * incoming Stream data.
  *
  * @param pointer to the structure with the data
@@ -76,13 +84,14 @@ typedef void (*mui_sleepHW_t)(const uint16_t duration);
  */
 typedef struct
 {
-  mui_ledSetHW_t          ledSetHW;
-  mui_sendChar_t          sendChar;
-  mui_sendString_t        sendString;
-  mui_processFrameData_t  processFrameData;
-  mui_processStreamData_t processStreamData;
-  mui_processStatus_t     processStatus;
-  mui_sleepHW_t           sleepHW;
+  mui_ledSetHW_t                   ledSetHW;
+  mui_sendChar_t                   sendChar;
+  mui_sendString_t                 sendString;
+  mui_processFrameData_t           processFrameData;
+  mui_processFrameDataTerminator_t processFrameDataTerminator;
+  mui_processStreamData_t          processStreamData;
+  mui_processStatus_t              processStatus;
+  mui_sleepHW_t                    sleepHW;
 } MUI_FcnPrototypes_t;
 
 typedef struct

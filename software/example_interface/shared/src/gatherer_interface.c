@@ -108,6 +108,26 @@ void gatherer_processFrameData(Gatherer_Handler_t *gatherer_handler, const LLCP_
 
 //}
 
+/* gatherer_processFrameTerminatorData() //{ */
+
+void gatherer_processFrameDataTerminator(Gatherer_Handler_t *gatherer_handler, const LLCP_FrameDataTerminator_t *data) {
+
+  // create the message
+  LLCP_FrameDataTerminatorMsg_t msg;
+  init_LLCP_FrameDataTerminatorMsg_t(&msg);
+
+  // fill in the payload
+  msg.payload = *data;
+
+  // convert it to the network endian
+  hton_LLCP_FrameDataTerminatorMsg_t(&msg);
+
+  uint16_t n_bytes = llcp_prepareMessage((uint8_t *)&msg, sizeof(msg), gatherer_handler->tx_buffer);
+  gatherer_handler->fcns.sendString(gatherer_handler->tx_buffer, n_bytes);
+}
+
+//}
+
 /* gatherer_processStreamData() //{ */
 
 void gatherer_processStreamData(Gatherer_Handler_t *gatherer_handler, const LLCP_StreamData_t *data) {

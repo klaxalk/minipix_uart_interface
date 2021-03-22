@@ -41,7 +41,9 @@ void MinipixDummy::ingegralFrameMeasurement(const uint16_t &acquisition_time) {
 
   sleep(acquisition_time);
 
-  for (int j = 0; j < 100; j++) {
+  const int n_packets = 100;
+
+  for (int j = 0; j < n_packets; j++) {
 
     uint8_t n_pixels = LLCP_FRAME_DATA_N_PIXELS;
 
@@ -57,10 +59,10 @@ void MinipixDummy::ingegralFrameMeasurement(const uint16_t &acquisition_time) {
 
     for (int i = 0; i < n_pixels; i++) {
       LLCP_PixelData_t *pixel = (LLCP_PixelData_t *)&image_data.payload.pixel_data[i];
-      pixel->x_coordinate     = j+i;
+      pixel->x_coordinate     = j + i;
       pixel->y_coordinate     = j;
       pixel->tot              = i;
-      pixel->toa              = j*41 + i;
+      pixel->toa              = j * 41 + i;
       pixel->fast_toa         = 0;
     }
 
@@ -71,6 +73,21 @@ void MinipixDummy::ingegralFrameMeasurement(const uint16_t &acquisition_time) {
 
     sendMessage(tx_buffer_, n_bytes);
   }
+
+  // | ---------------- send FrameDataTerminator ---------------- |
+
+  // create the message
+  LLCP_FrameDataTerminatorMsg_t terminator;
+  init_LLCP_FrameDataTerminatorMsg_t(&terminator);
+
+  terminator.payload.frame_id  = frame_id_;
+  terminator.payload.n_packets = n_packets;
+
+  hton_LLCP_FrameDataTerminatorMsg_t(&terminator);
+
+  uint16_t n_bytes = llcp_prepareMessage((uint8_t *)&terminator, sizeof(terminator), tx_buffer_);
+
+  sendMessage(tx_buffer_, n_bytes);
 
   frame_id_++;
 }

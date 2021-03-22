@@ -60,6 +60,15 @@ void mui_stm_processFrameData(const LLCP_FrameData_t *data) {
 
 //}
 
+/* mui_stm_processFrameDataTerminator() //{ */
+
+void mui_stm_processFrameDataTerminator(const LLCP_FrameDataTerminator_t *data) {
+
+  gatherer_processFrameDataTerminator((Gatherer_Handler_t *)gatherer_handler_ptr_, data);
+}
+
+//}
+
 /* mui_stm_processStreamData() //{ */
 
 void mui_stm_processStreamData(const LLCP_StreamData_t *data) {
