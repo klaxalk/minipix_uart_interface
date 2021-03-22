@@ -234,7 +234,7 @@ static_assert((sizeof(LLCP_MeasureFrameReqMsg_t) > 255) == 0, "LLCP_MeasureFrame
 
 /* struct LLCP_StreamData_t //{ */
 
-#define LLCP_STREAM_DATA_N_PIXELS 31
+#define LLCP_STREAM_DATA_N_PIXELS 41
 
 /**
  * @brief Message data for LLCP_StreamDataMsg_t

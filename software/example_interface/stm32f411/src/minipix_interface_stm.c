@@ -24,15 +24,6 @@ void mui_stm_setGathererHandler(Gatherer_Handler_t *gatherer_handler) {
 
 // | ------------------ the prototype methods ----------------- |
 
-/* mui_stm_ledSetHW() //{ */
-
-void mui_stm_ledSetHW(const bool new_state) {
-
-  HAL_GPIO_WritePin(LD2_GPIO_Port, LD2_Pin, new_state ? GPIO_PIN_SET : GPIO_PIN_RESET);
-}
-
-//}
-
 /* mui_stm_sleepHW() //{ */
 
 void mui_stm_sleepHW(const uint16_t milliseconds) {
@@ -83,6 +74,15 @@ void mui_stm_processStreamData(const LLCP_StreamData_t *data) {
 void mui_stm_processStatus(const LLCP_Status_t *status) {
 
   gatherer_processStatus((Gatherer_Handler_t *)gatherer_handler_ptr_, status);
+}
+
+//}
+
+/* mui_stm_ledSetHW() //{ */
+
+void mui_stm_ledSetHW(const bool new_state) {
+
+  HAL_GPIO_WritePin(LD2_GPIO_Port, LD2_Pin, new_state ? GPIO_PIN_SET : GPIO_PIN_RESET);
 }
 
 //}

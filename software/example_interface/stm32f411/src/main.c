@@ -116,6 +116,7 @@ int main(void) {
   // | -------- initialize the MiniPIX interface library -------- |
 
   mui_handler_.fcns.ledSetHW          = &mui_stm_ledSetHW;
+  mui_handler_.fcns.sleepHW           = &mui_stm_sleepHW;
   mui_handler_.fcns.processFrameData  = &mui_stm_processFrameData;
   mui_handler_.fcns.processStreamData = &mui_stm_processStreamData;
   mui_handler_.fcns.processStatus     = &mui_stm_processStatus;
@@ -153,8 +154,10 @@ int main(void) {
 
     /* USER CODE END WHILE */
 
-    HAL_GPIO_TogglePin(LD2_GPIO_Port, LD2_Pin);
-    HAL_Delay(500);
+    /* HAL_GPIO_TogglePin(LD2_GPIO_Port, LD2_Pin); */
+    /* HAL_Delay(500); */
+
+    mui_update(&mui_handler_);
 
     /* USER CODE BEGIN 3 */
   }

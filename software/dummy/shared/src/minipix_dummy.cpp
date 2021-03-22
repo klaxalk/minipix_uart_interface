@@ -43,7 +43,7 @@ void MinipixDummy::ingegralFrameMeasurement(const uint16_t &acquisition_time) {
 
   for (int j = 0; j < 100; j++) {
 
-    uint8_t n_pixels = 41;
+    uint8_t n_pixels = LLCP_FRAME_DATA_N_PIXELS;
 
     // create the message
     LLCP_FrameDataMsg_t image_data;
@@ -68,6 +68,7 @@ void MinipixDummy::ingegralFrameMeasurement(const uint16_t &acquisition_time) {
     hton_LLCP_FrameDataMsg_t(&image_data);
 
     uint16_t n_bytes = llcp_prepareMessage((uint8_t *)&image_data, sizeof(image_data), tx_buffer_);
+
     sendMessage(tx_buffer_, n_bytes);
   }
 

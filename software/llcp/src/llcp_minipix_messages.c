@@ -16,7 +16,7 @@ void ntoh_LLCP_PixelData_t(LLCP_PixelData_t* data) {
 
 void init_LLCP_PixelData_t(LLCP_PixelData_t* data) {
 
-  memset(&data, 0, sizeof(LLCP_PixelData_t));
+  memset(data, 0, sizeof(LLCP_PixelData_t));
 }
 
 //}

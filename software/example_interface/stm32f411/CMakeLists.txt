@@ -2,13 +2,13 @@ cmake_minimum_required(VERSION 3.13)
 
 set(CMAKE_TOOLCHAIN_FILE ${CMAKE_CURRENT_SOURCE_DIR}/cmake/stm32_gcc.cmake)
 
+set(CMAKE_EXPORT_COMPILE_COMMANDS ON)
+
 project(example_interface C ASM) # add CXX for c++
 
 set(STM32_TOOLCHAIN_PATH /usr/bin)
 set(STM32_CUBE_F4_PATH /usr/local/STM32Cube_FW_F4_V1.26.0)
 set(STM32_TARGET_TRIPLET arm-none-eabi)
-
-set(CMAKE_EXPORT_COMPILE_COMMANDS ON)
 
 set(CMAKE_C_FLAGS "${CMAKE_C_FLAGS} -g -O0 -Wall -Wextra")
 # set(CMAKE_C_FLAGS "${CMAKE_C_FLAGS} -O3 -Wall -Wextra")
