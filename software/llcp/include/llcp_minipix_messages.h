@@ -6,8 +6,9 @@ extern "C" {
 #endif
 
 #include <stdint.h>
-#include <string.h>
-#include <assert.h>
+#include <stdbool.h>
+#include <assert.h>  // for assert checks of byte sizes
+#include <string.h>  // for memset
 #include <llcp_endian.h>
 
 /* definition of message IDs //{ */
@@ -20,7 +21,7 @@ extern "C" {
 
 // status
 #define LLCP_STATUS_MSG_ID 10
-#define LLCP_GET_STATUS_MSG_ID 11
+#define LLCP_GET_STATUS_REQ_MSG_ID 11
 
 // frame-based measurement
 #define LLCP_FRAME_DATA_MSG_ID 20
@@ -38,22 +39,25 @@ extern "C" {
 // masking
 #define LLCP_UPDATE_PIXEL_MASK_REQ_MSG_ID 50
 
+// power
+#define LLCP_PWR_REQ_MSG_ID 60
+
 //}
 
 // | ------- Pixel data, common to frame and stream mode ------ |
 
 /* LLCP_PixelData_t //{ */
 
-#define LLCP_PIXEL_BYTES 6
-
 /**
  * @brief Structure for holding pixel coordinates and measured pixel values.
  */
 typedef struct __attribute__((packed))
 {
-  uint8_t x_coordinate;
-  uint8_t y_coordinate;
-  uint8_t data[LLCP_PIXEL_BYTES];
+  uint8_t  x_coordinate : 8;
+  uint8_t  y_coordinate : 8;
+  uint16_t tot : 10;
+  uint16_t toa : 16;
+  uint16_t fast_toa : 4;
 } LLCP_PixelData_t;
 
 /**
@@ -85,7 +89,7 @@ void init_LLCP_PixelData_t(LLCP_PixelData_t* data);
 
 /* struct LLCP_FrameData_t //{ */
 
-#define LLCP_FRAME_DATA_N_PIXELS 31
+#define LLCP_FRAME_DATA_N_PIXELS 41
 
 /**
  * @brief Message data for LLCP_FrameDataMsg_t
@@ -93,6 +97,7 @@ void init_LLCP_PixelData_t(LLCP_PixelData_t* data);
 typedef struct __attribute__((packed))
 {
   uint16_t         frame_id;  // a unique identifier of the frame, can be used to stitch the packets together
+  uint16_t         packet_id;
   uint8_t          n_pixels;  // how many pixels are filled in
   LLCP_PixelData_t pixel_data[LLCP_FRAME_DATA_N_PIXELS];
 } LLCP_FrameData_t;
@@ -367,41 +372,6 @@ static_assert((sizeof(LLCP_MeasureStreamReqMsg_t) > 255) == 0, "LLCP_MeasureStre
 
 //}
 
-/* LLCP_StopStreamReqMsg_t //{ */
-
-/**
- * @brief LLCP Message for requesting of stopping the stream measurement.
- */
-typedef struct __attribute__((packed))
-{
-  uint8_t message_id;
-} LLCP_StopStreamReqMsg_t;
-
-/**
- * @brief host-to-network conversion for LLCP_StopStreamReqMsg_t
- *
- * @param msg
- */
-void hton_LLCP_StopStreamReqMsg_t(LLCP_StopStreamReqMsg_t* msg);
-
-/**
- * @brief network-to-host conversion for LLCP_StopStreamReqMsg_t
- *
- * @param msg
- */
-void ntoh_LLCP_StopStreamReqMsg_t(LLCP_StopStreamReqMsg_t* msg);
-
-/**
- * @brief "constructor" for LLCP_StopStreamReqMsg_t
- *
- * @param msg
- */
-void init_LLCP_StopStreamReqMsg_t(LLCP_StopStreamReqMsg_t* msg);
-
-static_assert((sizeof(LLCP_StopStreamReqMsg_t) > 255) == 0, "LLCP_StopStreamReqMsg_t is too large");
-
-//}
-
 /* LLCP_FlushBufferReqMsg_t //{ */
 
 /**
@@ -578,6 +548,77 @@ void ntoh_LLCP_AckMsg_t(LLCP_AckMsg_t* msg);
 void init_LLCP_AckMsg_t(LLCP_AckMsg_t* msg);
 
 static_assert((sizeof(LLCP_AckMsg_t) > 255) == 0, "LLCP_AckMsg_t is too large");
+
+//}
+
+// | -------------------------- Power ------------------------- |
+
+/* LLCP_PwrReqMsg_t //{ */
+
+/* LLCP_PwrReq_t //{ */
+
+/**
+ * @brief Message data for LLCP_PwrReqMsg_t
+ */
+typedef struct __attribute__((packed))
+{
+  bool state;  // true = ON, false = OFF
+} LLCP_PwrReq_t;
+
+/**
+ * @brief host-to-network conversion for LLCP_PwrReq_t
+ *
+ * @param data
+ */
+void hton_LLCP_PwrReq_t(LLCP_PwrReq_t* data);
+
+/**
+ * @brief network-to-host conversion for LLCP_PwrReq_t
+ *
+ * @param data
+ */
+void ntoh_LLCP_PwrReq_t(LLCP_PwrReq_t* data);
+
+/**
+ * @brief "constructor" for LLCP_PwrReq_t
+ *
+ * @param data
+ */
+void init_LLCP_PwrReq_t(LLCP_PwrReq_t* data);
+
+//}
+
+/**
+ * @brief LLCP Message for requesting a frame measurement.
+ */
+typedef struct __attribute__((packed))
+{
+  uint8_t       message_id;
+  LLCP_PwrReq_t payload;
+} LLCP_PwrReqMsg_t;
+
+/**
+ * @brief host-to-network conversion for LLCP_PwrReqMsg_t
+ *
+ * @param msg
+ */
+void hton_LLCP_PwrReqMsg_t(LLCP_PwrReqMsg_t* msg);
+
+/**
+ * @brief network-to-host conversion for LLCP_PwrReqMsg_t
+ *
+ * @param msg
+ */
+void ntoh_LLCP_PwrReqMsg_t(LLCP_PwrReqMsg_t* msg);
+
+/**
+ * @brief "constructor" for LLCP_PwrReqMsg_t
+ *
+ * @param msg
+ */
+void init_LLCP_PwrReqMsg_t(LLCP_PwrReqMsg_t* msg);
+
+static_assert((sizeof(LLCP_PwrReqMsg_t) > 255) == 0, "LLCP_PwrReqMsg_t is too large");
 
 //}
 

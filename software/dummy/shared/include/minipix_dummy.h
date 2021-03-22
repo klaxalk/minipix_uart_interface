@@ -45,6 +45,8 @@ private:
 
   std::atomic<bool> stream_measurement_on_ = false;
   uint16_t stream_measurement_duty_cycle = 0;
+
+  std::atomic<bool> powered_ = false;
 };
 
 #endif  // MINIPIX_DUMMY_H

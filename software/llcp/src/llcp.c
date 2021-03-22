@@ -29,9 +29,22 @@ uint8_t llcp_hex2bin(const uint8_t* ptr) {
 
 /* llcp_bin2hex() //{ */
 
-void llcp_bin2hex(const uint8_t byte, uint8_t* buffer) {
 
-  sprintf((char*)buffer, "%02X", byte);
+/**
+ * @brief convert a single byte to hexadecimal
+ *
+ * @param x the byte to convert
+ * @param buffer pointer to a 2-char buffer for the result
+ */
+void llcp_bin2hex(const uint8_t x, uint8_t* buffer) {
+
+  if (x >= 16) {
+    *buffer = "0123456789ABCDEF"[x / 16];
+    *(buffer+1) = "0123456789ABCDEF"[x & 15];
+  } else {
+    *buffer = '0';
+    *(buffer+1) = "0123456789ABCDEF"[x];
+  }
 }
 
 //}

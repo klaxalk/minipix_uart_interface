@@ -10,8 +10,29 @@ void mui_initialize(MUI_Handler_t* mui_handler) {
 
   // initialize the inner state of the LLCP receiver
   llcp_initialize(&mui_handler->llcp_receiver);
+}
 
-  printf("[MinipixInterface]: initialized\n");
+//}
+
+// | -------------------------- power ------------------------- |
+
+/* mui_pwr() //{ */
+
+void mui_pwr(MUI_Handler_t *mui_handler, const bool state) {
+
+  // create the message
+  LLCP_PwrReqMsg_t msg;
+  init_LLCP_PwrReqMsg_t(&msg);
+
+  // fill in the payload
+  msg.payload.state = state;
+
+  // convert to network endian
+  hton_LLCP_PwrReqMsg_t(&msg);
+
+  uint16_t n_bytes = llcp_prepareMessage((uint8_t*)&msg, sizeof(msg), mui_handler->tx_buffer);
+
+  mui_handler->fcns.sendString(mui_handler->tx_buffer, n_bytes);
 }
 
 //}
@@ -54,24 +75,6 @@ void mui_measureStream(MUI_Handler_t* mui_handler, const uint16_t duty_cycle) {
 
   // convert to network endian
   hton_LLCP_MeasureStreamReqMsg_t(&msg);
-
-  uint16_t n_bytes = llcp_prepareMessage((uint8_t*)&msg, sizeof(msg), mui_handler->tx_buffer);
-
-  mui_handler->fcns.sendString(mui_handler->tx_buffer, n_bytes);
-}
-
-//}
-
-/* mui_stopStream() //{ */
-
-void mui_stopStream(MUI_Handler_t* mui_handler) {
-
-  // create the message
-  LLCP_StopStreamReqMsg_t msg;
-  init_LLCP_StopStreamReqMsg_t(&msg);
-
-  // convert to network endian
-  hton_LLCP_StopStreamReqMsg_t(&msg);
 
   uint16_t n_bytes = llcp_prepareMessage((uint8_t*)&msg, sizeof(msg), mui_handler->tx_buffer);
 
@@ -215,7 +218,8 @@ void mui_receiveCharCallback(MUI_Handler_t* mui_handler, const uint8_t byte_in) 
 
       default: {
 
-        printf("Received unsupported message with id = %d\n", message_in.id);
+        // received unsupported message
+        break;
       }
     }
   }

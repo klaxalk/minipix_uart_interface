@@ -43,7 +43,7 @@ void MinipixDummy::ingegralFrameMeasurement(const uint16_t &acquisition_time) {
 
   for (int j = 0; j < 100; j++) {
 
-    uint8_t n_pixels = 31;
+    uint8_t n_pixels = 41;
 
     // create the message
     LLCP_FrameDataMsg_t image_data;
@@ -57,14 +57,11 @@ void MinipixDummy::ingegralFrameMeasurement(const uint16_t &acquisition_time) {
 
     for (int i = 0; i < n_pixels; i++) {
       LLCP_PixelData_t *pixel = (LLCP_PixelData_t *)&image_data.payload.pixel_data[i];
-      pixel->x_coordinate     = j;
+      pixel->x_coordinate     = j+i;
       pixel->y_coordinate     = j;
-      pixel->data[0]          = j;
-      pixel->data[1]          = j;
-      pixel->data[2]          = j;
-      pixel->data[3]          = j;
-      pixel->data[4]          = j;
-      pixel->data[5]          = j;
+      pixel->tot              = i;
+      pixel->toa              = j*41 + i;
+      pixel->fast_toa         = 0;
     }
 
     // convert to network endian
@@ -112,12 +109,9 @@ void MinipixDummy::continuousStreamMeasurement() {
       LLCP_PixelData_t *pixel = (LLCP_PixelData_t *)&image_data.payload.pixel_data[i];
       pixel->x_coordinate     = j;
       pixel->y_coordinate     = j;
-      pixel->data[0]          = j;
-      pixel->data[1]          = j;
-      pixel->data[2]          = j;
-      pixel->data[3]          = j;
-      pixel->data[4]          = j;
-      pixel->data[5]          = j;
+      pixel->tot              = j;
+      pixel->toa              = j;
+      pixel->fast_toa         = j;
     }
 
     // convert to network endian
@@ -148,29 +142,37 @@ void MinipixDummy::update(void) {
 
         case LLCP_MEASURE_FRAME_REQ_MSG_ID: {
 
-          printf("processing frame measurement request from the queue");
+          printf("processing frame measurement request from the queue\n");
 
           LLCP_MeasureFrameReqMsg_t *msg = (LLCP_MeasureFrameReqMsg_t *)(&message.payload);
           ntoh_LLCP_MeasureFrameReqMsg_t(msg);
 
           LLCP_MeasureFrameReq_t *req = (LLCP_MeasureFrameReq_t *)(&msg->payload);
 
-          ingegralFrameMeasurement(req->acquisition_time_ms);
+          if (powered_) {
+            ingegralFrameMeasurement(req->acquisition_time_ms);
+          } else {
+            printf("cannot do frame measurement, not powered!\n");
+          }
 
           break;
         };
 
         case LLCP_MEASURE_STREAM_REQ_MSG_ID: {
 
-          printf("processing stream measurement request from the queue");
+          printf("processing stream measurement request from the queue\n");
 
           LLCP_MeasureStreamReqMsg_t *msg = (LLCP_MeasureStreamReqMsg_t *)(&message.payload);
           ntoh_LLCP_MeasureStreamReqMsg_t(msg);
 
           LLCP_MeasureStreamReq_t *req = (LLCP_MeasureStreamReq_t *)(&msg->payload);
 
-          stream_measurement_duty_cycle = req->duty_cycle_ms;
-          stream_measurement_on_        = true;
+          if (powered_) {
+            stream_measurement_duty_cycle = req->duty_cycle_ms;
+            stream_measurement_on_        = true;
+          } else {
+            printf("cannot do stream measurement, not powered!\n");
+          }
 
           break;
         };
@@ -184,6 +186,8 @@ void MinipixDummy::update(void) {
 
   if (stream_measurement_on_) {
     continuousStreamMeasurement();
+  } else {
+    sleep(5);
   }
 }
 
@@ -223,6 +227,20 @@ void MinipixDummy::serialDataCallback(const uint8_t *bytes_in, const uint16_t &l
           break;
         };
 
+        case LLCP_PWR_REQ_MSG_ID: {
+
+          LLCP_PwrReqMsg_t *msg = (LLCP_PwrReqMsg_t *)(&message.payload);
+          ntoh_LLCP_PwrReqMsg_t(msg);
+
+          LLCP_PwrReq_t *req = (LLCP_PwrReq_t *)(&msg->payload);
+
+          printf("detector power %s\n", req->state ? "ON" : "OFF");
+
+          powered_ = req->state;
+
+          break;
+        };
+
         case LLCP_UPDATE_PIXEL_MASK_REQ_MSG_ID: {
 
           LLCP_UpdatePixelMaskReqMsg_t *msg = (LLCP_UpdatePixelMaskReqMsg_t *)(&message.payload);
@@ -246,7 +264,7 @@ void MinipixDummy::serialDataCallback(const uint8_t *bytes_in, const uint16_t &l
           break;
         };
 
-        case LLCP_GET_STATUS_MSG_ID: {
+        case LLCP_GET_STATUS_REQ_MSG_ID: {
 
           printf("received status request\n");
 

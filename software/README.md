@@ -26,6 +26,12 @@
 
 Saves incoming packeted data into files.
 
+### OpenCV Visualization
+
+```bash
+sudo apt install libopencv-dev
+```
+
 ## Decoder - PC data decoder
 
 Stitches packeted data from files into viewable images.

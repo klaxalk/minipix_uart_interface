@@ -16,10 +16,7 @@ void ntoh_LLCP_PixelData_t(LLCP_PixelData_t* data) {
 
 void init_LLCP_PixelData_t(LLCP_PixelData_t* data) {
 
-  data->x_coordinate = 0;
-  data->y_coordinate = 0;
-
-  memset(&data->data, 0, LLCP_PIXEL_BYTES);
+  memset(&data, 0, sizeof(LLCP_PixelData_t));
 }
 
 //}
@@ -206,25 +203,6 @@ void init_LLCP_MeasureStreamReqMsg_t(LLCP_MeasureStreamReqMsg_t* msg) {
 
 //}
 
-/* LLCP_StopStreamReqMsg_t //{ */
-
-void hton_LLCP_StopStreamReqMsg_t(LLCP_StopStreamReqMsg_t* msg) {
-
-  UNUSED(msg);
-}
-
-void ntoh_LLCP_StopStreamReqMsg_t(LLCP_StopStreamReqMsg_t* msg) {
-
-  UNUSED(msg);
-}
-
-void init_LLCP_StopStreamReqMsg_t(LLCP_StopStreamReqMsg_t* msg) {
-
-  msg->message_id = LLCP_STOP_STREAM_REQ_MSG_ID;
-}
-
-//}
-
 /* LLCP_FlushBufferReqMsg_t //{ */
 
 void hton_LLCP_FlushBufferReqMsg_t(LLCP_FlushBufferReqMsg_t* msg) {
@@ -382,7 +360,47 @@ void ntoh_LLCP_GetStatusReqMsg_t(LLCP_GetStatusReqMsg_t* msg) {
 
 void init_LLCP_GetStatusReqMsg_t(LLCP_GetStatusReqMsg_t* msg) {
 
-  msg->message_id = LLCP_GET_STATUS_MSG_ID;
+  msg->message_id = LLCP_GET_STATUS_REQ_MSG_ID;
+}
+
+//}
+
+/* LLCP_PwrReqMsg_t //{ */
+
+/* LLCP_PwrReq_t //{ */
+
+void hton_PwrReq_t(LLCP_PwrReq_t* data) {
+
+  UNUSED(data);
+}
+
+void ntoh_PwrReq_t(LLCP_PwrReq_t* data) {
+
+  UNUSED(data);
+}
+
+void init_LLCP_PwrReq_t(LLCP_PwrReq_t* data) {
+
+  data->state = false;
+}
+
+//}
+
+void hton_LLCP_PwrReqMsg_t(LLCP_PwrReqMsg_t* msg) {
+
+  hton_PwrReq_t(&msg->payload);
+}
+
+void ntoh_LLCP_PwrReqMsg_t(LLCP_PwrReqMsg_t* msg) {
+
+  ntoh_PwrReq_t(&msg->payload);
+}
+
+void init_LLCP_PwrReqMsg_t(LLCP_PwrReqMsg_t* msg) {
+
+  msg->message_id = LLCP_PWR_REQ_MSG_ID;
+
+  init_LLCP_PwrReq_t(&msg->payload);
 }
 
 //}

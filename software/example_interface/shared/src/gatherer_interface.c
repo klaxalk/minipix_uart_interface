@@ -6,8 +6,6 @@ void gatherer_initialize(Gatherer_Handler_t *gatherer_handler) {
 
   // initialize the inner state of the LLCP receiver
   llcp_initialize(&gatherer_handler->llcp_receiver);
-
-  printf("[GathererInterface]: initialized\n");
 }
 
 //}
@@ -22,9 +20,21 @@ void gatherer_receiveCharCallback(Gatherer_Handler_t *gatherer_handler, const ui
 
     switch (message_in.id) {
 
-      case LLCP_GET_STATUS_MSG_ID: {
+      case LLCP_GET_STATUS_REQ_MSG_ID: {
 
         mui_getStatus(gatherer_handler->mui_handler_ptr_);
+
+        break;
+      };
+
+      case LLCP_PWR_REQ_MSG_ID: {
+
+        LLCP_PwrReqMsg_t *msg = (LLCP_PwrReqMsg_t *)(&message_in.payload);
+        ntoh_LLCP_PwrReqMsg_t(msg);
+
+        LLCP_PwrReq_t *req = (LLCP_PwrReq_t *)(&msg->payload);
+
+        mui_pwr(gatherer_handler->mui_handler_ptr_, req->state);
 
         break;
       };
@@ -67,7 +77,8 @@ void gatherer_receiveCharCallback(Gatherer_Handler_t *gatherer_handler, const ui
 
       default: {
 
-        printf("Received unsupported message with id = %d\n", message_in.id);
+        // received unsupported message
+        break;
       }
     }
   }

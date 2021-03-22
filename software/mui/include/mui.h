@@ -110,6 +110,14 @@ void mui_initialize(MUI_Handler_t *mui_handler);
 // | -------------- interraction with the MiniPIX ------------- |
 
 /**
+ * @brief Command to power on/off the Timepix3 chip.
+ *
+ * @param mui_handler
+ * @param state true/false, power on/off
+ */
+void mui_pwr(MUI_Handler_t *mui_handler, const bool state);
+
+/**
  * @brief Command to acquire a frame over a period of the acquisition_time.
  * As a result, the MiniPIX will start obtaning data and will call the
  *                        processFrameData()
@@ -131,13 +139,6 @@ void mui_measureFrame(MUI_Handler_t *mui_handler, const uint16_t acquisition_tim
  * @param duty_cycle how many milliseconds in a second should the stream be outputed.
  */
 void mui_measureStream(MUI_Handler_t *mui_handler, const uint16_t duty_cycle);
-
-/**
- * @brief Command to step the measurement in the form of the event stream.
- *
- * @param mui_handler
- */
-void mui_stopStream(MUI_Handler_t *mui_handler);
 
 /**
  * @brief Command to flush the stream buffer in the MiniPIX.
