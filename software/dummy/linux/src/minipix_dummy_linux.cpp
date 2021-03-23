@@ -90,30 +90,163 @@ void MinipixDummyLinux::update_linux(void) {
 
 //}
 
+/* loadImage() //{ */
+
+std::vector<std::vector<double>> MinipixDummyLinux::loadImage(const std::string& file_path) {
+
+  printf("loading image from '%s'\n", file_path.c_str());
+
+  std::ifstream data(file_path);
+
+  std::vector<std::vector<double>> parsed_csv;
+
+  if (!data.good()) {
+    printf("could not load the file %s\n", file_path.c_str());
+    return parsed_csv;
+  }
+
+  std::string line;
+
+  while (std::getline(data, line)) {
+
+    std::stringstream   lineStream(line);
+    std::string         cell;
+    std::vector<double> parsedRow;
+
+    while (std::getline(lineStream, cell, ' ')) {
+      parsedRow.push_back(stod(cell));
+    }
+
+    parsed_csv.push_back(parsedRow);
+  }
+
+  return parsed_csv;
+}
+
+//}
+
+/* randi() //{ */
+
+int MinipixDummyLinux::randi(const int& from, const int& to) {
+
+  double zero_to_one = double((float)rand()) / double(RAND_MAX);
+
+  return floor(to - from) * zero_to_one + from;
+}
+
+//}
+
+/* setDataFolder() //{ */
+
 void MinipixDummyLinux::setDataFolder(const std::string& data_folder) {
   this->data_folder = data_folder;
 }
 
+//}
+
+/* simulateImageAcquisition() //{ */
+
 void MinipixDummyLinux::simulateImageAcquisition(const uint16_t& acquisition_time) {
 
-  uint16_t image_id = 666;
+  printf("simulating acquisition, time %f s\n", double(acquisition_time) / 1000);
+
+  sleep(acquisition_time);
+
+  // select image from the database
+  uint16_t image_id = randi(0, 992);
+  /* uint16_t image_id = 998; */
 
   std::stringstream ss;
-  ss << data_folder << image_id << "_fullres.txt":
+
+  ss << data_folder << "/" << image_id << "_fullres.txt";
   std::string filename = ss.str();
 
-  std::ifstream data();
+  std::vector<std::vector<double>> image = loadImage(filename);
 
-  std::string                           line;
-  std::vector<std::vector<std::string>> parsedCsv;
-  while (std::getline(data, line)) {
-    std::stringstream        lineStream(line);
-    std::string              cell;
-    std::vector<std::string> parsedRow;
-    while (std::getline(lineStream, cell, ',')) {
-      parsedRow.push_back(cell);
+  // initialize the packet we will be sending
+  LLCP_FrameDataMsg_t image_data;
+  init_LLCP_FrameDataMsg_t(&image_data);
+
+  int n_pixels_counter  = 0;
+  int packet_id_counter = 0;
+
+  // | ------------------- fill in the payload ------------------ |
+
+  image_data.payload.frame_id  = frame_id_++;
+  image_data.payload.mode      = LLCP_TPX3_PXL_MODE_TOA_TOT;
+  image_data.payload.n_pixels  = 0;
+  image_data.payload.packet_id = 0;
+
+  for (size_t j = 0; j < image.size(); j++) {
+
+    for (size_t i = 0; i < image[j].size(); i++) {
+
+      double pixel_value = image[j][i];
+
+      if (pixel_value > 0) {
+
+        LLCP_PixelDataToAToT_t* pixel = (LLCP_PixelDataToAToT_t*)&image_data.payload.pixel_data[n_pixels_counter++];
+        pixel->address                = i + j * 256;
+        pixel->ftoa                   = 0;
+        pixel->toa                    = int(pixel_value);
+        pixel->tot                    = int(pixel_value);
+        // pixel->mode_mask = // TODO
+      }
+
+      // send the packet when it is full
+      if (n_pixels_counter == LLCP_FRAME_DATA_N_PIXELS) {
+
+        image_data.payload.n_pixels  = n_pixels_counter;
+        image_data.payload.packet_id = packet_id_counter++;
+
+        // convert to network endian
+        hton_LLCP_FrameDataMsg_t(&image_data);
+
+        uint16_t n_bytes = llcp_prepareMessage((uint8_t*)&image_data, sizeof(image_data), tx_buffer_);
+
+        // convert it back, since we are gonna use the structure again
+        ntoh_LLCP_FrameDataMsg_t(&image_data);
+
+        sendMessage(tx_buffer_, n_bytes);
+
+        n_pixels_counter = 0;
+      }
     }
-
-    parsedCsv.push_back(parsedRow);
   }
+
+  // send the last unfinished packet
+  if (n_pixels_counter > 0) {
+
+    image_data.payload.n_pixels  = n_pixels_counter;
+    image_data.payload.packet_id = packet_id_counter++;
+
+    // convert to network endian
+    hton_LLCP_FrameDataMsg_t(&image_data);
+
+    uint16_t n_bytes = llcp_prepareMessage((uint8_t*)&image_data, sizeof(image_data), tx_buffer_);
+
+    // convert it back, since we are gonna use the structure again
+    ntoh_LLCP_FrameDataMsg_t(&image_data);
+
+    sendMessage(tx_buffer_, n_bytes);
+
+    n_pixels_counter = 0;
+  }
+
+  // | ---------------- send FrameDataTerminator ---------------- |
+
+  // create the message
+  LLCP_FrameDataTerminatorMsg_t terminator;
+  init_LLCP_FrameDataTerminatorMsg_t(&terminator);
+
+  terminator.payload.frame_id  = image_data.payload.frame_id;
+  terminator.payload.n_packets = packet_id_counter;
+
+  hton_LLCP_FrameDataTerminatorMsg_t(&terminator);
+
+  uint16_t n_bytes = llcp_prepareMessage((uint8_t*)&terminator, sizeof(terminator), tx_buffer_);
+
+  sendMessage(tx_buffer_, n_bytes);
 }
+
+//}

@@ -33,13 +33,9 @@ void MinipixDummy::sendMessageNoAck([[maybe_unused]] const uint8_t *bytes_out, [
 
 //}
 
-/* integralFrameMeasurement() //{ */
+/* testStripe() //{ */
 
-void MinipixDummy::ingegralFrameMeasurement(const uint16_t &acquisition_time) {
-
-  printf("starting acquisition (%d ms)\n", acquisition_time);
-
-  sleep(acquisition_time);
+void MinipixDummy::testStripe() {
 
   const int n_packets = 100;
 
@@ -90,8 +86,6 @@ void MinipixDummy::ingegralFrameMeasurement(const uint16_t &acquisition_time) {
   uint16_t n_bytes = llcp_prepareMessage((uint8_t *)&terminator, sizeof(terminator), tx_buffer_);
 
   sendMessage(tx_buffer_, n_bytes);
-
-  frame_id_++;
 }
 
 //}
@@ -169,7 +163,8 @@ void MinipixDummy::update(void) {
           LLCP_MeasureFrameReq_t *req = (LLCP_MeasureFrameReq_t *)(&msg->payload);
 
           if (powered_) {
-            ingegralFrameMeasurement(req->acquisition_time_ms);
+            /* ingegralFrameMeasurement(req->acquisition_time_ms); */
+            simulateImageAcquisition(req->acquisition_time_ms);
           } else {
             printf("cannot do frame measurement, not powered!\n");
           }

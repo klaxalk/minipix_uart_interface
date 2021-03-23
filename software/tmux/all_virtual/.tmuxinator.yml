@@ -12,6 +12,6 @@ windows:
       layout: even-vertical
       pre_window: echo pes
       panes:
-        - sleep 0.5; ./minipix_dummy /tmp/ttyS0 921600 1
+        - sleep 0.5; ./minipix_dummy /tmp/ttyS0 921600 1 `pwd`/dummy_data
         - sleep 0.5; ./example_interface /tmp/ttyS1 921600 1 /tmp/ttyS2 921600 1
         - sleep 1.0; ./gatherer /tmp/ttyS3 921600 1

@@ -175,7 +175,7 @@ int main(int argc, char* argv[]) {
 
   std::this_thread::sleep_for(std::chrono::milliseconds(100));
 
-  measureFrame(100);
+  measureFrame(1000);
   /* maskPixel(10, 20); */
   /* startStream(200); */
 
@@ -301,7 +301,7 @@ int main(int argc, char* argv[]) {
 
               printf("received frame data terminator: frame id %d, packet count: %d\n", terminator->frame_id, terminator->n_packets);
 
-              measureFrame(100);
+              measureFrame(1000);
 
               break;
             };

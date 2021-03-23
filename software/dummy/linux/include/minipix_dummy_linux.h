@@ -5,7 +5,11 @@
 
 #include <minipix_dummy.h>
 
-#include <strings.h>
+#include <string>
+#include <iostream>
+#include <fstream>
+#include <sstream>
+
 #include <vector>
 
 #include <thread>
@@ -13,8 +17,11 @@
 
 #include <atomic>
 
+#include <random>
+
 #include <serial_port.h>
 #include <type_traits>
+
 #define SERIAL_BUFFER_SIZE 2048
 
 class MinipixDummyLinux : MinipixDummy {
@@ -34,7 +41,7 @@ public:
   void simulateImageAcquisition(const uint16_t &acquisition_time);
 
   std::string data_folder;
-  void setDataFolder(const std::string &data_folder);
+  void        setDataFolder(const std::string &data_folder);
 
 private:
   SerialPort        serial_port_;
@@ -43,6 +50,10 @@ private:
 
   std::thread thread_serial_port_;
   void        threadSerialPort(void);
+
+  int randi(const int &from, const int &to);
+
+  std::vector<std::vector<double>> loadImage(const std::string &file_path);
 };
 
 #endif  // MINIPIX_DUMMY_LINUX_H
