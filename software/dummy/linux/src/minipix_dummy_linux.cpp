@@ -5,7 +5,6 @@
 MinipixDummyLinux::MinipixDummyLinux(void) {
 
   thread_serial_port_ = std::thread(&MinipixDummyLinux::threadSerialPort, this);
-  /* thread_serial_port_.join(); */
 }
 
 //}
@@ -14,8 +13,9 @@ MinipixDummyLinux::MinipixDummyLinux(void) {
 
 void MinipixDummyLinux::initializeSerialPort(const std::string& file, const int& baud, const bool virtual_port) {
 
+  std::scoped_lock lock(mutex_serial_port_);
+
   serial_port_.connect(file, baud, virtual_port);
-  serial_port_initialized_ = true;
 }
 
 //}
@@ -25,6 +25,8 @@ void MinipixDummyLinux::initializeSerialPort(const std::string& file, const int&
 /* sendByte() //{ */
 
 void MinipixDummyLinux::sendByte(const uint8_t& byte_out) {
+
+  std::scoped_lock lock(mutex_serial_port_);
 
   if (!serial_port_.sendCharArray((unsigned char*)&byte_out, 1)) {
     printf("FAILED sending message with %d bytes\n", 1);
@@ -46,6 +48,8 @@ void MinipixDummyLinux::sleep(const uint16_t& milliseconds) {
 
 void MinipixDummyLinux::sendString(const uint8_t* bytes_out, const uint16_t& len) {
 
+  std::scoped_lock lock(mutex_serial_port_);
+
   if (!serial_port_.sendCharArray((unsigned char*)bytes_out, len)) {
     printf("FAILED sending message with %d bytes\n", len);
   }
@@ -59,8 +63,15 @@ void MinipixDummyLinux::threadSerialPort(void) {
 
   printf("waiting for serial\n");
 
-  while (!serial_port_initialized_) {
-    sleep(100);
+  {
+    std::scoped_lock lock(mutex_serial_port_);
+
+    while (!serial_port_.checkConnected()) {
+      sleep(100);
+      printf("Serial port not connected\n");
+    }
+
+    printf("Serial port connected\n");
   }
 
   printf("starting serial thread\n");
@@ -69,7 +80,13 @@ void MinipixDummyLinux::threadSerialPort(void) {
 
     // | --------- receive data from the minipix interface -------- |
 
-    uint16_t bytes_read = serial_port_.readSerial(rx_buffer_, SERIAL_BUFFER_SIZE);
+    uint16_t bytes_read;
+
+    {
+      std::scoped_lock lock(mutex_serial_port_);
+
+      bytes_read = serial_port_.readSerial(rx_buffer_, SERIAL_BUFFER_SIZE);
+    }
 
     if (bytes_read > 0) {
       // feed all the incoming bytes into the minipix interface

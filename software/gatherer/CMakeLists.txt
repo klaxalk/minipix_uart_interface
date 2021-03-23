@@ -10,6 +10,7 @@ set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -Wall -Wextra")
 add_definitions(-DLLCP_LITTLE_ENDIAN)
 
 find_package(OpenCV REQUIRED)
+find_package(Threads REQUIRED) # only for linux
 
 include_directories(
   include
@@ -28,4 +29,5 @@ add_executable(gatherer
 
 target_link_libraries(gatherer
   ${OpenCV_LIBS}
+  Threads::Threads # only for linux
 )

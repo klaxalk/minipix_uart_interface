@@ -1,3 +1,5 @@
+/* includes //{ */
+
 #include <llcp.h>
 #include <llcp_minipix_messages.h>
 
@@ -7,189 +9,133 @@
 #include <string>
 #include <mutex>
 
+#include <atomic>
+
 #include <opencv_helpers.hpp>
 
 #include <math.h>
 
 #include <serial_port.h>
 
-#define GUI 1
-
-#ifdef GUI
-/* some OpenCV includes */
 #include <opencv2/opencv.hpp>
 #include <opencv2/core/core.hpp>
 #include <opencv2/imgproc/imgproc.hpp>
 #include <opencv2/highgui/highgui.hpp>
-#endif
+
+#include <thread>
+
+//}
 
 #define SERIAL_BUFFER_SIZE 2048
 
-std::string serial_port_file;
-int         baud_rate;
-bool        serial_port_virtual;
+/* class Gatherer //{ */
 
-SerialPort serial_port;
+class Gatherer {
 
-uint8_t tx_buffer[SERIAL_BUFFER_SIZE];
+public:
+  Gatherer();
 
-/* getStatus() //{ */
+  void connect(const std::string& serial_port, const int& baud_rate, const bool& virtual_port);
 
-void getStatus() {
+  void charCallback(const char in);
 
-  // create the message
-  LLCP_GetStatusReqMsg_t msg;
-  init_LLCP_GetStatusReqMsg_t(&msg);
+  // | --------------------- MiniPIX control -------------------- |
 
-  // convert to network endian
-  hton_LLCP_GetStatusReqMsg_t(&msg);
+  void getStatus(void);
+  void measureFrame(const uint16_t& acquisition_time_ms);
+  void startStream(const uint16_t& duty_cycle);
+  void pwr(const bool& state);
+  void maskPixel(const uint8_t& x, const uint8_t& y);
 
-  uint16_t n_bytes = llcp_prepareMessage((uint8_t*)&msg, sizeof(msg), tx_buffer);
-
-  serial_port.sendCharArray(tx_buffer, n_bytes);
-}
-
-//}
-
-/* measureFrame() //{ */
-
-void measureFrame(const uint16_t& acquisition_time_ms) {
-
-  // create the message
-  LLCP_MeasureFrameReqMsg_t msg;
-  init_LLCP_MeasureFrameReqMsg_t(&msg);
-
-  // fill in the payload
-  msg.payload.acquisition_time_ms = acquisition_time_ms;
-
-  // convert to network endian
-  hton_LLCP_MeasureFrameReqMsg_t(&msg);
-
-  uint16_t n_bytes = llcp_prepareMessage((uint8_t*)&msg, sizeof(msg), tx_buffer);
-
-  serial_port.sendCharArray(tx_buffer, n_bytes);
-}
-
-//}
-
-/* startStream() //{ */
-
-void startStream(const uint16_t& duty_cycle) {
-
-  // create the message
-  LLCP_MeasureStreamReqMsg_t msg;
-  init_LLCP_MeasureStreamReqMsg_t(&msg);
-
-  // fill in the payload
-  msg.payload.duty_cycle_ms = duty_cycle;
-
-  // convert to network endian
-  hton_LLCP_MeasureStreamReqMsg_t(&msg);
-
-  uint16_t n_bytes = llcp_prepareMessage((uint8_t*)&msg, sizeof(msg), tx_buffer);
-
-  serial_port.sendCharArray(tx_buffer, n_bytes);
-}
-
-//}
-
-/* pwr() //{ */
-
-void pwr(const bool& state) {
-
-  // create the message
-  LLCP_PwrReqMsg_t msg;
-  init_LLCP_PwrReqMsg_t(&msg);
-
-  // fill in the payload
-  msg.payload.state = state;
-
-  // convert to network endian
-  hton_LLCP_PwrReqMsg_t(&msg);
-
-  uint16_t n_bytes = llcp_prepareMessage((uint8_t*)&msg, sizeof(msg), tx_buffer);
-
-  serial_port.sendCharArray(tx_buffer, n_bytes);
-}
-
-//}
-
-/* maskPixel() //{ */
-
-void maskPixel(const uint8_t& x, const uint8_t& y) {
-
-  // create the message
-  LLCP_UpdatePixelMaskReqMsg_t msg;
-  init_LLCP_UpdatePixelMaskReqMsg_t(&msg);
-
-  // fill in the payload
-  msg.payload.masked       = 1;
-  msg.payload.x_coordinate = x;
-  msg.payload.y_coordinate = y;
-
-  // convert to network endian
-  hton_LLCP_UpdatePixelMaskReqMsg_t(&msg);
-
-  uint16_t n_bytes = llcp_prepareMessage((uint8_t*)&msg, sizeof(msg), tx_buffer);
-
-  serial_port.sendCharArray(tx_buffer, n_bytes);
-}
-
-//}
-
-int main(int argc, char* argv[]) {
-
-  if (argc == 4) {
-    serial_port_file    = argv[1];
-    baud_rate           = atoi(argv[2]);
-    serial_port_virtual = atoi(argv[3]);
-
-    printf("loaded params: %s, %d, %s\n", serial_port_file.c_str(), baud_rate, serial_port_virtual ? "VIRTUAL" : "REAL");
-  } else {
-    printf("params not supplied\n");
-    return 0;
-  }
-
-  serial_port.connect(serial_port_file, baud_rate, serial_port_virtual);
-
-  uint8_t  read_buffer[SERIAL_BUFFER_SIZE];
-  uint16_t bytes_read;
+private:
+  SerialPort serial_port_;
+  std::mutex mutex_serial_port_;
 
   LLCP_Receiver_t llcp_receiver;
+
+  uint8_t tx_buffer[SERIAL_BUFFER_SIZE];
+
+  std::thread thread_main_;
+  void        threadMain(void);
+
+  std::thread thread_plot_;
+  void        threadPlot(void);
+
+  std::atomic<bool> measuring_frame_;
+
+  std::atomic<bool> initialized_ = false;
+
+  // | ------------------------ plotting ------------------------ |
+
+  cv::Mat    frame_top;
+  cv::Mat    frame_bot;
+  std::mutex mutex_cv_frames_;
+};
+
+//}
+
+/* constructor Gatherer() //{ */
+
+Gatherer::Gatherer() {
+
   llcp_initialize(&llcp_receiver);
 
-#ifdef GUI
   /* int flags = cv::WINDOW_NORMAL | cv::WINDOW_FREERATIO | cv::WINDOW_GUI_EXPANDED; */
   int flags = cv::WINDOW_NORMAL;
   cv::namedWindow("frame", flags);
 
-  cv::Mat frame_tot(256, 256, CV_32FC3);
-  cv::Mat frame_toa(256, 256, CV_32FC3);
-#endif
+  frame_top = cv::Mat(256, 256, CV_32FC3);
+  frame_bot = cv::Mat(256, 256, CV_32FC3);
 
-  printf("Starting while loop\n");
+  thread_plot_ = std::thread(&Gatherer::threadPlot, this);
+  thread_main_ = std::thread(&Gatherer::threadMain, this);
 
-  pwr(true);
+  initialized_ = true;
+}
 
-  std::this_thread::sleep_for(std::chrono::milliseconds(100));
+//}
 
-  getStatus();
+/* connect() //{ */
 
-  std::this_thread::sleep_for(std::chrono::milliseconds(100));
+void Gatherer::connect(const std::string& serial_port, const int& baud_rate, const bool& virtual_port) {
 
-  measureFrame(1000);
-  /* maskPixel(10, 20); */
-  /* startStream(200); */
+  std::scoped_lock lock(mutex_serial_port_);
 
-  /* std::this_thread::sleep_for(std::chrono::milliseconds(100)); */
+  serial_port_.connect(serial_port, baud_rate, virtual_port);
+}
 
-  /* pwr(false); */
+//}
+
+/* threadMain() //{ */
+
+void Gatherer::threadMain(void) {
+
+  uint8_t  rx_buffer[SERIAL_BUFFER_SIZE];
+  uint16_t bytes_read;
+
+  while (!initialized_) {
+    printf("threadMain() waiting for initialization\n");
+    std::this_thread::sleep_for(std::chrono::milliseconds(100));
+  }
+
+  {
+    std::scoped_lock lock(mutex_serial_port_);
+
+    while (!serial_port_.checkConnected()) {
+      printf("threadMain() waiting for serial line\n");
+      std::this_thread::sleep_for(std::chrono::milliseconds(100));
+    }
+  }
+
+  printf("threadMain started\n");
 
   while (true) {
 
-    // | --------- receive data from the minipix interface -------- |
+    {
+      std::scoped_lock lock(mutex_serial_port_);
 
-    bytes_read = serial_port.readSerial(read_buffer, SERIAL_BUFFER_SIZE);
+      bytes_read = serial_port_.readSerial(rx_buffer, SERIAL_BUFFER_SIZE);
+    }
 
     if (bytes_read > 0) {
 
@@ -198,7 +144,7 @@ int main(int argc, char* argv[]) {
 
         LLCP_Message_t message_in;
 
-        if (llcp_processChar(read_buffer[i], &llcp_receiver, &message_in)) {
+        if (llcp_processChar(rx_buffer[i], &llcp_receiver, &message_in)) {
 
           switch (message_in.id) {
 
@@ -211,11 +157,15 @@ int main(int argc, char* argv[]) {
 
               uint8_t n_pixels = image->n_pixels;
 
+              // clear the old images
               if (image->packet_id == 0) {
+
+                std::scoped_lock lock(mutex_cv_frames_);
+
                 for (int i = 0; i < 256; i++) {
                   for (int j = 0; j < 256; j++) {
-                    frame_tot.at<cv::Vec3f>(cv::Point(i, j)) = 0;
-                    frame_toa.at<cv::Vec3f>(cv::Point(i, j)) = 0;
+                    frame_top.at<cv::Vec3f>(cv::Point(i, j)) = 0;
+                    frame_bot.at<cv::Vec3f>(cv::Point(i, j)) = 0;
                   }
                 }
               }
@@ -247,25 +197,52 @@ int main(int argc, char* argv[]) {
 
               printf("received frame data, id %d, packet %d, mode %s, n_pixels %d\n", image->frame_id, image->packet_id, mode_str.c_str(), n_pixels);
 
-#ifdef GUI
               for (int pix = 0; pix < n_pixels; pix++) {
+
+                std::scoped_lock lock(mutex_cv_frames_);
 
                 if (image->mode == LLCP_TPX3_PXL_MODE_TOA_TOT) {
 
-                  uint8_t x   = ((LLCP_PixelDataToAToT_t*)&image->pixel_data[pix])->address % 256;
-                  uint8_t y   = (((LLCP_PixelDataToAToT_t*)&image->pixel_data[pix])->address - x) / 256;
+                  uint8_t x = ((LLCP_PixelDataToAToT_t*)&image->pixel_data[pix])->address % 256;
+                  uint8_t y = (((LLCP_PixelDataToAToT_t*)&image->pixel_data[pix])->address - x) / 256;
 
-                  float   tot = float(((LLCP_PixelDataToAToT_t*)&image->pixel_data[pix])->tot);
-                  float   toa = float(((LLCP_PixelDataToAToT_t*)&image->pixel_data[pix])->toa);
+                  float tot = float(((LLCP_PixelDataToAToT_t*)&image->pixel_data[pix])->tot);
+                  float toa = float(((LLCP_PixelDataToAToT_t*)&image->pixel_data[pix])->toa);
 
-                  cv::Vec3f tot_color(0, 0, log2(tot));  // BGR
+                  cv::Vec3f tot_color(0, 0, log2(tot));    // BGR
                   cv::Vec3f toa_color(0, pow(toa, 2), 0);  // BGR
 
-                  frame_tot.at<cv::Vec3f>(cv::Point(x, y)) = tot_color;
-                  frame_toa.at<cv::Vec3f>(cv::Point(x, y)) = toa_color;
+                  frame_top.at<cv::Vec3f>(cv::Point(x, y)) = tot_color;
+                  frame_bot.at<cv::Vec3f>(cv::Point(x, y)) = toa_color;
+                }
+
+                if (image->mode == LLCP_TPX3_PXL_MODE_TOA) {
+
+                  uint8_t x = ((LLCP_PixelDataToA_t*)&image->pixel_data[pix])->address % 256;
+                  uint8_t y = (((LLCP_PixelDataToA_t*)&image->pixel_data[pix])->address - x) / 256;
+
+                  float toa = float(((LLCP_PixelDataToA_t*)&image->pixel_data[pix])->toa);
+
+                  cv::Vec3f toa_color(0, pow(toa, 2), 0);  // BGR
+
+                  frame_bot.at<cv::Vec3f>(cv::Point(x, y)) = toa_color;
+                }
+
+                if (image->mode == LLCP_TPX3_PXL_MODE_MPX_ITOT) {
+
+                  uint8_t x = ((LLCP_PixelDataMpxiToT_t*)&image->pixel_data[pix])->address % 256;
+                  uint8_t y = (((LLCP_PixelDataMpxiToT_t*)&image->pixel_data[pix])->address - x) / 256;
+
+                  float tot = float(((LLCP_PixelDataMpxiToT_t*)&image->pixel_data[pix])->itot);
+                  int   mpx = float(((LLCP_PixelDataMpxiToT_t*)&image->pixel_data[pix])->event_counter);
+
+                  cv::Vec3f tot_color(0, 0, log2(tot));    // BGR
+                  cv::Vec3f mpx_color(0, pow(mpx, 2), 0);  // BGR
+
+                  frame_top.at<cv::Vec3f>(cv::Point(x, y)) = tot_color;
+                  frame_bot.at<cv::Vec3f>(cv::Point(x, y)) = mpx_color;
                 }
               }
-#endif
 
               break;
             };
@@ -303,7 +280,7 @@ int main(int argc, char* argv[]) {
 
               printf("received frame data terminator: frame id %d, packet count: %d\n", terminator->frame_id, terminator->n_packets);
 
-              measureFrame(1000);
+              measuring_frame_ = false;
 
               break;
             };
@@ -316,22 +293,220 @@ int main(int argc, char* argv[]) {
         }
       }
     } else {
-      std::this_thread::sleep_for(std::chrono::milliseconds(1));
-
-#ifdef GUI
-      cv::Mat frame_tot_plot(256, 256, CV_32FC3);
-      cv::Mat frame_toa_plot(256, 256, CV_32FC3);
-
-      cv::normalize(frame_tot, frame_tot_plot, 0.05, 1.0, cv::NORM_MINMAX);
-      cv::normalize(frame_toa, frame_toa_plot, 0.05, 1.0, cv::NORM_MINMAX);
-
-      /* cv::subtract(cv::Scalar::all(1.0), frame_tot_plot, frame_tot_plot); */
-      /* cv::subtract(cv::Scalar::all(1.0), frame_toa_plot, frame_toa_plot); */
-
-      ShowManyImages<CV_32FC3>("frame", 2, frame_tot_plot, frame_toa_plot);
-
-      cv::waitKey(1);
-#endif
+      std::this_thread::sleep_for(std::chrono::milliseconds(10));
     }
   }
+}
+
+//}
+
+/* threadPlot() //{ */
+
+void Gatherer::threadPlot(void) {
+
+  while (!initialized_) {
+    printf("threadPlot() waiting for initialization\n");
+    std::this_thread::sleep_for(std::chrono::milliseconds(100));
+  }
+
+  printf("threadPlot started\n");
+
+  while (true) {
+
+    cv::Mat frame_top_plot(256, 256, CV_32FC3);
+    cv::Mat frame_bot_plot(256, 256, CV_32FC3);
+
+    {
+      std::scoped_lock lock(mutex_cv_frames_);
+
+      cv::normalize(frame_top, frame_top_plot, 0.05, 1.0, cv::NORM_MINMAX);
+      cv::normalize(frame_bot, frame_bot_plot, 0.05, 1.0, cv::NORM_MINMAX);
+    }
+
+    /* cv::subtract(cv::Scalar::all(1.0), frame_top_plot, frame_top_plot); */
+    /* cv::subtract(cv::Scalar::all(1.0), frame_bot_plot, frame_bot_plot); */
+
+    ShowManyImages<CV_32FC3>("frame", 2, frame_top_plot, frame_bot_plot);
+
+    cv::waitKey(1);
+  }
+}
+
+//}
+
+// | --------------------- MiniPIX control -------------------- |
+
+/* getStatus() //{ */
+
+void Gatherer::getStatus(void) {
+
+  // create the message
+  LLCP_GetStatusReqMsg_t msg;
+  init_LLCP_GetStatusReqMsg_t(&msg);
+
+  // convert to network endian
+  hton_LLCP_GetStatusReqMsg_t(&msg);
+
+  uint16_t n_bytes = llcp_prepareMessage((uint8_t*)&msg, sizeof(msg), tx_buffer);
+
+  {
+    std::scoped_lock lock(mutex_serial_port_);
+
+    serial_port_.sendCharArray(tx_buffer, n_bytes);
+  }
+}
+
+//}
+
+/* measureFrame() //{ */
+
+void Gatherer::measureFrame(const uint16_t& acquisition_time_ms) {
+
+  // create the message
+  LLCP_MeasureFrameReqMsg_t msg;
+  init_LLCP_MeasureFrameReqMsg_t(&msg);
+
+  // fill in the payload
+  msg.payload.acquisition_time_ms = acquisition_time_ms;
+
+  // convert to network endian
+  hton_LLCP_MeasureFrameReqMsg_t(&msg);
+
+  uint16_t n_bytes = llcp_prepareMessage((uint8_t*)&msg, sizeof(msg), tx_buffer);
+
+  measuring_frame_ = true;
+
+  {
+    std::scoped_lock lock(mutex_serial_port_);
+
+    serial_port_.sendCharArray(tx_buffer, n_bytes);
+  }
+
+  while (measuring_frame_) {
+    std::this_thread::sleep_for(std::chrono::milliseconds(10));
+  }
+}
+
+//}
+
+/* startStream() //{ */
+
+void Gatherer::startStream(const uint16_t& duty_cycle) {
+
+  // create the message
+  LLCP_MeasureStreamReqMsg_t msg;
+  init_LLCP_MeasureStreamReqMsg_t(&msg);
+
+  // fill in the payload
+  msg.payload.duty_cycle_ms = duty_cycle;
+
+  // convert to network endian
+  hton_LLCP_MeasureStreamReqMsg_t(&msg);
+
+  uint16_t n_bytes = llcp_prepareMessage((uint8_t*)&msg, sizeof(msg), tx_buffer);
+
+  {
+    std::scoped_lock lock(mutex_serial_port_);
+
+    serial_port_.sendCharArray(tx_buffer, n_bytes);
+  }
+}
+
+//}
+
+/* pwr() //{ */
+
+void Gatherer::pwr(const bool& state) {
+
+  // create the message
+  LLCP_PwrReqMsg_t msg;
+  init_LLCP_PwrReqMsg_t(&msg);
+
+  // fill in the payload
+  msg.payload.state = state;
+
+  // convert to network endian
+  hton_LLCP_PwrReqMsg_t(&msg);
+
+  uint16_t n_bytes = llcp_prepareMessage((uint8_t*)&msg, sizeof(msg), tx_buffer);
+
+  {
+    std::scoped_lock lock(mutex_serial_port_);
+
+    serial_port_.sendCharArray(tx_buffer, n_bytes);
+  }
+}
+
+//}
+
+/* maskPixel() //{ */
+
+void Gatherer::maskPixel(const uint8_t& x, const uint8_t& y) {
+
+  // create the message
+  LLCP_UpdatePixelMaskReqMsg_t msg;
+  init_LLCP_UpdatePixelMaskReqMsg_t(&msg);
+
+  // fill in the payload
+  msg.payload.masked       = 1;
+  msg.payload.x_coordinate = x;
+  msg.payload.y_coordinate = y;
+
+  // convert to network endian
+  hton_LLCP_UpdatePixelMaskReqMsg_t(&msg);
+
+  uint16_t n_bytes = llcp_prepareMessage((uint8_t*)&msg, sizeof(msg), tx_buffer);
+
+  {
+    std::scoped_lock lock(mutex_serial_port_);
+
+    serial_port_.sendCharArray(tx_buffer, n_bytes);
+  }
+}
+
+//}
+
+int main(int argc, char* argv[]) {
+
+  std::string serial_port_file;
+  int         baud_rate;
+  bool        serial_port_virtual;
+
+  if (argc == 4) {
+    serial_port_file    = argv[1];
+    baud_rate           = atoi(argv[2]);
+    serial_port_virtual = atoi(argv[3]);
+
+    printf("loaded params: %s, %d, %s\n", serial_port_file.c_str(), baud_rate, serial_port_virtual ? "VIRTUAL" : "REAL");
+  } else {
+    printf("params not supplied\n");
+    return 0;
+  }
+
+  Gatherer gatherer;
+
+  gatherer.connect(serial_port_file, baud_rate, serial_port_virtual);
+
+  std::this_thread::sleep_for(std::chrono::milliseconds(100));
+
+  gatherer.pwr(true);
+
+  std::this_thread::sleep_for(std::chrono::milliseconds(100));
+
+  gatherer.getStatus();
+
+  std::this_thread::sleep_for(std::chrono::milliseconds(100));
+
+  gatherer.maskPixel(10, 20);
+
+  std::this_thread::sleep_for(std::chrono::milliseconds(100));
+
+  while (true) {
+
+    gatherer.measureFrame(1000);
+
+    std::this_thread::sleep_for(std::chrono::milliseconds(100));
+  }
+
+  gatherer.pwr(false);
 }
