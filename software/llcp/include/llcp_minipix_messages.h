@@ -68,7 +68,7 @@ typedef struct __attribute__((packed))
 } LLCP_PixelDataToAToT_t;
 
 /**
- * @brief Structure for interpreting the ToT mode
+ * @brief Structure for interpreting the ToA mode
  */
 typedef struct __attribute__((packed))
 {
@@ -77,7 +77,7 @@ typedef struct __attribute__((packed))
   uint16_t toa : 14;
   uint16_t address : 16;
   uint16_t mode_mask : 4;
-} LLCP_PixelDataToT_t;
+} LLCP_PixelDataToA_t;
 
 /**
  * @brief Structure for interpreting the Mpx and iToT mode

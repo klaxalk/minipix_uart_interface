@@ -15,6 +15,12 @@ void MinipixDummy::sendMessage([[maybe_unused]] const uint8_t *bytes_out, [[mayb
 
   // TODO timeout
   while (!clear_to_send_) {
+
+    sleep(1);
+
+    if (!clear_to_send_) {
+      printf("waiting for ack\n");
+    }
   }
 
   sendString(bytes_out, len);

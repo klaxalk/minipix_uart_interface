@@ -7,6 +7,8 @@
 #include <string>
 #include <mutex>
 
+#include <opencv_helpers.hpp>
+
 #include <math.h>
 
 #include <serial_port.h>
@@ -252,12 +254,12 @@ int main(int argc, char* argv[]) {
 
                   uint8_t x   = ((LLCP_PixelDataToAToT_t*)&image->pixel_data[pix])->address % 256;
                   uint8_t y   = (((LLCP_PixelDataToAToT_t*)&image->pixel_data[pix])->address - x) / 256;
-                  float   toa = float(((LLCP_PixelDataToAToT_t*)&image->pixel_data[pix])->toa);
+
                   float   tot = float(((LLCP_PixelDataToAToT_t*)&image->pixel_data[pix])->tot);
+                  float   toa = float(((LLCP_PixelDataToAToT_t*)&image->pixel_data[pix])->toa);
 
-                  cv::Vec3f tot_color(0, 0, 1e3 + pow(tot, 2.0));  // BGR
-
-                  cv::Vec3f toa_color(0, 1e3 + pow(toa, 2.0), 0);  // BGR
+                  cv::Vec3f tot_color(0, 0, log2(tot));  // BGR
+                  cv::Vec3f toa_color(0, pow(toa, 2), 0);  // BGR
 
                   frame_tot.at<cv::Vec3f>(cv::Point(x, y)) = tot_color;
                   frame_toa.at<cv::Vec3f>(cv::Point(x, y)) = toa_color;
@@ -317,18 +319,16 @@ int main(int argc, char* argv[]) {
       std::this_thread::sleep_for(std::chrono::milliseconds(1));
 
 #ifdef GUI
-      cv::Mat frame_toa_norm(256, 256, CV_32FC3);
-      cv::Mat frame_tot_norm(256, 256, CV_32FC3);
-      cv::Mat frame_plot(256, 256, CV_32FC3);
+      cv::Mat frame_tot_plot(256, 256, CV_32FC3);
+      cv::Mat frame_toa_plot(256, 256, CV_32FC3);
 
-      cv::normalize(frame_tot, frame_tot_norm, 0.05, 1.0, cv::NORM_MINMAX);
-      cv::normalize(frame_toa, frame_toa_norm, 0.05, 1.0, cv::NORM_MINMAX);
+      cv::normalize(frame_tot, frame_tot_plot, 0.05, 1.0, cv::NORM_MINMAX);
+      cv::normalize(frame_toa, frame_toa_plot, 0.05, 1.0, cv::NORM_MINMAX);
 
-      frame_plot = frame_toa_norm + frame_tot_norm;
+      /* cv::subtract(cv::Scalar::all(1.0), frame_tot_plot, frame_tot_plot); */
+      /* cv::subtract(cv::Scalar::all(1.0), frame_toa_plot, frame_toa_plot); */
 
-      cv::resize(frame_plot, frame_plot, cv::Size(800, 800), cv::INTER_CUBIC);
-
-      cv::imshow("frame", frame_plot);
+      ShowManyImages<CV_32FC3>("frame", 2, frame_tot_plot, frame_toa_plot);
 
       cv::waitKey(1);
 #endif

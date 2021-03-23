@@ -188,8 +188,9 @@ void MinipixDummyLinux::simulateImageAcquisition(const uint16_t& acquisition_tim
         LLCP_PixelDataToAToT_t* pixel = (LLCP_PixelDataToAToT_t*)&image_data.payload.pixel_data[n_pixels_counter++];
         pixel->address                = i + j * 256;
         pixel->ftoa                   = 0;
-        pixel->toa                    = int(pixel_value);
-        pixel->tot                    = int(pixel_value);
+        pixel->tot                    = uint8_t(pixel_value);
+        pixel->toa                    = 500 - int(pixel_value) >= 0 ? 500 - int(pixel_value) : 0;
+
         // pixel->mode_mask = // TODO
       }
 
