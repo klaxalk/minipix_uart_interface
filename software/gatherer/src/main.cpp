@@ -4,6 +4,8 @@
 #include <opencv2/imgproc.hpp>
 #include <thread>
 #include <chrono>
+#include <string>
+#include <mutex>
 
 #include <math.h>
 
@@ -207,24 +209,59 @@ int main(int argc, char* argv[]) {
 
               uint8_t n_pixels = image->n_pixels;
 
-              printf("received frame datam, id %d, n_pixels %d, last_pixel_x: %d\n", image->frame_id, n_pixels, image->pixel_data[n_pixels - 1].x_coordinate);
+              if (image->packet_id == 0) {
+                for (int i = 0; i < 256; i++) {
+                  for (int j = 0; j < 256; j++) {
+                    frame_tot.at<cv::Vec3f>(cv::Point(i, j)) = 0;
+                    frame_toa.at<cv::Vec3f>(cv::Point(i, j)) = 0;
+                  }
+                }
+              }
+
+              std::string mode_str;
+              switch (image->mode) {
+
+                case LLCP_TPX3_PXL_MODE_TOA_TOT: {
+                  mode_str = "TOA_TOT";
+                  break;
+                }
+
+                case LLCP_TPX3_PXL_MODE_TOA: {
+                  mode_str = "TOA";
+                  break;
+                }
+
+                case LLCP_TPX3_PXL_MODE_MPX_ITOT: {
+                  mode_str = "MPX_ITOT";
+                  break;
+                }
+
+                default: {
+                  mode_str = "UNKNOWN";
+                  printf("pixel mode mode undefined, %d!\n", image->mode);
+                  break;
+                }
+              }
+
+              printf("received frame data, id %d, packet %d, mode %s, n_pixels %d\n", image->frame_id, image->packet_id, mode_str.c_str(), n_pixels);
 
 #ifdef GUI
               for (int pix = 0; pix < n_pixels; pix++) {
 
-                uint8_t x   = image->pixel_data[pix].x_coordinate;
-                uint8_t y   = image->pixel_data[pix].y_coordinate;
-                float   toa = float(image->pixel_data[pix].toa);
-                float   tot = float(image->pixel_data[pix].tot);
+                if (image->mode == LLCP_TPX3_PXL_MODE_TOA_TOT) {
 
-                cv::Vec3f tot_color(0, 0, 1e3 + pow(tot, 2.0));  // BGR
+                  uint8_t x   = ((LLCP_PixelDataToAToT_t*)&image->pixel_data[pix])->address % 256;
+                  uint8_t y   = (((LLCP_PixelDataToAToT_t*)&image->pixel_data[pix])->address - x) / 256;
+                  float   toa = float(((LLCP_PixelDataToAToT_t*)&image->pixel_data[pix])->toa);
+                  float   tot = float(((LLCP_PixelDataToAToT_t*)&image->pixel_data[pix])->tot);
 
-                cv::Vec3f toa_color(0, 1e3 + pow(toa, 2.0), 0);  // BGR
+                  cv::Vec3f tot_color(0, 0, 1e3 + pow(tot, 2.0));  // BGR
 
-                printf("toa %.2f\n", toa);
+                  cv::Vec3f toa_color(0, 1e3 + pow(toa, 2.0), 0);  // BGR
 
-                frame_tot.at<cv::Vec3f>(cv::Point(x, y)) = tot_color;
-                frame_toa.at<cv::Vec3f>(cv::Point(x, y)) = toa_color;
+                  frame_tot.at<cv::Vec3f>(cv::Point(x, y)) = tot_color;
+                  frame_toa.at<cv::Vec3f>(cv::Point(x, y)) = toa_color;
+                }
               }
 #endif
 
@@ -240,7 +277,7 @@ int main(int argc, char* argv[]) {
 
               uint8_t n_pixels = image->n_pixels;
 
-              printf("received stream data, n_pixels %d, last_pixel_x: %d\n", n_pixels, image->pixel_data[n_pixels - 1].x_coordinate);
+              printf("received stream data, n_pixels %d\n", n_pixels);
 
               break;
             };
@@ -263,6 +300,8 @@ int main(int argc, char* argv[]) {
               LLCP_FrameDataTerminator_t* terminator = (LLCP_FrameDataTerminator_t*)&msg->payload;
 
               printf("received frame data terminator: frame id %d, packet count: %d\n", terminator->frame_id, terminator->n_packets);
+
+              measureFrame(100);
 
               break;
             };

@@ -49,6 +49,8 @@ void init_LLCP_FrameData_t(LLCP_FrameData_t* data) {
 
   data->frame_id  = 0;
   data->packet_id = 0;
+  data->mode      = 0;
+
   data->n_pixels  = 0;
 
   for (uint8_t i = 0; i < LLCP_FRAME_DATA_N_PIXELS; i++) {

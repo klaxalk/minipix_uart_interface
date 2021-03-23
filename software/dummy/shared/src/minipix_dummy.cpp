@@ -43,6 +43,8 @@ void MinipixDummy::ingegralFrameMeasurement(const uint16_t &acquisition_time) {
 
   const int n_packets = 100;
 
+  uint16_t packet_id = 0;
+
   for (int j = 0; j < n_packets; j++) {
 
     uint8_t n_pixels = LLCP_FRAME_DATA_N_PIXELS;
@@ -53,17 +55,17 @@ void MinipixDummy::ingegralFrameMeasurement(const uint16_t &acquisition_time) {
 
     // | ------------------- fill in the payload ------------------ |
 
-    image_data.payload.frame_id = frame_id_;
-
-    image_data.payload.n_pixels = n_pixels;
+    image_data.payload.frame_id  = frame_id_;
+    image_data.payload.mode      = LLCP_TPX3_PXL_MODE_TOA_TOT;
+    image_data.payload.n_pixels  = n_pixels;
+    image_data.payload.packet_id = packet_id++;
 
     for (int i = 0; i < n_pixels; i++) {
-      LLCP_PixelData_t *pixel = (LLCP_PixelData_t *)&image_data.payload.pixel_data[i];
-      pixel->x_coordinate     = j + i;
-      pixel->y_coordinate     = j;
-      pixel->tot              = i;
-      pixel->toa              = j * 41 + i;
-      pixel->fast_toa         = 0;
+      LLCP_PixelDataToAToT_t *pixel = (LLCP_PixelDataToAToT_t *)&image_data.payload.pixel_data[i];
+      pixel->address                = (j + i) + 256 * j;
+      pixel->tot                    = i;
+      pixel->toa                    = j * 41 + i;
+      pixel->ftoa                   = 0;
     }
 
     // convert to network endian
@@ -124,12 +126,11 @@ void MinipixDummy::continuousStreamMeasurement() {
     image_data.payload.n_pixels = n_pixels;
 
     for (int i = 0; i < n_pixels; i++) {
-      LLCP_PixelData_t *pixel = (LLCP_PixelData_t *)&image_data.payload.pixel_data[i];
-      pixel->x_coordinate     = j;
-      pixel->y_coordinate     = j;
-      pixel->tot              = j;
-      pixel->toa              = j;
-      pixel->fast_toa         = j;
+      LLCP_PixelDataToAToT_t *pixel = (LLCP_PixelDataToAToT_t *)&image_data.payload.pixel_data[i];
+      pixel->address                = j + j * 256;
+      pixel->tot                    = j;
+      pixel->toa                    = j;
+      pixel->ftoa                   = j;
     }
 
     // convert to network endian

@@ -56,15 +56,47 @@ extern "C" {
 /* LLCP_PixelData_t //{ */
 
 /**
+ * @brief Structure for interpreting the ToA and ToT mode
+ */
+typedef struct __attribute__((packed))
+{
+  uint8_t  ftoa : 4;
+  uint16_t tot : 10;
+  uint16_t toa : 14;
+  uint16_t address : 16;
+  uint16_t mode_mask : 4;
+} LLCP_PixelDataToAToT_t;
+
+/**
+ * @brief Structure for interpreting the ToT mode
+ */
+typedef struct __attribute__((packed))
+{
+  uint8_t  ftoa : 4;
+  uint16_t dummy : 10;
+  uint16_t toa : 14;
+  uint16_t address : 16;
+  uint16_t mode_mask : 4;
+} LLCP_PixelDataToT_t;
+
+/**
+ * @brief Structure for interpreting the Mpx and iToT mode
+ */
+typedef struct __attribute__((packed))
+{
+  uint8_t  dummy : 4;
+  uint16_t event_counter : 10;
+  uint16_t itot : 14;
+  uint16_t address : 16;
+  uint16_t mode_mask : 4;
+} LLCP_PixelDataMpxiToT_t;
+
+/**
  * @brief Structure for holding pixel coordinates and measured pixel values.
  */
 typedef struct __attribute__((packed))
 {
-  uint8_t  x_coordinate : 8;
-  uint8_t  y_coordinate : 8;
-  uint16_t tot : 10;
-  uint16_t toa : 16;
-  uint16_t fast_toa : 4;
+  uint8_t data[6];
 } LLCP_PixelData_t;
 
 /**
@@ -98,14 +130,20 @@ void init_LLCP_PixelData_t(LLCP_PixelData_t* data);
 
 #define LLCP_FRAME_DATA_N_PIXELS 41
 
+#define LLCP_TPX3_PXL_MODE_UNSET 0
+#define LLCP_TPX3_PXL_MODE_TOA_TOT 1
+#define LLCP_TPX3_PXL_MODE_TOA 2
+#define LLCP_TPX3_PXL_MODE_MPX_ITOT 3
+
 /**
  * @brief Message data for LLCP_FrameDataMsg_t
  */
 typedef struct __attribute__((packed))
 {
-  uint16_t         frame_id;  // a unique identifier of the frame, can be used to stitch the packets together
-  uint16_t         packet_id;
-  uint8_t          n_pixels;  // how many pixels are filled in
+  uint16_t         frame_id;   // a unique identifier of the frame, can be used to stitch the packets together
+  uint16_t         packet_id;  // should be incremented for each packet of the frame
+  uint8_t          mode;       // will determine the measurement mode
+  uint8_t          n_pixels;   // how many pixels are filled in
   LLCP_PixelData_t pixel_data[LLCP_FRAME_DATA_N_PIXELS];
 } LLCP_FrameData_t;
 
