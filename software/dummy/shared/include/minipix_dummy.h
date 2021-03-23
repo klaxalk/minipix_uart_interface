@@ -19,6 +19,7 @@ public:
   virtual void sendString([[maybe_unused]] const uint8_t *bytes_out, [[maybe_unused]] const uint16_t &len){};
   void         serialDataCallback(const uint8_t *bytes_in, const uint16_t &len);
   virtual void sleep([[maybe_unused]] const uint16_t &milliseconds){};
+  virtual void simulateImageAcquisition([[maybe_unused]] const uint16_t& acquisition_time){};
 
 protected:
   LLCP_Receiver_t llcp_receiver_;

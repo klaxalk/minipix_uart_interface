@@ -89,3 +89,31 @@ void MinipixDummyLinux::update_linux(void) {
 }
 
 //}
+
+void MinipixDummyLinux::setDataFolder(const std::string& data_folder) {
+  this->data_folder = data_folder;
+}
+
+void MinipixDummyLinux::simulateImageAcquisition(const uint16_t& acquisition_time) {
+
+  uint16_t image_id = 666;
+
+  std::stringstream ss;
+  ss << data_folder << image_id << "_fullres.txt":
+  std::string filename = ss.str();
+
+  std::ifstream data();
+
+  std::string                           line;
+  std::vector<std::vector<std::string>> parsedCsv;
+  while (std::getline(data, line)) {
+    std::stringstream        lineStream(line);
+    std::string              cell;
+    std::vector<std::string> parsedRow;
+    while (std::getline(lineStream, cell, ',')) {
+      parsedRow.push_back(cell);
+    }
+
+    parsedCsv.push_back(parsedRow);
+  }
+}

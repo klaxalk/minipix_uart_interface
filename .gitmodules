@@ -1,0 +1,3 @@
+[submodule "software/vzlusat1-timepix-data"]
+	path = software/vzlusat1-timepix-data
+	url = https://github.com/vzlusat/vzlusat1-timepix-data

@@ -5,6 +5,9 @@
 
 #include <minipix_dummy.h>
 
+#include <strings.h>
+#include <vector>
+
 #include <thread>
 #include <chrono>
 
@@ -27,6 +30,11 @@ public:
   void sleep(const uint16_t &milliseconds);
 
   void update_linux(void);
+
+  void simulateImageAcquisition(const uint16_t &acquisition_time);
+
+  std::string data_folder;
+  void setDataFolder(const std::string &data_folder);
 
 private:
   SerialPort        serial_port_;

@@ -3,6 +3,7 @@
 
 #include <minipix_dummy_linux.h>
 
+std::string data_folder;
 std::string serial_port_file;
 int         baud_rate;
 bool        serial_port_virtual;
@@ -26,6 +27,7 @@ int main(int argc, char *argv[]) {
   MinipixDummyLinux minipix_dummy;
 
   minipix_dummy.initializeSerialPort(serial_port_file, baud_rate, serial_port_virtual);
+  minipix_dummy.setDataFolder(data_folder);
 
   printf("Starting while loop\n");
 
