@@ -123,6 +123,46 @@ void mui_updatePixelMask(MUI_Handler_t* mui_handler, LLCP_UpdatePixelMaskReq_t* 
 
 //}
 
+/* mui_setThreshold() //{ */
+
+void mui_setThreshold(MUI_Handler_t* mui_handler, const uint16_t threshold) {
+
+  // create the message
+  LLCP_SetThresholdReqMsg_t msg;
+  init_LLCP_SetThresholdReqMsg_t(&msg);
+
+  msg.payload.threshold = threshold;
+
+  // convert to network endian
+  hton_LLCP_SetThresholdReqMsg_t(&msg);
+
+  uint16_t n_bytes = llcp_prepareMessage((uint8_t*)&msg, sizeof(msg), mui_handler->tx_buffer);
+
+  mui_handler->fcns.sendString(mui_handler->tx_buffer, n_bytes);
+}
+
+//}
+
+/* mui_setConfigurationPreset() //{ */
+
+void mui_setConfigurationPreset(MUI_Handler_t* mui_handler, const uint8_t preset) {
+
+  // create the message
+  LLCP_SetConfigurationPresetReqMsg_t msg;
+  init_LLCP_SetConfigurationPresetReqMsg_t(&msg);
+
+  msg.payload.preset = preset;
+
+  // convert to network endian
+  hton_LLCP_SetConfigurationPresetReqMsg_t(&msg);
+
+  uint16_t n_bytes = llcp_prepareMessage((uint8_t*)&msg, sizeof(msg), mui_handler->tx_buffer);
+
+  mui_handler->fcns.sendString(mui_handler->tx_buffer, n_bytes);
+}
+
+//}
+
 // | ------------------------- status ------------------------- |
 
 /* mui_getStatus() //{ */

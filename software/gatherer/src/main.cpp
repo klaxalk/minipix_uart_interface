@@ -46,6 +46,8 @@ public:
   void startStream(const uint16_t& duty_cycle);
   void pwr(const bool& state);
   void maskPixel(const uint8_t& x, const uint8_t& y);
+  void setThreshold(const uint16_t& thr);
+  void setConfigurationPreset(const uint16_t& preset);
 
 private:
   SerialPort serial_port_;
@@ -466,6 +468,56 @@ void Gatherer::maskPixel(const uint8_t& x, const uint8_t& y) {
 
 //}
 
+/* setThreshold() //{ */
+
+void Gatherer::setThreshold(const uint16_t& thr) {
+
+  // create the message
+  LLCP_SetThresholdReqMsg_t msg;
+  init_LLCP_SetThresholdReqMsg_t(&msg);
+
+  // fill in the payload
+  msg.payload.threshold = thr;
+
+  // convert to network endian
+  hton_LLCP_SetThresholdReqMsg_t(&msg);
+
+  uint16_t n_bytes = llcp_prepareMessage((uint8_t*)&msg, sizeof(msg), tx_buffer);
+
+  {
+    std::scoped_lock lock(mutex_serial_port_);
+
+    serial_port_.sendCharArray(tx_buffer, n_bytes);
+  }
+}
+
+//}
+
+/* setConfigurationPreset() //{ */
+
+void Gatherer::setConfigurationPreset(const uint16_t& preset) {
+
+  // create the message
+  LLCP_SetConfigurationPresetReqMsg_t msg;
+  init_LLCP_SetConfigurationPresetReqMsg_t(&msg);
+
+  // fill in the payload
+  msg.payload.preset = preset;
+
+  // convert to network endian
+  hton_LLCP_SetConfigurationPresetReqMsg_t(&msg);
+
+  uint16_t n_bytes = llcp_prepareMessage((uint8_t*)&msg, sizeof(msg), tx_buffer);
+
+  {
+    std::scoped_lock lock(mutex_serial_port_);
+
+    serial_port_.sendCharArray(tx_buffer, n_bytes);
+  }
+}
+
+//}
+
 int main(int argc, char* argv[]) {
 
   std::string serial_port_file;
@@ -498,6 +550,14 @@ int main(int argc, char* argv[]) {
   std::this_thread::sleep_for(std::chrono::milliseconds(100));
 
   gatherer.maskPixel(10, 20);
+
+  std::this_thread::sleep_for(std::chrono::milliseconds(100));
+
+  gatherer.setThreshold(333);
+
+  std::this_thread::sleep_for(std::chrono::milliseconds(100));
+
+  gatherer.setConfigurationPreset(2);
 
   std::this_thread::sleep_for(std::chrono::milliseconds(100));
 

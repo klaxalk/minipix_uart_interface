@@ -150,6 +150,22 @@ void mui_measureFrame(MUI_Handler_t *mui_handler, const uint16_t acquisition_tim
 void mui_measureStream(MUI_Handler_t *mui_handler, const uint16_t duty_cycle);
 
 /**
+ * @brief Command to set energy threshold
+ *
+ * @param mui_handler
+ * @param threshold
+ */
+void mui_setThreshold(MUI_Handler_t *mui_handler, const uint16_t threshold);
+
+/**
+ * @brief Command to set configuration preset
+ *
+ * @param mui_handler
+ * @param preset
+ */
+void mui_setConfigurationPreset(MUI_Handler_t *mui_handler, const uint8_t preset);
+
+/**
  * @brief Command to flush the stream buffer in the MiniPIX.
  *
  * @param mui_handler

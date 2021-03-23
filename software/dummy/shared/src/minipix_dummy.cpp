@@ -36,6 +36,21 @@ void MinipixDummy::sendMessageNoAck([[maybe_unused]] const uint8_t *bytes_out, [
 
 //}
 
+/* sendAck() //{ */
+
+void MinipixDummy::sendAck(void) {
+
+  LLCP_AckMsg_t ack_msg;
+  init_LLCP_AckMsg_t(&ack_msg);
+
+  hton_LLCP_AckMsg_t(&ack_msg);
+
+  uint16_t n_bytes = llcp_prepareMessage((uint8_t *)&ack_msg, sizeof(ack_msg), tx_buffer_);
+  sendMessageNoAck(tx_buffer_, n_bytes);
+}
+
+//}
+
 /* testStripe() //{ */
 
 void MinipixDummy::testStripe() {
@@ -267,16 +282,35 @@ void MinipixDummy::serialDataCallback(const uint8_t *bytes_in, const uint16_t &l
 
           printf("received pixel mask update, x = %d, y = %d, masked = %s\n", req->x_coordinate, req->y_coordinate, req->masked ? "MASK" : "UNMASK");
 
-          LLCP_AckMsg_t ack_msg;
-          init_LLCP_AckMsg_t(&ack_msg);
+          sendAck();
 
-          // convert to network endian
-          hton_LLCP_AckMsg_t(&ack_msg);
+          break;
+        };
 
-          // TODO do something
+        case LLCP_SET_THRESHOLD_REQ_MSG_ID: {
 
-          uint16_t n_bytes = llcp_prepareMessage((uint8_t *)&ack_msg, sizeof(ack_msg), tx_buffer_);
-          sendMessage(tx_buffer_, n_bytes);
+          LLCP_SetThresholdReqMsg_t *msg = (LLCP_SetThresholdReqMsg_t *)(&message.payload);
+          ntoh_LLCP_SetThresholdReqMsg_t(msg);
+
+          LLCP_SetThresholdReq_t *req = (LLCP_SetThresholdReq_t *)(&msg->payload);
+
+          printf("setting threshold to %d\n", req->threshold);
+
+          sendAck();
+
+          break;
+        };
+
+        case LLCP_SET_CONFIGURATION_PRESET_REQ_MSG_ID: {
+
+          LLCP_SetConfigurationPresetReqMsg_t *msg = (LLCP_SetConfigurationPresetReqMsg_t *)(&message.payload);
+          ntoh_LLCP_SetConfigurationPresetReqMsg_t(msg);
+
+          LLCP_SetConfigurationPresetReq_t *req = (LLCP_SetConfigurationPresetReq_t *)(&msg->payload);
+
+          printf("setting configuration preset to %d\n", req->preset);
+
+          sendAck();
 
           break;
         };

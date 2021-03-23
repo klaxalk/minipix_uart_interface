@@ -75,6 +75,30 @@ void gatherer_receiveCharCallback(Gatherer_Handler_t *gatherer_handler, const ui
         break;
       };
 
+      case LLCP_SET_THRESHOLD_REQ_MSG_ID: {
+
+        LLCP_SetThresholdReqMsg_t *msg = (LLCP_SetThresholdReqMsg_t *)(&message_in.payload);
+        ntoh_LLCP_SetThresholdReqMsg_t(msg);
+
+        LLCP_SetThresholdReq_t *req = (LLCP_SetThresholdReq_t *)(&msg->payload);
+
+        mui_setThreshold(gatherer_handler->mui_handler_ptr_, req->threshold);
+
+        break;
+      };
+
+      case LLCP_SET_CONFIGURATION_PRESET_REQ_MSG_ID: {
+
+        LLCP_SetConfigurationPresetReqMsg_t *msg = (LLCP_SetConfigurationPresetReqMsg_t *)(&message_in.payload);
+        ntoh_LLCP_SetConfigurationPresetReqMsg_t(msg);
+
+        LLCP_SetConfigurationPresetReq_t *req = (LLCP_SetConfigurationPresetReq_t *)(&msg->payload);
+
+        mui_setConfigurationPreset(gatherer_handler->mui_handler_ptr_, req->preset);
+
+        break;
+      };
+
       default: {
 
         // received unsupported message
