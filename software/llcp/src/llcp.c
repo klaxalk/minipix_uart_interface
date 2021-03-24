@@ -201,10 +201,14 @@ bool llcp_processChar(const uint8_t char_in, LLCP_Receiver_t* receiver, LLCP_Mes
 #endif
 
         uint16_t counter = 0;
-        for (uint16_t i = 0; i < receiver->payload_size / 2; i++) {
-          *((uint8_t*) ((*message) + i)) = llcp_hex2bin(receiver->rx_buffer + counter);
+
+        for (uint8_t i = 0; i < receiver->payload_size / 2; i++) {
+
+          receiver->rx_buffer[i] = llcp_hex2bin(receiver->rx_buffer + counter);
           counter += 2;
         }
+
+        *message = (LLCP_Message_t*)receiver->rx_buffer;
 
         receiver->state = WAITING_FOR_MESSSAGE;
         return true;
