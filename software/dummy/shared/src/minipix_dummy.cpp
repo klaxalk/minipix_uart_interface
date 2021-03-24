@@ -169,19 +169,22 @@ void MinipixDummy::update(void) {
       LLCP_Message_t message = message_buffer_.front();
       message_buffer_.pop_front();
 
-      switch (message.id) {
+      // I know the less pointers the beeter, but I want the following switch
+      // to look the same as the rest and in ANSI C, to minimize copy-paster errors.
+      LLCP_Message_t *message_in = &message;
+
+      switch (message_in->id) {
 
         case LLCP_MEASURE_FRAME_REQ_MSG_ID: {
 
           printf("processing frame measurement request from the queue\n");
 
-          LLCP_MeasureFrameReqMsg_t *msg = (LLCP_MeasureFrameReqMsg_t *)(&message);
+          LLCP_MeasureFrameReqMsg_t *msg = (LLCP_MeasureFrameReqMsg_t *)message_in;
           ntoh_LLCP_MeasureFrameReqMsg_t(msg);
 
           LLCP_MeasureFrameReq_t *req = (LLCP_MeasureFrameReq_t *)(&msg->payload);
 
           if (powered_) {
-            /* ingegralFrameMeasurement(req->acquisition_time_ms); */
             simulateImageAcquisition(req->acquisition_time_ms);
           } else {
             printf("cannot do frame measurement, not powered!\n");
@@ -194,7 +197,7 @@ void MinipixDummy::update(void) {
 
           printf("processing stream measurement request from the queue\n");
 
-          LLCP_MeasureStreamReqMsg_t *msg = (LLCP_MeasureStreamReqMsg_t *)(&message);
+          LLCP_MeasureStreamReqMsg_t *msg = (LLCP_MeasureStreamReqMsg_t *)&message_in;
           ntoh_LLCP_MeasureStreamReqMsg_t(msg);
 
           LLCP_MeasureStreamReq_t *req = (LLCP_MeasureStreamReq_t *)(&msg->payload);
@@ -231,11 +234,11 @@ void MinipixDummy::serialDataCallback(const uint8_t *bytes_in, const uint16_t &l
 
   for (uint16_t i = 0; i < len; i++) {
 
-    LLCP_Message_t *message;
+    LLCP_Message_t *message_in;
 
-    if (llcp_processChar(bytes_in[i], &llcp_receiver_, &message)) {
+    if (llcp_processChar(bytes_in[i], &llcp_receiver_, &message_in)) {
 
-      switch (message->id) {
+      switch (message_in->id) {
 
         case LLCP_MEASURE_FRAME_REQ_MSG_ID: {
 
@@ -243,7 +246,7 @@ void MinipixDummy::serialDataCallback(const uint8_t *bytes_in, const uint16_t &l
 
           std::scoped_lock lock(mutex_message_buffer_);
 
-          message_buffer_.push_back(*message);
+          message_buffer_.push_back(*message_in);
 
           break;
         };
@@ -254,14 +257,14 @@ void MinipixDummy::serialDataCallback(const uint8_t *bytes_in, const uint16_t &l
 
           std::scoped_lock lock(mutex_message_buffer_);
 
-          message_buffer_.push_back(*message);
+          message_buffer_.push_back(*message_in);
 
           break;
         };
 
         case LLCP_PWR_REQ_MSG_ID: {
 
-          LLCP_PwrReqMsg_t *msg = (LLCP_PwrReqMsg_t *)message;
+          LLCP_PwrReqMsg_t *msg = (LLCP_PwrReqMsg_t *)message_in;
           ntoh_LLCP_PwrReqMsg_t(msg);
 
           LLCP_PwrReq_t *req = (LLCP_PwrReq_t *)(&msg->payload);
@@ -275,7 +278,7 @@ void MinipixDummy::serialDataCallback(const uint8_t *bytes_in, const uint16_t &l
 
         case LLCP_UPDATE_PIXEL_MASK_REQ_MSG_ID: {
 
-          LLCP_UpdatePixelMaskReqMsg_t *msg = (LLCP_UpdatePixelMaskReqMsg_t *)message;
+          LLCP_UpdatePixelMaskReqMsg_t *msg = (LLCP_UpdatePixelMaskReqMsg_t *)message_in;
           ntoh_LLCP_UpdatePixelMaskReqMsg_t(msg);
 
           LLCP_UpdatePixelMaskReq_t *req = (LLCP_UpdatePixelMaskReq_t *)(&msg->payload);
@@ -289,7 +292,7 @@ void MinipixDummy::serialDataCallback(const uint8_t *bytes_in, const uint16_t &l
 
         case LLCP_SET_THRESHOLD_REQ_MSG_ID: {
 
-          LLCP_SetThresholdReqMsg_t *msg = (LLCP_SetThresholdReqMsg_t *)message;
+          LLCP_SetThresholdReqMsg_t *msg = (LLCP_SetThresholdReqMsg_t *)message_in;
           ntoh_LLCP_SetThresholdReqMsg_t(msg);
 
           LLCP_SetThresholdReq_t *req = (LLCP_SetThresholdReq_t *)(&msg->payload);
@@ -303,7 +306,7 @@ void MinipixDummy::serialDataCallback(const uint8_t *bytes_in, const uint16_t &l
 
         case LLCP_SET_CONFIGURATION_PRESET_REQ_MSG_ID: {
 
-          LLCP_SetConfigurationPresetReqMsg_t *msg = (LLCP_SetConfigurationPresetReqMsg_t *)message;
+          LLCP_SetConfigurationPresetReqMsg_t *msg = (LLCP_SetConfigurationPresetReqMsg_t *)message_in;
           ntoh_LLCP_SetConfigurationPresetReqMsg_t(msg);
 
           LLCP_SetConfigurationPresetReq_t *req = (LLCP_SetConfigurationPresetReq_t *)(&msg->payload);
@@ -347,7 +350,7 @@ void MinipixDummy::serialDataCallback(const uint8_t *bytes_in, const uint16_t &l
 
         default: {
 
-          printf("Received unsupported message with id = %d\n", message->id);
+          printf("Received unsupported message with id = %d\n", message_in->id);
         }
       }
     }
