@@ -509,7 +509,7 @@ void ntoh_PwrReq_t(LLCP_PwrReq_t* data) {
 
 void init_LLCP_PwrReq_t(LLCP_PwrReq_t* data) {
 
-  data->state = false;
+  data->state = 0;
 }
 
 //}

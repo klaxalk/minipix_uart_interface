@@ -14,11 +14,11 @@ void gatherer_initialize(Gatherer_Handler_t *gatherer_handler) {
 
 void gatherer_receiveCharCallback(Gatherer_Handler_t *gatherer_handler, const uint8_t byte_in) {
 
-  LLCP_Message_t message_in;
+  LLCP_Message_t *message_in;
 
   if (llcp_processChar(byte_in, &(gatherer_handler->llcp_receiver), &message_in)) {
 
-    switch (message_in.id) {
+    switch (message_in->id) {
 
       case LLCP_GET_STATUS_REQ_MSG_ID: {
 
@@ -29,7 +29,7 @@ void gatherer_receiveCharCallback(Gatherer_Handler_t *gatherer_handler, const ui
 
       case LLCP_PWR_REQ_MSG_ID: {
 
-        LLCP_PwrReqMsg_t *msg = (LLCP_PwrReqMsg_t *)(&message_in.payload);
+        LLCP_PwrReqMsg_t *msg = (LLCP_PwrReqMsg_t *)&message_in;
         ntoh_LLCP_PwrReqMsg_t(msg);
 
         LLCP_PwrReq_t *req = (LLCP_PwrReq_t *)(&msg->payload);
@@ -41,7 +41,7 @@ void gatherer_receiveCharCallback(Gatherer_Handler_t *gatherer_handler, const ui
 
       case LLCP_MEASURE_FRAME_REQ_MSG_ID: {
 
-        LLCP_MeasureFrameReqMsg_t *msg = (LLCP_MeasureFrameReqMsg_t *)(&message_in.payload);
+        LLCP_MeasureFrameReqMsg_t *msg = (LLCP_MeasureFrameReqMsg_t *)message_in;
         ntoh_LLCP_MeasureFrameReqMsg_t(msg);
 
         LLCP_MeasureFrameReq_t *req = (LLCP_MeasureFrameReq_t *)(&msg->payload);
@@ -53,7 +53,7 @@ void gatherer_receiveCharCallback(Gatherer_Handler_t *gatherer_handler, const ui
 
       case LLCP_MEASURE_STREAM_REQ_MSG_ID: {
 
-        LLCP_MeasureStreamReqMsg_t *msg = (LLCP_MeasureStreamReqMsg_t *)(&message_in.payload);
+        LLCP_MeasureStreamReqMsg_t *msg = (LLCP_MeasureStreamReqMsg_t *)message_in;
         ntoh_LLCP_MeasureStreamReqMsg_t(msg);
 
         LLCP_MeasureStreamReq_t *req = (LLCP_MeasureStreamReq_t *)(&msg->payload);
@@ -65,7 +65,7 @@ void gatherer_receiveCharCallback(Gatherer_Handler_t *gatherer_handler, const ui
 
       case LLCP_UPDATE_PIXEL_MASK_REQ_MSG_ID: {
 
-        LLCP_UpdatePixelMaskReqMsg_t *msg = (LLCP_UpdatePixelMaskReqMsg_t *)(&message_in.payload);
+        LLCP_UpdatePixelMaskReqMsg_t *msg = (LLCP_UpdatePixelMaskReqMsg_t *)message_in;
         ntoh_LLCP_UpdatePixelMaskReqMsg_t(msg);
 
         LLCP_UpdatePixelMaskReq_t *req = (LLCP_UpdatePixelMaskReq_t *)(&msg->payload);
@@ -77,7 +77,7 @@ void gatherer_receiveCharCallback(Gatherer_Handler_t *gatherer_handler, const ui
 
       case LLCP_SET_THRESHOLD_REQ_MSG_ID: {
 
-        LLCP_SetThresholdReqMsg_t *msg = (LLCP_SetThresholdReqMsg_t *)(&message_in.payload);
+        LLCP_SetThresholdReqMsg_t *msg = (LLCP_SetThresholdReqMsg_t *)message_in;
         ntoh_LLCP_SetThresholdReqMsg_t(msg);
 
         LLCP_SetThresholdReq_t *req = (LLCP_SetThresholdReq_t *)(&msg->payload);
@@ -89,7 +89,7 @@ void gatherer_receiveCharCallback(Gatherer_Handler_t *gatherer_handler, const ui
 
       case LLCP_SET_CONFIGURATION_PRESET_REQ_MSG_ID: {
 
-        LLCP_SetConfigurationPresetReqMsg_t *msg = (LLCP_SetConfigurationPresetReqMsg_t *)(&message_in.payload);
+        LLCP_SetConfigurationPresetReqMsg_t *msg = (LLCP_SetConfigurationPresetReqMsg_t *)message_in;
         ntoh_LLCP_SetConfigurationPresetReqMsg_t(msg);
 
         LLCP_SetConfigurationPresetReq_t *req = (LLCP_SetConfigurationPresetReq_t *)(&msg->payload);

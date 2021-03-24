@@ -144,15 +144,15 @@ void Gatherer::threadMain(void) {
       // feed all the incoming bytes into the minipix interface
       for (uint16_t i = 0; i < bytes_read; i++) {
 
-        LLCP_Message_t message_in;
+        LLCP_Message_t* message_in;
 
         if (llcp_processChar(rx_buffer[i], &llcp_receiver, &message_in)) {
 
-          switch (message_in.id) {
+          switch (message_in->id) {
 
             case LLCP_FRAME_DATA_MSG_ID: {
 
-              LLCP_FrameDataMsg_t* msg = (LLCP_FrameDataMsg_t*)&message_in.payload;
+              LLCP_FrameDataMsg_t* msg = (LLCP_FrameDataMsg_t*)message_in;
               ntoh_LLCP_FrameDataMsg_t(msg);
 
               LLCP_FrameData_t* image = (LLCP_FrameData_t*)&msg->payload;
@@ -251,7 +251,7 @@ void Gatherer::threadMain(void) {
 
             case LLCP_STREAM_DATA_MSG_ID: {
 
-              LLCP_StreamDataMsg_t* msg = (LLCP_StreamDataMsg_t*)&message_in.payload;
+              LLCP_StreamDataMsg_t* msg = (LLCP_StreamDataMsg_t*)message_in;
               ntoh_LLCP_StreamDataMsg_t(msg);
 
               LLCP_StreamData_t* image = (LLCP_StreamData_t*)&msg->payload;
@@ -265,7 +265,7 @@ void Gatherer::threadMain(void) {
 
             case LLCP_STATUS_MSG_ID: {
 
-              LLCP_StatusMsg_t* msg = (LLCP_StatusMsg_t*)&message_in.payload;
+              LLCP_StatusMsg_t* msg = (LLCP_StatusMsg_t*)message_in;
               ntoh_LLCP_StatusMsg_t(msg);
               LLCP_Status_t* status = (LLCP_Status_t*)&msg->payload;
 
@@ -276,7 +276,7 @@ void Gatherer::threadMain(void) {
 
             case LLCP_FRAME_DATA_TERMINATOR_MSG_ID: {
 
-              LLCP_FrameDataTerminatorMsg_t* msg = (LLCP_FrameDataTerminatorMsg_t*)&message_in.payload;
+              LLCP_FrameDataTerminatorMsg_t* msg = (LLCP_FrameDataTerminatorMsg_t*)message_in;
               ntoh_LLCP_FrameDataTerminatorMsg_t(msg);
               LLCP_FrameDataTerminator_t* terminator = (LLCP_FrameDataTerminator_t*)&msg->payload;
 
@@ -289,7 +289,7 @@ void Gatherer::threadMain(void) {
 
             default: {
 
-              printf("Received unsupported message with id = %d\n", message_in.id);
+              printf("Received unsupported message with id = %d\n", message_in->id);
             }
           }
         }

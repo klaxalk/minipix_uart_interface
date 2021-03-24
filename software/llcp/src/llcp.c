@@ -39,11 +39,11 @@ uint8_t llcp_hex2bin(const uint8_t* ptr) {
 void llcp_bin2hex(const uint8_t x, uint8_t* buffer) {
 
   if (x >= 16) {
-    *buffer = "0123456789ABCDEF"[x / 16];
-    *(buffer+1) = "0123456789ABCDEF"[x & 15];
+    *buffer       = "0123456789ABCDEF"[x / 16];
+    *(buffer + 1) = "0123456789ABCDEF"[x & 15];
   } else {
-    *buffer = '0';
-    *(buffer+1) = "0123456789ABCDEF"[x];
+    *buffer       = '0';
+    *(buffer + 1) = "0123456789ABCDEF"[x];
   }
 }
 
@@ -64,7 +64,7 @@ void llcp_initialize(LLCP_Receiver_t* receiver) {
 
 /* llcp_processChar() //{ */
 
-bool llcp_processChar(const uint8_t char_in, LLCP_Receiver_t* receiver, LLCP_Message_t* message) {
+bool llcp_processChar(const uint8_t char_in, LLCP_Receiver_t* receiver, LLCP_Message_t** message) {
 
 #ifdef DEBUG_PRINT
   printf("got char '%c'\n", char_in);
@@ -169,12 +169,12 @@ bool llcp_processChar(const uint8_t char_in, LLCP_Receiver_t* receiver, LLCP_Mes
         printf("getting checksum, OK\n");
 #endif
 
-        memcpy(&(message->payload), &(receiver->rx_buffer), receiver->payload_size);
-        message->payload_size = receiver->payload_size;
-        message->id           = message->payload[0];
+        *message = (LLCP_Message_t*)receiver->rx_buffer;
 
         receiver->state = WAITING_FOR_MESSSAGE;
+
         return true;
+
       } else {
 
 #ifdef DEBUG_PRINT
@@ -200,15 +200,11 @@ bool llcp_processChar(const uint8_t char_in, LLCP_Receiver_t* receiver, LLCP_Mes
         printf("getting checksum, OK\n");
 #endif
 
-        /* memcpy(&(message->payload), &(receiver->rx_buffer), receiver->payload_size); */
         uint16_t counter = 0;
-        for (uint8_t i = 0; i < receiver->payload_size / 2; i++) {
-          message->payload[i] = llcp_hex2bin(receiver->rx_buffer + counter);
+        for (uint16_t i = 0; i < receiver->payload_size / 2; i++) {
+          *((uint8_t*) ((*message) + i)) = llcp_hex2bin(receiver->rx_buffer + counter);
           counter += 2;
         }
-
-        message->payload_size = receiver->payload_size / 2;
-        message->id           = message->payload[0];
 
         receiver->state = WAITING_FOR_MESSSAGE;
         return true;

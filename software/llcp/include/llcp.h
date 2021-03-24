@@ -14,7 +14,7 @@ extern "C" {
 // If COMM_HEXADECIMAL = 1, the protocol encodes data into HEXADECIMAL
 // ASCII characters, which do not spooke serial line drivers. It is also
 // much easier to debug, if all the data is human-readible.
-#define COMM_HEXADECIMAL 0
+#define COMM_HEXADECIMAL 1
 
 // should we send '\n' after each packet?
 #define APPEND_ENDL 0
@@ -79,7 +79,7 @@ typedef enum
 /* struct LLCP_Receiver_t //{ */
 
 #if COMM_HEXADECIMAL == 0
-typedef struct
+typedef struct __attribute__((packed))
 {
   LLCP_ReceiverState_t state;
   uint16_t             payload_size;
@@ -88,7 +88,7 @@ typedef struct
   uint8_t              checksum;
 } LLCP_Receiver_t;
 #else
-typedef struct
+typedef struct __attribute__((packed))
 {
   LLCP_ReceiverState_t state;
   uint16_t             payload_size;
@@ -103,10 +103,9 @@ typedef struct
 
 /* struct LLCP_Message_t //{ */
 
-typedef struct
+typedef struct __attribute__((packed))
 {
   uint8_t id;
-  uint8_t payload_size;
   uint8_t payload[MAX_PAYLOAD_LEN];
 } LLCP_Message_t;
 
@@ -122,7 +121,7 @@ void llcp_bin2hex(const uint8_t byte, uint8_t* buffer);
 
 void llcp_initialize(LLCP_Receiver_t* receiver);
 
-bool llcp_processChar(const uint8_t char_in, LLCP_Receiver_t* receiver, LLCP_Message_t* message);
+bool llcp_processChar(const uint8_t char_in, LLCP_Receiver_t* receiver, LLCP_Message_t** message);
 
 uint16_t llcp_prepareMessage(uint8_t* what, uint8_t len, uint8_t* buffer);
 

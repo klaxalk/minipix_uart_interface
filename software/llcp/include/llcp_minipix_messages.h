@@ -819,7 +819,7 @@ static_assert((sizeof(LLCP_AckMsg_t) > 255) == 0, "LLCP_AckMsg_t is too large");
  */
 typedef struct __attribute__((packed))
 {
-  bool state;  // true = ON, false = OFF
+  uint8_t state;  // 1 = ON, 0 = OFF
 } LLCP_PwrReq_t;
 
 /**

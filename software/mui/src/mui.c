@@ -189,16 +189,16 @@ void mui_getStatus(MUI_Handler_t* mui_handler) {
 
 void mui_receiveCharCallback(MUI_Handler_t* mui_handler, const uint8_t byte_in) {
 
-  LLCP_Message_t message_in;
+  LLCP_Message_t* message_in;
 
   if (llcp_processChar(byte_in, &(mui_handler->llcp_receiver), &message_in)) {
 
-    switch (message_in.id) {
+    switch (message_in->id) {
 
       case LLCP_FRAME_DATA_MSG_ID: {
 
         // load up the message and convert it to our endian
-        LLCP_FrameDataMsg_t* msg = (LLCP_FrameDataMsg_t*)&(message_in.payload);
+        LLCP_FrameDataMsg_t* msg = (LLCP_FrameDataMsg_t*)message_in;
         ntoh_LLCP_FrameDataMsg_t(msg);
 
         // call the user's callback
@@ -213,7 +213,7 @@ void mui_receiveCharCallback(MUI_Handler_t* mui_handler, const uint8_t byte_in) 
       case LLCP_FRAME_DATA_TERMINATOR_MSG_ID: {
 
         // load up the message and convert it to our endian
-        LLCP_FrameDataTerminatorMsg_t* msg = (LLCP_FrameDataTerminatorMsg_t*)&(message_in.payload);
+        LLCP_FrameDataTerminatorMsg_t* msg = (LLCP_FrameDataTerminatorMsg_t*)message_in;
         ntoh_LLCP_FrameDataTerminatorMsg_t(msg);
 
         // call the user's callback
@@ -228,7 +228,7 @@ void mui_receiveCharCallback(MUI_Handler_t* mui_handler, const uint8_t byte_in) 
       case LLCP_STREAM_DATA_MSG_ID: {
 
         // load up the message and convert it to our endian
-        LLCP_StreamDataMsg_t* msg = (LLCP_StreamDataMsg_t*)&(message_in.payload);
+        LLCP_StreamDataMsg_t* msg = (LLCP_StreamDataMsg_t*)message_in;
         ntoh_LLCP_StreamDataMsg_t(msg);
 
         // call the user's callback
@@ -243,7 +243,7 @@ void mui_receiveCharCallback(MUI_Handler_t* mui_handler, const uint8_t byte_in) 
       case LLCP_STATUS_MSG_ID: {
 
         // load up the message and convert it to our endian
-        LLCP_StatusMsg_t* msg = (LLCP_StatusMsg_t*)&(message_in.payload);
+        LLCP_StatusMsg_t* msg = (LLCP_StatusMsg_t*)message_in;
         ntoh_LLCP_StatusMsg_t(msg);
 
         // call the user's callback
@@ -258,7 +258,7 @@ void mui_receiveCharCallback(MUI_Handler_t* mui_handler, const uint8_t byte_in) 
       case LLCP_ACK_MSG_ID: {
 
         // load up the message and convert it to our endian
-        LLCP_AckMsg_t* msg = (LLCP_AckMsg_t*)&(message_in.payload);
+        LLCP_AckMsg_t* msg = (LLCP_AckMsg_t*)message_in;
         ntoh_LLCP_AckMsg_t(msg);
 
         // TODO what to do with the ack?
