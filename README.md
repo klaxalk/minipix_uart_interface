@@ -25,18 +25,21 @@ HW diagram of the Linux Dummy<->STM32F4 example<->Gatherer.
 
 ### Commands provided by the MiniPIX Interface
 
-| "command"               | description                              | parameters             | output form                                    |
-|-------------------------|------------------------------------------|------------------------|------------------------------------------------|
-| `mui_getStatus()`       | gets housekeeping data from MiniPIX      | -                      | a string of text, possibly with numeric values |
-| `mui_measureFrame()`    | requests frame acquisition               | acquisition time       | packetized frame                               |
-| `mui_measureStream()`   | request stream acquisition               | duty cycle             | packets of measured event pixels               |
-| `mui_stopStream()`      | stop stream acquisition                  | -                      | -                                              |
-| `mui_flushBuffer()`     | request flusing of MiniPIX stream buffer | -                      | -                                              |
-| `mui_updatePixelMask()` | set pixel mask                           | pixel coordinates, 1/0 | -                                              |
+| "command"                      | description                                | parameters             | output form                                    |
+|--------------------------------|--------------------------------------------|------------------------|------------------------------------------------|
+| `mui_pwr()`                    | turns on/off the TPX3 detector             | 0/1                    | ack                                            |
+| `mui_getStatus()`              | gets housekeeping data from MiniPIX        | -                      | a string of text, possibly with numeric values |
+| `mui_measureFrame()`           | requests frame acquisition                 | acquisition time       | packetized frame                               |
+| `mui_updatePixelMask()`        | set pixel mask                             | pixel coordinates, 1/0 | ack                                            |
+| `mui_setThreshold()`           | set energy threshold, mostly for debugging | threshold              | ack                                            |
+| `mui_setConfigurationPreset()` | switches between pre-loaded configurations | preset ID              | ack                                            |
 
 
 For consideration
 
-| "command"              | description                                  | parameters       | output form       |
-|------------------------|----------------------------------------------|------------------|-------------------|
-| `getSinglePxlStream()` | requests image stream of single-pixel events | acquisition time | packetized stream |
+| "command"              | description                                                  | parameters       | output form                      |
+|------------------------|--------------------------------------------------------------|------------------|----------------------------------|
+| `mui_measureStream()`  | request stream acquisition (problematic to implement)        | duty cycle       | packets of measured event pixels |
+| `mui_stopStream()`     | stop stream acquisition (might not be possible to implement) | -                | ack                              |
+| `mui_flushBuffer()`    | request flusing of MiniPIX stream buffer                     | -                | ack                              |
+| `getSinglePxlStream()` | requests image stream of single-pixel events (for VZLU)      | acquisition time | packetized stream                |

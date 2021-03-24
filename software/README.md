@@ -9,7 +9,7 @@
 ## MUI - MiniPIX UART Interface
 
 * C library
-  * contains virtual classes to be implemented by the HW integrator
+  * needs "virtual" methods to be implemented by the HW integrator
 * uses LLCP
 * interfaces with the MiniPIX over UART using
 
