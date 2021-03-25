@@ -46,9 +46,26 @@ sudo apt install libopencv-dev
 
 Stitches packeted data from files into viewable images.
 
+## Vzlusat1-timepix-data
+
+A repository containing Timepix data obtained by the VZLUSAT-1 satellite.
+The data is used in the Dummy to emulate measurements.
+
+Download the data by updating the git submodule:
+```bash
+git submodule update --init --recursive
+```
+
 # Running in Tmux sessions
 
-`./tmux` contains tmuxinator sessions ready for testing.
+The `tmux` subfolder contains tmuxinator sessions ready for testing.
+
+1. compile all the Linux software
+```bash
+./compile.sh
+```
+
+2. if testing with the STM32F4 example, compile and flash the microcontroller.
 
 ```bash
 sudo apt-get -y install tmux tmuxinator

@@ -19,7 +19,7 @@ they will appear under `~/STM32Cube/Repository/STM32Cube_FW_F4_*`
 sudo cp -r ~/STM32Cube/Repository/STM32Cube_FW_F4_* /usr/local
 ```
 
-## Installing compilation, debugging and flashing toolchain
+## Installing dependencies for compilation, debugging and flashing toolchain
 
 Install STM tools for flashing and debugging:
 ```bash
@@ -34,4 +34,18 @@ sudo apt-get -y install gdb-multiarch
 YouCompleteMe has a problem with stdlib in C. Install this:
 ```bash
 sudo apt-get -y install gcc-multilib
+```
+
+## Compile
+
+```bash
+./compile.sh
+```
+
+## Flash
+
+Flash using the STLink:
+
+```bash
+./flash.sh
 ```
