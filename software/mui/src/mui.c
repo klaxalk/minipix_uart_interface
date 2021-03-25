@@ -273,7 +273,7 @@ void mui_receiveCharCallback(MUI_Handler_t* mui_handler, const uint8_t byte_in) 
 
 void mui_update(MUI_Handler_t* mui_handler) {
 
-  mui_ledToggle(mui_handler);
+  /* mui_ledToggle(mui_handler); */
   mui_handler->fcns.sleepHW((uint16_t)100);
 }
 
@@ -298,6 +298,8 @@ void mui_sendAck(MUI_Handler_t* mui_handler, const bool success) {
   uint16_t n_bytes = llcp_prepareMessage((uint8_t*)&msg, sizeof(msg), mui_handler->tx_buffer);
 
   mui_handler->fcns.sendString(mui_handler->tx_buffer, n_bytes);
+
+  mui_ledSet(mui_handler, false);
 }
 
 //}

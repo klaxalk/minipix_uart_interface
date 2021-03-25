@@ -1,5 +1,7 @@
 #include <gatherer_interface_stm.h>
 
+#define USART_TIMEOUT 100  // # [ms]
+
 void gatherer_stm_setUart(UART_HandleTypeDef *huart_gatherer) {
 
   huart_gatherer_ptr_ = huart_gatherer;

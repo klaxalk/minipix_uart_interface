@@ -90,7 +90,7 @@ bool llcp_processChar(const uint8_t char_in, LLCP_Receiver_t* receiver, LLCP_Mes
 
     case EXPECTING_SIZE: {
 
-#if COMM_HEXADECIMAL == 0
+#if LLCP_COMM_HEXADECIMAL == 0
       uint8_t payload_size = char_in;
 
       if (payload_size == 0) {
@@ -113,7 +113,7 @@ bool llcp_processChar(const uint8_t char_in, LLCP_Receiver_t* receiver, LLCP_Mes
       break;
     }
 
-#if COMM_HEXADECIMAL == 1
+#if LLCP_COMM_HEXADECIMAL == 1
     case EXPECTING_SIZE_2: {
 
       uint8_t minibuf[2];
@@ -157,7 +157,7 @@ bool llcp_processChar(const uint8_t char_in, LLCP_Receiver_t* receiver, LLCP_Mes
 
     case EXPECTING_CHECKSUM: {
 
-#if COMM_HEXADECIMAL == 1
+#if LLCP_COMM_HEXADECIMAL == 1
       receiver->hexmem = char_in;
       receiver->state  = EXPECTING_CHECKSUM_2;
       /* receiver->checksum += char_in; */
@@ -185,7 +185,7 @@ bool llcp_processChar(const uint8_t char_in, LLCP_Receiver_t* receiver, LLCP_Mes
       break;
     }
 
-#if COMM_HEXADECIMAL == 1
+#if LLCP_COMM_HEXADECIMAL == 1
     case EXPECTING_CHECKSUM_2: {
 
       uint8_t minibuf[2];
@@ -243,7 +243,7 @@ uint16_t llcp_prepareMessage(uint8_t* what, uint8_t len, uint8_t* buffer) {
   buffer[it++] = 'b';
   checksum += 'b';
 
-#if COMM_HEXADECIMAL == 0
+#if LLCP_COMM_HEXADECIMAL == 0
   buffer[it++] = len;
   checksum += len;
 #else
@@ -256,7 +256,7 @@ uint16_t llcp_prepareMessage(uint8_t* what, uint8_t len, uint8_t* buffer) {
 
   for (uint16_t i = 0; i < payload_size; i++) {
 
-#if COMM_HEXADECIMAL == 0
+#if LLCP_COMM_HEXADECIMAL == 0
     buffer[it++] = what[i];
     checksum += what[i];
 #else
@@ -266,14 +266,16 @@ uint16_t llcp_prepareMessage(uint8_t* what, uint8_t len, uint8_t* buffer) {
 #endif
   }
 
-#if COMM_HEXADECIMAL == 0
+#if LLCP_COMM_HEXADECIMAL == 0
   buffer[it++] = checksum;
 #else
   llcp_bin2hex(checksum, buffer + it);
   it += 2;
 #endif
 
+#if LLCP_APPEND_ENDL == 0
   buffer[it++] = '\n';
+#endif
 
   return it;
 }

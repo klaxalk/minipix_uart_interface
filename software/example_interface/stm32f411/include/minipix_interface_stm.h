@@ -7,7 +7,6 @@
 
 #include <mui.h>
 
-#define USART_TIMEOUT 1000  // # [ms]
 UART_HandleTypeDef *huart_minipix_ptr_;
 
 Gatherer_Handler_t *gatherer_handler_ptr_;

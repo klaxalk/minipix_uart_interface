@@ -11,13 +11,17 @@ extern "C" {
 
 // | ------------------- BEGIN: USER CONFIG ------------------- |
 
-// If COMM_HEXADECIMAL = 1, the protocol encodes data into HEXADECIMAL
+// If LLC_COMM_HEXADECIMAL = 1, the protocol encodes data into HEXADECIMAL
 // ASCII characters, which do not spooke serial line drivers. It is also
 // much easier to debug, if all the data is human-readible.
-#define COMM_HEXADECIMAL 0
+#ifndef LLC_COMM_HEXADECIMAL
+#define LLC_COMM_HEXADECIMAL 0
+#endif
 
 // should we send '\n' after each packet?
-#define APPEND_ENDL 0
+#ifndef LLCP_APPEND_ENDL
+#define LLCP_APPEND_ENDL 0
+#endif
 
 // max payload length in bytes, max 255
 #define MAX_PAYLOAD_LEN 255
@@ -29,14 +33,14 @@ extern "C" {
 #define PAYLOAD_SIZE_LEN 1
 #define CHECKSUM_LEN 1
 
-#ifdef APPEND_ENDL
+#ifdef LLCP_APPEND_ENDL
 #define ENDL_LEN 1
 #else
 #define ENDL_LEN 0
 #endif
 
 // the total max size of the message defines the size of the buffer we need
-#if COMM_HEXADECIMAL == 0
+#if LLC_COMM_HEXADECIMAL == 0
 #define LLCP_RX_TX_BUFFER_SIZE INIT_LEN + PAYLOAD_SIZE_LEN + MAX_PAYLOAD_LEN + CHECKSUM_LEN + ENDL_LEN
 #else
 #define LLCP_RX_TX_BUFFER_SIZE INIT_LEN + (PAYLOAD_SIZE_LEN + MAX_PAYLOAD_LEN + CHECKSUM_LEN) * 2 + ENDL_LEN
@@ -48,7 +52,7 @@ extern "C" {
 
 /* struct LLCP_ReceiverState_t //{ */
 
-#if COMM_HEXADECIMAL == 0
+#if LLC_COMM_HEXADECIMAL == 0
 /**
  * @brief state machine states for the LLCP receiver (binary transfer)
  */
@@ -78,7 +82,7 @@ typedef enum
 
 /* struct LLCP_Receiver_t //{ */
 
-#if COMM_HEXADECIMAL == 0
+#if LLC_COMM_HEXADECIMAL == 0
 typedef struct __attribute__((packed))
 {
   LLCP_ReceiverState_t state;

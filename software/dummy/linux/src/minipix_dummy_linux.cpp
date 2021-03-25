@@ -170,8 +170,8 @@ void MinipixDummyLinux::simulateImageAcquisition(const uint16_t& acquisition_tim
   sleep(acquisition_time);
 
   // select image from the database
-  /* uint16_t image_id = randi(0, 992); */
-  uint16_t image_id = 35;
+  uint16_t image_id = randi(0, 992);
+  /* uint16_t image_id = 666; */
 
   std::stringstream ss;
 
@@ -225,7 +225,10 @@ void MinipixDummyLinux::simulateImageAcquisition(const uint16_t& acquisition_tim
         // convert it back, since we are gonna use the structure again
         ntoh_LLCP_FrameDataMsg_t(&image_data);
 
+
         sendMessage(tx_buffer_, n_bytes);
+
+        printf("packet %d full, sending\n", image_data.payload.packet_id);
 
         n_pixels_counter = 0;
       }
@@ -247,6 +250,8 @@ void MinipixDummyLinux::simulateImageAcquisition(const uint16_t& acquisition_tim
     ntoh_LLCP_FrameDataMsg_t(&image_data);
 
     sendMessage(tx_buffer_, n_bytes);
+
+    printf("sent the last packet (%d)\n", packet_id_counter);
 
     n_pixels_counter = 0;
   }

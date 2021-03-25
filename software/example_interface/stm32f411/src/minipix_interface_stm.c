@@ -1,5 +1,7 @@
 #include <minipix_interface_stm.h>
 
+#define USART_TIMEOUT 100  // # [ms]
+
 // | --------------------- initialization --------------------- |
 
 /* mui_stm_setUart() //{ */
@@ -52,6 +54,8 @@ void mui_stm_sendString(const uint8_t *str_out, const uint16_t len) {
 /* mui_stm_processFrameData() //{ */
 
 void mui_stm_processFrameData(const LLCP_FrameData_t *data) {
+
+  mui_stm_ledSetHW(true);
 
   gatherer_processFrameData((Gatherer_Handler_t *)gatherer_handler_ptr_, data);
 }

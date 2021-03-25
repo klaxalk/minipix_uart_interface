@@ -13,12 +13,9 @@ MinipixDummy::MinipixDummy() {
 
 void MinipixDummy::sendMessage([[maybe_unused]] const uint8_t *bytes_out, [[maybe_unused]] const uint16_t &len) {
 
-  // TODO timeout
+  // TODO use condition_varialbe to pause the thread
   while (!clear_to_send_) {
-    sleep(1);
   }
-
-  sleep(1);
 
   sendString(bytes_out, len);
 
@@ -341,6 +338,12 @@ void MinipixDummy::serialDataCallback(const uint8_t *bytes_in, const uint16_t &l
         };
 
         case LLCP_ACK_MSG_ID: {
+
+          LLCP_AckMsg_t *msg = (LLCP_AckMsg_t *)message_in;
+          ntoh_LLCP_AckMsg_t(msg);
+          LLCP_Ack_t *ack = (LLCP_Ack_t *)&msg->payload;
+
+          printf("received ack: %s\n", ack->success ? "true" : "false");
 
           // we received acks from MUI, we are clear to send
           clear_to_send_ = true;
