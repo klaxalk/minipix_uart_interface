@@ -9,12 +9,13 @@
 * Capable of sending messages with up to 255 bytes of payload
 * Can send data in binary or hexadecimal (for easier debugging)
 * RAM efficient: uses a single buffer to store received data and to present them to the user when decoded
+* **No need to implement directly, except for Advacam**
 
 ## MUI - MiniPIX UART Interface
 
 * **C library**
   * needs "virtual" methods to be implemented by the HW integrator
-* uses LLCP to communicate with the MiniPIX
+* **uses LLCP** to communicate with the MiniPIX
 * provides routines for controling the MiniPIX
 * calls user callbacks when data arrive
 
@@ -32,16 +33,16 @@
 * HW implementation (**TODO**)
   * Possibly STM32F411RE Nucleo or Blue Pill
   * Could store a few real images
-  * Will probably randomly generate images using store track data
+  * Will probably randomly generate images using stored track data
 
 ## Gatherer - PC data receiver from the Example interface over FTDI
 
-Saves incoming packeted data into files.
+* shows incoming images in OpenCV window
+* saves incoming packeted data into files, to be later processed.
 
-### OpenCV Visualization
-
+Install [OpenCV](https://opencv.org/) for compiling the Gatherer:
 ```bash
-sudo apt install libopencv-dev
+sudo apt-get -y install libopencv-dev
 ```
 
 ## Decoder - PC data decoder
@@ -65,18 +66,26 @@ git submodule update --init --recursive
 The `tmux` subfolder contains tmuxinator sessions ready for testing.
 
 1. Install `tmux` and `tmuxinator`:
+
 ```bash
 sudo apt-get -y install tmux tmuxinator
 ```
 
 2. compile all the Linux software
+
 ```bash
 ./compile.sh
 ```
 
-1. If testing with the STM32F4 example, compile and flash the microcontroller -> [README.md](./example_interface/stm32f411).
+3. If testing with the STM32F4 example, compile and flash the microcontroller -> [README.md](./example_interface/stm32f411).
 
-2. Run `./start.sh` in the appropriate `tmux/{all_virtual, interface_hw}` sessions.
+4. If running the Linux MUI example, install virtual serial line:
+
+```bash
+sudo apt-get -y install socat
+```
+
+5. Run `./start.sh` in the appropriate `tmux/{all_virtual, interface_hw}` sessions.
 
 **Screenshot of the Dummy, Linux MUI Example and the Gatherer running in Linux PC:**
 ![](./.fig/tmux.png)
