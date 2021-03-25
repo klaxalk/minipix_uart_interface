@@ -21,13 +21,14 @@
 
 ## Example interface
 
-* Example implementation of MUI on
+* Example implementation of MUI for
   * Linux
   * STM32F411RE Nucleo
 
 ## Dummy - the MiniPIX emulator
 
 * Responds identically as the MiniPIX over the UART
+* Generic C++ implementation with virtual methods for particular platform.
 * Linux Implementation:
   * Loads real Timepix [data from a database](https://github.com/vzlusat/vzlusat1-timepix-data)
 * HW implementation (**TODO**)
@@ -47,9 +48,9 @@ sudo apt-get -y install libopencv-dev
 
 ## Decoder - PC data decoder
 
-*TODO*
+**TODO**
 
-Stitches packeted data from files into viewable images.
+Stitches packeted data from files and saves them into separate image files.
 
 ## Vzlusat1-timepix-data
 
