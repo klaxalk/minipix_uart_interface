@@ -48,6 +48,7 @@ public:
   void maskPixel(const uint8_t& x, const uint8_t& y);
   void setThreshold(const uint16_t& thr);
   void setConfigurationPreset(const uint16_t& preset);
+  void sendAck(bool ack);
 
 private:
   SerialPort serial_port_;
@@ -246,6 +247,8 @@ void Gatherer::threadMain(void) {
                 }
               }
 
+              sendAck(true);
+
               break;
             };
 
@@ -260,6 +263,8 @@ void Gatherer::threadMain(void) {
 
               printf("received stream data, n_pixels %d\n", n_pixels);
 
+              sendAck(true);
+
               break;
             };
 
@@ -270,6 +275,8 @@ void Gatherer::threadMain(void) {
               LLCP_Status_t* status = (LLCP_Status_t*)&msg->payload;
 
               printf("received status: boot count = %d, string: '%s'\n", status->boot_count, status->status_str);
+
+              sendAck(true);
 
               break;
             };
@@ -283,6 +290,19 @@ void Gatherer::threadMain(void) {
               printf("received frame data terminator: frame id %d, packet count: %d\n", terminator->frame_id, terminator->n_packets);
 
               measuring_frame_ = false;
+
+              sendAck(true);
+
+              break;
+            };
+
+            case LLCP_ACK_MSG_ID: {
+
+              LLCP_AckMsg_t* msg = (LLCP_AckMsg_t*)message_in;
+              ntoh_LLCP_AckMsg_t(msg);
+              LLCP_Ack_t* ack = (LLCP_Ack_t*)&msg->payload;
+
+              printf("received ack: %s\n", ack->success ? "true" : "false");
 
               break;
             };
@@ -337,6 +357,30 @@ void Gatherer::threadPlot(void) {
 //}
 
 // | --------------------- MiniPIX control -------------------- |
+
+/* sendAck() //{ */
+
+void Gatherer::sendAck(bool ack) {
+
+  // create the message
+  LLCP_AckMsg_t msg;
+  init_LLCP_AckMsg_t(&msg);
+
+  msg.payload.success = ack;
+
+  // convert to network endian
+  hton_LLCP_AckMsg_t(&msg);
+
+  uint16_t n_bytes = llcp_prepareMessage((uint8_t*)&msg, sizeof(msg), tx_buffer);
+
+  {
+    std::scoped_lock lock(mutex_serial_port_);
+
+    serial_port_.sendCharArray(tx_buffer, n_bytes);
+  }
+}
+
+//}
 
 /* getStatus() //{ */
 
@@ -563,9 +607,9 @@ int main(int argc, char* argv[]) {
 
   while (true) {
 
-    gatherer.measureFrame(1000);
+    gatherer.measureFrame(1);
 
-    std::this_thread::sleep_for(std::chrono::milliseconds(100));
+    /* std::this_thread::sleep_for(std::chrono::milliseconds(100)); */
   }
 
   gatherer.pwr(false);

@@ -15,10 +15,10 @@ void MinipixDummy::sendMessage([[maybe_unused]] const uint8_t *bytes_out, [[mayb
 
   // TODO timeout
   while (!clear_to_send_) {
-
-    if (!clear_to_send_) {
-    }
+    sleep(1);
   }
+
+  sleep(1);
 
   sendString(bytes_out, len);
 

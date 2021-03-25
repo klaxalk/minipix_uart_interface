@@ -170,8 +170,8 @@ void MinipixDummyLinux::simulateImageAcquisition(const uint16_t& acquisition_tim
   sleep(acquisition_time);
 
   // select image from the database
-  uint16_t image_id = randi(0, 992);
-  /* uint16_t image_id = 998; */
+  /* uint16_t image_id = randi(0, 992); */
+  uint16_t image_id = 35;
 
   std::stringstream ss;
 
@@ -265,6 +265,8 @@ void MinipixDummyLinux::simulateImageAcquisition(const uint16_t& acquisition_tim
   uint16_t n_bytes = llcp_prepareMessage((uint8_t*)&terminator, sizeof(terminator), tx_buffer_);
 
   sendMessage(tx_buffer_, n_bytes);
+
+  printf("Simulated acquisition finished\n");
 }
 
 //}

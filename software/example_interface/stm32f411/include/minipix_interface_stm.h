@@ -7,6 +7,7 @@
 
 #include <mui.h>
 
+#define USART_TIMEOUT 1000  // # [ms]
 UART_HandleTypeDef *huart_minipix_ptr_;
 
 Gatherer_Handler_t *gatherer_handler_ptr_;
@@ -24,6 +25,7 @@ void mui_stm_sendString(const uint8_t *str_out, const uint16_t len);
 void mui_stm_processFrameData(const LLCP_FrameData_t *data);
 void mui_stm_processFrameDataTerminator(const LLCP_FrameDataTerminator_t *data);
 void mui_stm_processStreamData(const LLCP_StreamData_t *data);
-void mui_stm_processStatus(const LLCP_Status_t *status);
+void mui_stm_processStatus(const LLCP_Status_t *data);
+void mui_stm_processAck(const LLCP_Ack_t *data);
 
 #endif  // EXAMPLE_INTERFACE_STM_H

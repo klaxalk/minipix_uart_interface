@@ -1,7 +1,5 @@
 #include <minipix_interface_stm.h>
 
-#define USART_TIMEOUT 10  // # [ms]
-
 // | --------------------- initialization --------------------- |
 
 /* mui_stm_setUart() //{ */
@@ -80,9 +78,18 @@ void mui_stm_processStreamData(const LLCP_StreamData_t *data) {
 
 /* mui_stm_processStatus() //{ */
 
-void mui_stm_processStatus(const LLCP_Status_t *status) {
+void mui_stm_processStatus(const LLCP_Status_t *data) {
 
-  gatherer_processStatus((Gatherer_Handler_t *)gatherer_handler_ptr_, status);
+  gatherer_processStatus((Gatherer_Handler_t *)gatherer_handler_ptr_, data);
+}
+
+//}
+
+/* mui_stm_processAck() //{ */
+
+void mui_stm_processAck(const LLCP_Ack_t *data) {
+
+  gatherer_processAck((Gatherer_Handler_t *)gatherer_handler_ptr_, data);
 }
 
 //}

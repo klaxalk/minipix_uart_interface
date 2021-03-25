@@ -204,9 +204,6 @@ void mui_receiveCharCallback(MUI_Handler_t* mui_handler, const uint8_t byte_in) 
         // call the user's callback
         mui_handler->fcns.processFrameData(&(msg->payload));
 
-        // send ack back to MiniPIX
-        mui_sendAck(mui_handler, true);
-
         break;
       };
 
@@ -218,9 +215,6 @@ void mui_receiveCharCallback(MUI_Handler_t* mui_handler, const uint8_t byte_in) 
 
         // call the user's callback
         mui_handler->fcns.processFrameDataTerminator(&(msg->payload));
-
-        // send ack back to MiniPIX
-        mui_sendAck(mui_handler, true);
 
         break;
       };
@@ -234,9 +228,6 @@ void mui_receiveCharCallback(MUI_Handler_t* mui_handler, const uint8_t byte_in) 
         // call the user's callback
         mui_handler->fcns.processStreamData(&(msg->payload));
 
-        // send ack back to MiniPIX
-        mui_sendAck(mui_handler, true);
-
         break;
       };
 
@@ -249,9 +240,6 @@ void mui_receiveCharCallback(MUI_Handler_t* mui_handler, const uint8_t byte_in) 
         // call the user's callback
         mui_handler->fcns.processStatus(&(msg->payload));
 
-        // send ack back to MiniPIX
-        mui_sendAck(mui_handler, true);
-
         break;
       };
 
@@ -263,10 +251,7 @@ void mui_receiveCharCallback(MUI_Handler_t* mui_handler, const uint8_t byte_in) 
 
         // TODO what to do with the ack?
         // call the user's callback
-        /* mui_handler->fcns.processAck(&(msg->payload)); */
-
-        // send ack back to MiniPIX
-        mui_sendAck(mui_handler, true);
+        mui_handler->fcns.processAck(&(msg->payload));
 
         break;
       };
@@ -294,10 +279,6 @@ void mui_update(MUI_Handler_t* mui_handler) {
 
 //}
 
-// --------------------------------------------------------------
-// |                           private                          |
-// --------------------------------------------------------------
-
 // | --------------------------- ack -------------------------- |
 
 /* mui_sendAck() //{ */
@@ -320,6 +301,10 @@ void mui_sendAck(MUI_Handler_t* mui_handler, const bool success) {
 }
 
 //}
+
+// --------------------------------------------------------------
+// |                           private                          |
+// --------------------------------------------------------------
 
 // | -------------------- LED signalization ------------------- |
 

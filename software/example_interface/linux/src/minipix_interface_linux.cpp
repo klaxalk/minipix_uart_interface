@@ -67,9 +67,18 @@ void mui_linux_processStreamData(const LLCP_StreamData_t *data) {
 
 /* mui_linux_processStatus() //{ */
 
-void mui_linux_processStatus(const LLCP_Status_t *status) {
+void mui_linux_processStatus(const LLCP_Status_t *data) {
 
-  gatherer_processStatus(&gatherer_handler_, status);
+  gatherer_processStatus(&gatherer_handler_, data);
+}
+
+//}
+
+/* mui_linux_processStatus() //{ */
+
+void mui_linux_processAck(const LLCP_Ack_t *data) {
+
+  gatherer_processAck(&gatherer_handler_, data);
 }
 
 //}

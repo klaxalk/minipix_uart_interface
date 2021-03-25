@@ -8,7 +8,7 @@
 
 extern Gatherer_Handler_t gatherer_handler_;
 
-#define USART_TIMEOUT 10  // # [ms]
+#define USART_TIMEOUT 1000  // # [ms]
 UART_HandleTypeDef *huart_gatherer_ptr_;
 
 void gatherer_stm_setUart(UART_HandleTypeDef *huart_gatherer);

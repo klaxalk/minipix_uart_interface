@@ -99,6 +99,17 @@ void gatherer_receiveCharCallback(Gatherer_Handler_t *gatherer_handler, const ui
         break;
       };
 
+      case LLCP_ACK_MSG_ID: {
+
+        // load up the message and convert it to our endian
+        LLCP_AckMsg_t* msg = (LLCP_AckMsg_t*)message_in;
+        ntoh_LLCP_AckMsg_t(msg);
+
+        mui_sendAck(gatherer_handler->mui_handler_ptr_, msg);
+
+        break;
+      };
+
       default: {
 
         // received unsupported message
@@ -174,17 +185,37 @@ void gatherer_processStreamData(Gatherer_Handler_t *gatherer_handler, const LLCP
 
 /* gatherer_processStatus() //{ */
 
-void gatherer_processStatus(Gatherer_Handler_t *gatherer_handler, const LLCP_Status_t *status) {
+void gatherer_processStatus(Gatherer_Handler_t *gatherer_handler, const LLCP_Status_t *data) {
 
   // create the message
   LLCP_StatusMsg_t msg;
   init_LLCP_StatusMsg_t(&msg);
 
   // fill in the payload
-  msg.payload = *status;
+  msg.payload = *data;
 
   // convert it to the network endian
   hton_LLCP_StatusMsg_t(&msg);
+
+  uint16_t n_bytes = llcp_prepareMessage((uint8_t *)&msg, sizeof(msg), gatherer_handler->tx_buffer);
+  gatherer_handler->fcns.sendString(gatherer_handler->tx_buffer, n_bytes);
+}
+
+//}
+
+/* gatherer_processAck() //{ */
+
+void gatherer_processAck(Gatherer_Handler_t *gatherer_handler, const LLCP_Ack_t *data) {
+
+  // create the message
+  LLCP_AckMsg_t msg;
+  init_LLCP_AckMsg_t(&msg);
+
+  // fill in the payload
+  msg.payload = *data;
+
+  // convert it to the network endian
+  hton_LLCP_AckMsg_t(&msg);
 
   uint16_t n_bytes = llcp_prepareMessage((uint8_t *)&msg, sizeof(msg), gatherer_handler->tx_buffer);
   gatherer_handler->fcns.sendString(gatherer_handler->tx_buffer, n_bytes);
