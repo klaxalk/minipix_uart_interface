@@ -350,7 +350,7 @@ void Gatherer::threadPlot(void) {
 
     ShowManyImages<CV_32FC3>("frame", 2, frame_top_plot, frame_bot_plot);
 
-    cv::waitKey(1);
+    cv::waitKey(30);
   }
 }
 

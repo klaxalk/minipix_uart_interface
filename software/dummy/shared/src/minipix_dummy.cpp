@@ -15,6 +15,7 @@ void MinipixDummy::sendMessage([[maybe_unused]] const uint8_t *bytes_out, [[mayb
 
   // TODO use condition_varialbe to pause the thread
   while (!clear_to_send_) {
+    sleep(1);
   }
 
   sendString(bytes_out, len);
