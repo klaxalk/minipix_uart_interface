@@ -1,1 +1,3 @@
-# MiniPIX Dummy
+# MiniPIX dummy - STM implementation
+
+TODO

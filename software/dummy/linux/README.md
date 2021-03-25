@@ -1,0 +1,1 @@
+# MiniPIX dummy - Linux implementation

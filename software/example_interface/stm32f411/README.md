@@ -1,4 +1,4 @@
-# Compiling the example interface for STM32F411RE Nucleo
+# MUI -  STM32F411RE Nucleo implementation
 
 ## Setting up the resources for STM32F411RE Nucleo
 
