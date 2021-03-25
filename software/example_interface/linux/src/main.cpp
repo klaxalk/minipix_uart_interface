@@ -28,6 +28,7 @@ int main(int argc, char *argv[]) {
     return 0;
   }
 
+  // open the serial ports
   serial_port_minipix_.connect(serial_port_minipix, baud_rate_minipix, serial_port_minipix_virtual);
   serial_port_gatherer_.connect(serial_port_gatherer, baud_rate_gatherer, serial_port_gatherer_virtual);
 
@@ -48,15 +49,18 @@ int main(int argc, char *argv[]) {
 
   // | -------- initialize the interface to the Gatherer -------- |
 
-  // hw support
-  gatherer_handler_.fcns.sendChar   = &gatherer_sendChar;
-  gatherer_handler_.fcns.sendString = &gatherer_sendString;
+  // pass the platform-specific gatherer functions to the gatherer
+  // handler, so it can call them to communicate
+  gatherer_handler_.fcns.sendChar   = &gatherer_linux_sendChar;
+  gatherer_handler_.fcns.sendString = &gatherer_linux_sendString;
 
+  // gatherer wants the pointer to the mui_handler, so it can call
+  // its methods, regardless of the platform.
   gatherer_handler_.mui_handler_ptr_ = &mui_handler;
 
   gatherer_initialize(&gatherer_handler_);
 
-  printf("Example interface started\n");
+  printf("Linux example MUI started\n");
 
   while (true) {
 
@@ -66,7 +70,7 @@ int main(int argc, char *argv[]) {
       uint8_t  buffer[SERIAL_BUFFER_SIZE];
       uint16_t bytes_read = serial_port_minipix_.readSerial(buffer, SERIAL_BUFFER_SIZE);
 
-      // feed all the incoming bytes into the minipix interface
+      // feed all the incoming bytes (from the MiniPIX) into the MUI
       for (uint16_t i = 0; i < bytes_read; i++) {
         mui_receiveCharCallback(&mui_handler, buffer[i]);
       }
@@ -79,7 +83,7 @@ int main(int argc, char *argv[]) {
       uint8_t  buffer[SERIAL_BUFFER_SIZE];
       uint16_t bytes_read = serial_port_gatherer_.readSerial(buffer, SERIAL_BUFFER_SIZE);
 
-      // feed all the incoming bytes into the minipix interface
+      // feed all the incoming bytes (From PC) into the gatherer interface
       for (uint16_t i = 0; i < bytes_read; i++) {
         gatherer_receiveCharCallback(&gatherer_handler_, buffer[i]);
       }

@@ -26,8 +26,6 @@
 #include <minipix_interface_stm.h>
 #include <gatherer_interface_stm.h>
 
-#include <string.h>
-
 /* USER CODE END Includes */
 
 /* Private typedef -----------------------------------------------------------*/
@@ -58,8 +56,12 @@ uint8_t usart1_rx_buffer[LLCP_RX_TX_BUFFER_SIZE];
 uint8_t usart2_rx_buffer[LLCP_RX_TX_BUFFER_SIZE];
 uint8_t usart6_rx_buffer[LLCP_RX_TX_BUFFER_SIZE];
 
+// contains the LLCP receiver, which has the RX buffer inside
+// so this can be as large as 520-ish bytes (when using the LLCP in hexadecimal)
+// and as 270-ish bytes when using the prefered (default) binary LLCP
 MUI_Handler_t mui_handler_;
 
+// --||-- as with the mui_handler_
 Gatherer_Handler_t gatherer_handler_;
 
 /* USER CODE END PV */
@@ -115,6 +117,8 @@ int main(void) {
 
   // | -------- initialize the MiniPIX interface library -------- |
 
+  // pass the pointers to the STM-specific implementations, so the
+  // MUI can call them.
   mui_handler_.fcns.ledSetHW                   = &mui_stm_ledSetHW;
   mui_handler_.fcns.sleepHW                    = &mui_stm_sleepHW;
   mui_handler_.fcns.processFrameData           = &mui_stm_processFrameData;
@@ -124,6 +128,7 @@ int main(void) {
   mui_handler_.fcns.sendChar                   = &mui_stm_sendChar;
   mui_handler_.fcns.sendString                 = &mui_stm_sendString;
 
+  // this initializes the LLCP inside
   mui_initialize(&mui_handler_);
 
   mui_stm_setUart(&huart6);
@@ -132,17 +137,24 @@ int main(void) {
   // | ------------ initialize the Gatherer interface ----------- |
 
   // hw support
-  gatherer_handler_.fcns.sendChar   = &gatherer_sendChar;
-  gatherer_handler_.fcns.sendString = &gatherer_sendString;
+  gatherer_handler_.fcns.sendChar   = &gatherer_stm_sendChar;
+  gatherer_handler_.fcns.sendString = &gatherer_stm_sendString;
 
   gatherer_handler_.mui_handler_ptr_ = &mui_handler_;
 
   gatherer_initialize(&gatherer_handler_);
 
-  gatherer_setUart(&huart1);
+  gatherer_stm_setUart(&huart1);
 
+  // | --------------------- start the UARTs -------------------- |
+
+  // start UART DMA for the MiniPIX
   HAL_UART_Receive_DMA(&huart1, (uint8_t *)usart1_rx_buffer, LLCP_RX_TX_BUFFER_SIZE);
+
+  // UART not currently in use
   /* HAL_UART_Receive_DMA(&huart2, (uint8_t *)usart2_rx_buffer, LLCP_RX_TX_BUFFER_SIZE); */
+
+  // start UART DMA for the PC-side, the Gatherer
   HAL_UART_Receive_DMA(&huart6, (uint8_t *)usart6_rx_buffer, LLCP_RX_TX_BUFFER_SIZE);
 
   /* USER CODE END 2 */
@@ -155,9 +167,6 @@ int main(void) {
 
     /* USER CODE END WHILE */
 
-    /* HAL_GPIO_TogglePin(LD2_GPIO_Port, LD2_Pin); */
-    /* HAL_Delay(500); */
-
     mui_update(&mui_handler_);
 
     /* USER CODE BEGIN 3 */
@@ -167,7 +176,7 @@ int main(void) {
 
 void USART_IDLECallback(UART_HandleTypeDef *huart) {
 
-  if (huart == &huart6) {  // MiniPIX
+  if (huart == &huart6) {  // from MiniPIX
 
     // Stop UART DMA
     HAL_UART_DMAStop(&huart6);
@@ -178,8 +187,6 @@ void USART_IDLECallback(UART_HandleTypeDef *huart) {
     for (uint16_t i = 0; i < received_bytes; i++) {
 
       mui_receiveCharCallback(&mui_handler_, usart6_rx_buffer[i]);
-
-      /* HAL_UART_Transmit(&huart1, (uint8_t *)(usart6_rx_buffer + i), 1, 10); */
     }
 
     // Clear Receiving Buffer
@@ -188,7 +195,7 @@ void USART_IDLECallback(UART_HandleTypeDef *huart) {
     // Restart to start DMA USART RX
     HAL_UART_Receive_DMA(&huart6, (uint8_t *)usart6_rx_buffer, LLCP_RX_TX_BUFFER_SIZE);
 
-  } else if (huart == &huart1) {  // gatherer
+  } else if (huart == &huart1) {  // from Gatherer
 
     // Stop UART DMA
     HAL_UART_DMAStop(&huart1);
@@ -199,8 +206,6 @@ void USART_IDLECallback(UART_HandleTypeDef *huart) {
     for (uint16_t i = 0; i < received_bytes; i++) {
 
       gatherer_receiveCharCallback(&gatherer_handler_, usart1_rx_buffer[i]);
-
-      /* HAL_UART_Transmit(&huart6, (uint8_t *) (usart1_rx_buffer + i), 1, 10); */
     }
 
     // Clear Receiving Buffer

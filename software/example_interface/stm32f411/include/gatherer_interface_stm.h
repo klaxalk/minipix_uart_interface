@@ -8,12 +8,13 @@
 
 extern Gatherer_Handler_t gatherer_handler_;
 
+#define USART_TIMEOUT 10  // # [ms]
 UART_HandleTypeDef *huart_gatherer_ptr_;
 
-void gatherer_setUart(UART_HandleTypeDef *huart_gatherer);
+void gatherer_stm_setUart(UART_HandleTypeDef *huart_gatherer);
 
 // hw support
-void gatherer_sendChar(const uint8_t char_out);
-void gatherer_sendString(const uint8_t *str_out, const uint16_t len);
+void gatherer_stm_sendChar(const uint8_t char_out);
+void gatherer_stm_sendString(const uint8_t *str_out, const uint16_t len);
 
 #endif  // GATHERER_INTERFACE_STM_H
