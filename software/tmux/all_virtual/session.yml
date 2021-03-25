@@ -1,4 +1,4 @@
-name: minipix
+name: minipix_virtual
 root: ./
 startup_window: main
 # pre_window: 
