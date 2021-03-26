@@ -16,7 +16,9 @@ void gatherer_receiveCharCallback(Gatherer_Handler_t *gatherer_handler, const ui
 
   LLCP_Message_t *message_in;
 
-  if (llcp_processChar(byte_in, &(gatherer_handler->llcp_receiver), &message_in)) {
+  bool checksum_matched;
+
+  if (llcp_processChar(byte_in, &(gatherer_handler->llcp_receiver), &message_in, &checksum_matched)) {
 
     switch (message_in->id) {
 

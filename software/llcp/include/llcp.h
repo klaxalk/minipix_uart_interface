@@ -11,7 +11,7 @@ extern "C" {
 
 // | ------------------- BEGIN: USER CONFIG ------------------- |
 
-// If LLCP_COMM_HEXADECIMAL = 1, the protocol encodes data into HEXADECIMAL
+// If LLCP_COMM_HEXADECIMAL == 1, the protocol encodes data into HEXADECIMAL
 // ASCII characters, which do not spooke serial line drivers. It is also
 // much easier to debug, if all the data is human-readible.
 #ifndef LLCP_COMM_HEXADECIMAL
@@ -23,10 +23,20 @@ extern "C" {
 #define LLCP_APPEND_ENDL 0
 #endif
 
+#ifndef LLCP_DEBUG_PRINT
+#define LLCP_DEBUG_PRINT 0
+#endif
+
 // max payload length in bytes, max 255
 #define MAX_PAYLOAD_LEN 255
 
+#ifndef LLCP_CHECK_CHECKSUM
+#define LLCP_CHECK_CHECKSUM 0
+#endif
+
 // | -------------------- END: USER CONFIG -------------------- |
+
+/* automatically-defined configs //{ */
 
 // definition of the byte lenghts of the various section of the comm message
 #define INIT_LEN 1
@@ -46,13 +56,11 @@ extern "C" {
 #define LLCP_RX_TX_BUFFER_SIZE INIT_LEN + (PAYLOAD_SIZE_LEN + MAX_PAYLOAD_LEN + CHECKSUM_LEN) * 2 + ENDL_LEN
 #endif
 
-#ifndef LLCP_DEBUG_PRINT
-#define LLCP_DEBUG_PRINT 0
-#endif
-
 #if LLCP_DEBUG_PRINT == 1
 #include <stdio.h>
 #endif
+
+//}
 
 // | ------------------------- structs ------------------------ |
 
@@ -117,6 +125,7 @@ typedef struct __attribute__((packed))
 {
   uint8_t id;
   uint8_t payload[MAX_PAYLOAD_LEN];
+  uint8_t checksum_matched;
 } LLCP_Message_t;
 
 //}
@@ -131,7 +140,7 @@ void llcp_bin2hex(const uint8_t byte, uint8_t* buffer);
 
 void llcp_initialize(LLCP_Receiver_t* receiver);
 
-bool llcp_processChar(const uint8_t char_in, LLCP_Receiver_t* receiver, LLCP_Message_t** message);
+bool llcp_processChar(const uint8_t char_in, LLCP_Receiver_t* receiver, LLCP_Message_t** message, bool* checksum_matched);
 
 uint16_t llcp_prepareMessage(uint8_t* what, uint8_t len, uint8_t* buffer);
 

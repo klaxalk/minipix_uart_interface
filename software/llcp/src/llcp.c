@@ -64,7 +64,7 @@ void llcp_initialize(LLCP_Receiver_t* receiver) {
 
 /* llcp_processChar() //{ */
 
-bool llcp_processChar(const uint8_t char_in, LLCP_Receiver_t* receiver, LLCP_Message_t** message) {
+bool llcp_processChar(const uint8_t char_in, LLCP_Receiver_t* receiver, LLCP_Message_t** message, bool* checksum_matched) {
 
 #if LLCP_DEBUG_PRINT == 1
   printf("got char '%c'\n", char_in);
@@ -160,13 +160,17 @@ bool llcp_processChar(const uint8_t char_in, LLCP_Receiver_t* receiver, LLCP_Mes
 #if LLCP_COMM_HEXADECIMAL == 1
       receiver->hexmem = char_in;
       receiver->state  = EXPECTING_CHECKSUM_2;
-      /* receiver->checksum += char_in; */
       break;
 #else
-      if (true || receiver->checksum == char_in) {
+
+      *checksum_matched = receiver->checksum == char_in ? true : false;
+
+#if LLCP_CHECK_CHECKSUM == 1
+      if (checksum_matched) {
 
 #if LLCP_DEBUG_PRINT == 1
         printf("getting checksum, OK\n");
+#endif
 #endif
 
         *message = (LLCP_Message_t*)receiver->rx_buffer;
@@ -175,12 +179,16 @@ bool llcp_processChar(const uint8_t char_in, LLCP_Receiver_t* receiver, LLCP_Mes
 
         return true;
 
+#if LLCP_CHECK_CHECKSUM == 1
       } else {
 
 #if LLCP_DEBUG_PRINT == 1
         printf("getting checksum, FAIL\n");
 #endif
+
+        return false;
       }
+#endif
 #endif
       break;
     }
@@ -194,10 +202,15 @@ bool llcp_processChar(const uint8_t char_in, LLCP_Receiver_t* receiver, LLCP_Mes
 
       uint8_t checksum = llcp_hex2bin(minibuf);
 
-      if (true || receiver->checksum == checksum) {
+      *checksum_matched = receiver->checksum == checksum ? true : false;
+
+#if LLCP_CHECK_CHECKSUM == 1
+
+      if (checksum_matched) {
 
 #if LLCP_DEBUG_PRINT == 1
         printf("getting checksum, OK\n");
+#endif
 #endif
 
         uint16_t counter = 0;
@@ -211,13 +224,17 @@ bool llcp_processChar(const uint8_t char_in, LLCP_Receiver_t* receiver, LLCP_Mes
         *message = (LLCP_Message_t*)receiver->rx_buffer;
 
         receiver->state = WAITING_FOR_MESSSAGE;
+
         return true;
+#if LLCP_CHECK_CHECKSUM == 1
       } else {
 
 #if LLCP_DEBUG_PRINT == 1
         printf("getting checksum, FAIL\n");
 #endif
+        return false;
       }
+#endif
 
       break;
     }

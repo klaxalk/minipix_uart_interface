@@ -191,7 +191,9 @@ void mui_receiveCharCallback(MUI_Handler_t* mui_handler, const uint8_t byte_in) 
 
   LLCP_Message_t* message_in;
 
-  if (llcp_processChar(byte_in, &(mui_handler->llcp_receiver), &message_in)) {
+  bool checksum_matched;
+
+  if (llcp_processChar(byte_in, &(mui_handler->llcp_receiver), &message_in, &checksum_matched)) {
 
     switch (message_in->id) {
 
@@ -200,6 +202,8 @@ void mui_receiveCharCallback(MUI_Handler_t* mui_handler, const uint8_t byte_in) 
         // load up the message and convert it to our endian
         LLCP_FrameDataMsg_t* msg = (LLCP_FrameDataMsg_t*)message_in;
         ntoh_LLCP_FrameDataMsg_t(msg);
+
+        msg->payload.checksum_matched = checksum_matched ? 1 : 0;
 
         // call the user's callback
         mui_handler->fcns.processFrameData(&(msg->payload));

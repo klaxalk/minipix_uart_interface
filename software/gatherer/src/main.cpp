@@ -149,7 +149,9 @@ void Gatherer::threadMain(void) {
 
         LLCP_Message_t* message_in;
 
-        if (llcp_processChar(rx_buffer[i], &llcp_receiver, &message_in)) {
+        bool checksum_matched;
+
+        if (llcp_processChar(rx_buffer[i], &llcp_receiver, &message_in, &checksum_matched)) {
 
           switch (message_in->id) {
 

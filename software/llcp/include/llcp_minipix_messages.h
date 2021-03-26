@@ -144,6 +144,7 @@ typedef struct __attribute__((packed))
   uint16_t         packet_id;  // should be incremented for each packet of the frame
   uint8_t          mode;       // will determine the measurement mode
   uint8_t          n_pixels;   // how many pixels are filled in
+  uint8_t          checksum_matched; // 1 if the messages was received by MUI with correct checksum
   LLCP_PixelData_t pixel_data[LLCP_FRAME_DATA_N_PIXELS];
 } LLCP_FrameData_t;
 

@@ -234,7 +234,9 @@ void MinipixDummy::serialDataCallback(const uint8_t *bytes_in, const uint16_t &l
 
     LLCP_Message_t *message_in;
 
-    if (llcp_processChar(bytes_in[i], &llcp_receiver_, &message_in)) {
+    bool checksum_matched;
+
+    if (llcp_processChar(bytes_in[i], &llcp_receiver_, &message_in, &checksum_matched)) {
 
       switch (message_in->id) {
 
