@@ -22,6 +22,8 @@
 #include <serial_port.h>
 #include <type_traits>
 
+#include <ctime>
+
 #define SERIAL_BUFFER_SIZE 2048
 
 class MinipixDummyLinux : MinipixDummy {

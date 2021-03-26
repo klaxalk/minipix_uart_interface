@@ -4,6 +4,8 @@
 
 MinipixDummyLinux::MinipixDummyLinux(void) {
 
+  srand(time(NULL));
+
   thread_serial_port_ = std::thread(&MinipixDummyLinux::threadSerialPort, this);
 }
 
