@@ -33,7 +33,7 @@ extern "C" {
 #define PAYLOAD_SIZE_LEN 1
 #define CHECKSUM_LEN 1
 
-#ifdef LLCP_APPEND_ENDL
+#if LLCP_APPEND_ENDL == 1
 #define ENDL_LEN 1
 #else
 #define ENDL_LEN 0
@@ -46,7 +46,13 @@ extern "C" {
 #define LLCP_RX_TX_BUFFER_SIZE INIT_LEN + (PAYLOAD_SIZE_LEN + MAX_PAYLOAD_LEN + CHECKSUM_LEN) * 2 + ENDL_LEN
 #endif
 
-/* #define DEBUG_PRINT 1 */
+#ifndef LLCP_DEBUG_PRINT
+#define LLCP_DEBUG_PRINT 0
+#endif
+
+#if LLCP_DEBUG_PRINT == 1
+#include <stdio.h>
+#endif
 
 // | ------------------------- structs ------------------------ |
 

@@ -23,6 +23,8 @@
 /* Private includes ----------------------------------------------------------*/
 /* USER CODE BEGIN Includes */
 
+#define LLCP_DEBUG_PRINT 0
+
 #include <minipix_interface_stm.h>
 #include <gatherer_interface_stm.h>
 

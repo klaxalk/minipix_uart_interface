@@ -1,5 +1,7 @@
 /* includes //{ */
 
+#define LLCP_DEBUG_PRINT 1
+
 #include <llcp.h>
 #include <llcp_minipix_messages.h>
 
