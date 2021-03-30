@@ -7,14 +7,14 @@ extern "C" {
 
 #include <stdint.h>
 #include <stdbool.h>
-#include <assert.h>  // for assert checks of byte sizes
+#include <assert.h>  // for assert checks of struct sizes
 #include <string.h>  // for memset
 #include <llcp_endian.h>
 
 /* definition of message IDs //{ */
 
 // I don't want to have 0 or 1, due to debugging
-// 0 or 1 is too common
+// also, 0 or 1 is too common to get by accident
 //
 // the ids are grouped by tens according to
 // common usage
@@ -27,6 +27,8 @@ extern "C" {
 #define LLCP_FRAME_DATA_MSG_ID 20
 #define LLCP_MEASURE_FRAME_REQ_MSG_ID 21
 #define LLCP_FRAME_DATA_TERMINATOR_MSG_ID 22
+#define LLCP_GET_FRAME_DATA_REQ_MSG_ID 23
+#define LLCP_FRAME_MEASUREMENT_FINISHED_MSG_ID 24
 
 // stream-based measurement
 #define LLCP_STREAM_DATA_MSG_ID 31
@@ -49,6 +51,9 @@ extern "C" {
 // configuration presets
 #define LLCP_SET_CONFIGURATION_PRESET_REQ_MSG_ID 80
 
+// error
+#define LLCP_MINIPIX_ERROR_MSG_ID 90
+
 //}
 
 // | ------- Pixel data, common to frame and stream mode ------ |
@@ -57,6 +62,7 @@ extern "C" {
 
 /**
  * @brief Structure for interpreting the ToA and ToT mode
+ * can be used only after derandomization of the data
  */
 typedef struct __attribute__((packed))
 {
@@ -69,6 +75,7 @@ typedef struct __attribute__((packed))
 
 /**
  * @brief Structure for interpreting the ToA mode
+ * can be used only after derandomization of the data
  */
 typedef struct __attribute__((packed))
 {
@@ -81,6 +88,7 @@ typedef struct __attribute__((packed))
 
 /**
  * @brief Structure for interpreting the Mpx and iToT mode
+ * can be used only after derandomization of the data
  */
 typedef struct __attribute__((packed))
 {
@@ -96,6 +104,8 @@ typedef struct __attribute__((packed))
  */
 typedef struct __attribute__((packed))
 {
+  // * the data in this form are in a form that can not be easily interpreted
+  // * the data needs to put through functions that decode the real values (not done by mui atm.)
   uint8_t data[6];
 } LLCP_PixelData_t;
 
@@ -140,11 +150,11 @@ void init_LLCP_PixelData_t(LLCP_PixelData_t* data);
  */
 typedef struct __attribute__((packed))
 {
-  uint16_t         frame_id;   // a unique identifier of the frame, can be used to stitch the packets together
-  uint16_t         packet_id;  // should be incremented for each packet of the frame
-  uint8_t          mode;       // will determine the measurement mode
-  uint8_t          n_pixels;   // how many pixels are filled in
-  uint8_t          checksum_matched; // 1 if the messages was received by MUI with correct checksum
+  uint16_t         frame_id;          // a unique identifier of the frame, can be used to stitch the packets together
+  uint16_t         packet_id;         // should be incremented for each packet of the frame
+  uint8_t          mode;              // will determine the measurement mode
+  uint8_t          n_pixels;          // how many pixels are filled in
+  uint8_t          checksum_matched;  // 1 if the messages was received by MUI with correct checksum
   LLCP_PixelData_t pixel_data[LLCP_FRAME_DATA_N_PIXELS];
 } LLCP_FrameData_t;
 
@@ -344,7 +354,78 @@ static_assert((sizeof(LLCP_MeasureFrameReqMsg_t) > 255) == 0, "LLCP_MeasureFrame
 
 //}
 
+/* LLCP_FrameMeasurementFinishedMsg_t //{ */
+
+/**
+ * @brief LLCP Message for getting noticed that MiniPIX measurement had just finished
+ */
+typedef struct __attribute__((packed))
+{
+  uint8_t message_id;
+} LLCP_FrameMeasurementFinishedMsg_t;
+
+/**
+ * @brief host-to-network conversion for LLCP_FrameMeasurementFinishedMsg_t
+ *
+ * @param msg
+ */
+void hton_LLCP_FrameMeasurementFinishedMsg_t(LLCP_FrameMeasurementFinishedMsg_t* msg);
+
+/**
+ * @brief network-to-host conversion for LLCP_FrameMeasurementFinishedMsg_t
+ *
+ * @param msg
+ */
+void ntoh_LLCP_FrameMeasurementFinishedMsg_t(LLCP_FrameMeasurementFinishedMsg_t* msg);
+
+/**
+ * @brief "constructor" for LLCP_FrameMeasurementFinishedMsg_t
+ *
+ * @param msg
+ */
+void init_LLCP_FrameMeasurementFinishedMsg_t(LLCP_FrameMeasurementFinishedMsg_t* msg);
+
+static_assert((sizeof(LLCP_FrameMeasurementFinishedMsg_t) > 255) == 0, "LLCP_FrameMeasurementFinishedMsg_t is too large");
+
+//}
+
+/* LLCP_GetFrameDataReqMsg_t //{ */
+
+/**
+ * @brief LLCP Message for requesting data from a previously-measured frame
+ */
+typedef struct __attribute__((packed))
+{
+  uint8_t message_id;
+} LLCP_GetFrameDataReqMsg_t;
+
+/**
+ * @brief host-to-network conversion for LLCP_GetFrameDataReqMsg_t
+ *
+ * @param msg
+ */
+void hton_LLCP_GetFrameDataReqMsg_t(LLCP_GetFrameDataReqMsg_t* msg);
+
+/**
+ * @brief network-to-host conversion for LLCP_GetFrameDataReqMsg_t
+ *
+ * @param msg
+ */
+void ntoh_LLCP_GetFrameDataReqMsg_t(LLCP_GetFrameDataReqMsg_t* msg);
+
+/**
+ * @brief "constructor" for LLCP_GetFrameDataReqMsg_t
+ *
+ * @param msg
+ */
+void init_LLCP_GetFrameDataReqMsg_t(LLCP_GetFrameDataReqMsg_t* msg);
+
+static_assert((sizeof(LLCP_GetFrameDataReqMsg_t) > 255) == 0, "LLCP_GetFrameDataReqMsg_t is too large");
+
+//}
+
 // | ---------- Stream data (continuous event stream) --------- |
+// for consideration
 
 /* LLCP_StreamDataMsg_t //{ */
 
@@ -986,6 +1067,77 @@ void ntoh_LLCP_GetStatusReqMsg_t(LLCP_GetStatusReqMsg_t* msg);
 void init_LLCP_GetStatusReqMsg_t(LLCP_GetStatusReqMsg_t* msg);
 
 static_assert((sizeof(LLCP_GetStatusReqMsg_t) > 255) == 0, "LLCP_GetStatusReqMsg_t is too large");
+
+//}
+
+// | -------------------------- Error ------------------------- |
+
+/* LLCP_MinipixErrorMsg_t //{ */
+
+/* LLCP_MinipixError_t //{ */
+
+/**
+ * @brief Message data for LLCP_MinipixErrorMsg_t
+ */
+typedef struct __attribute__((packed))
+{
+  uint8_t error_id;
+} LLCP_MinipixError_t;
+
+/**
+ * @brief host-to-network conversion for LLCP_MinipixError_t
+ *
+ * @param data
+ */
+void hton_LLCP_MinipixError_t(LLCP_MinipixError_t* data);
+
+/**
+ * @brief network-to-host conversion for LLCP_MinipixError_t
+ *
+ * @param data
+ */
+void ntoh_LLCP_MinipixError_t(LLCP_MinipixError_t* data);
+
+/**
+ * @brief "constructor" for LLCP_MinipixError_t
+ *
+ * @param data
+ */
+void init_LLCP_MinipixError_t(LLCP_MinipixError_t* data);
+
+//}
+
+/**
+ * @brief LLCP Message for error from MiniPIX.
+ */
+typedef struct __attribute__((packed))
+{
+  uint8_t             message_id;
+  LLCP_MinipixError_t payload;
+} LLCP_MinipixErrorMsg_t;
+
+/**
+ * @brief host-to-network conversion for LLCP_MinipixErrorMsg_t
+ *
+ * @param msg
+ */
+void hton_LLCP_MinipixErrorMsg_t(LLCP_MinipixErrorMsg_t* msg);
+
+/**
+ * @brief network-to-host conversion for LLCP_MinipixErrorMsg_t
+ *
+ * @param msg
+ */
+void ntoh_LLCP_MinipixErrorMsg_t(LLCP_MinipixErrorMsg_t* msg);
+
+/**
+ * @brief "constructor" for LLCP_MinipixErrorMsg_t
+ *
+ * @param msg
+ */
+void init_LLCP_MinipixErrorMsg_t(LLCP_MinipixErrorMsg_t* msg);
+
+static_assert((sizeof(LLCP_MinipixErrorMsg_t) > 255) == 0, "LLCP_MinipixErrorMsg_t is too large");
 
 //}
 

@@ -163,6 +163,44 @@ void init_LLCP_MeasureFrameReqMsg_t(LLCP_MeasureFrameReqMsg_t* msg) {
 
 //}
 
+/* LLCP_FrameMeasurementFinishedMsg_t //{ */
+
+void hton_LLCP_FrameMeasurementFinishedMsg_t(LLCP_FrameMeasurementFinishedMsg_t* msg) {
+
+  UNUSED(msg);
+}
+
+void ntoh_LLCP_FrameMeasurementFinishedMsg_t(LLCP_FrameMeasurementFinishedMsg_t* msg) {
+
+  UNUSED(msg);
+}
+
+void init_LLCP_FrameMeasurementFinishedMsg_t(LLCP_FrameMeasurementFinishedMsg_t* msg) {
+
+  msg->message_id = LLCP_FRAME_MEASUREMENT_FINISHED_MSG_ID;
+}
+
+//}
+
+/* LLCP_GetFrameDataReqMsg_t //{ */
+
+void hton_LLCP_GetFrameDataReqMsg_t(LLCP_GetFrameDataReqMsg_t* msg) {
+
+  UNUSED(msg);
+}
+
+void ntoh_LLCP_GetFrameDataReqMsg_t(LLCP_GetFrameDataReqMsg_t* msg) {
+
+  UNUSED(msg);
+}
+
+void init_LLCP_GetFrameDataReqMsg_t(LLCP_GetFrameDataReqMsg_t* msg) {
+
+  msg->message_id = LLCP_GET_FRAME_DATA_REQ_MSG_ID;
+}
+
+//}
+
 /* LLCP_StreamDataMsg_t //{ */
 
 /* LLCP_StreamData_t //{ */
@@ -471,6 +509,46 @@ void init_LLCP_StatusMsg_t(LLCP_StatusMsg_t* msg) {
   msg->message_id = LLCP_STATUS_MSG_ID;
 
   init_LLCP_Status_t(&msg->payload);
+}
+
+//}
+
+/* LLCP_MinipixErrorMsg_t //{ */
+
+/* LLCP_MinipixError_t //{ */
+
+void hton_LLCP_MinipixError_t(LLCP_MinipixError_t* data) {
+
+  UNUSED(data);
+}
+
+void ntoh_LLCP_MinipixError_t(LLCP_MinipixError_t* data) {
+
+  UNUSED(data);
+}
+
+void init_LLCP_MinipixError_t(LLCP_MinipixError_t* data) {
+
+  data->error_id = 0;
+}
+
+//}
+
+void hton_LLCP_MinipixErrorMsg_t(LLCP_MinipixErrorMsg_t* msg) {
+
+  hton_LLCP_MinipixError_t(&msg->payload);
+}
+
+void ntoh_LLCP_MinipixErrorMsg_t(LLCP_MinipixErrorMsg_t* msg) {
+
+  ntoh_LLCP_MinipixError_t(&msg->payload);
+}
+
+void init_LLCP_MinipixErrorMsg_t(LLCP_MinipixErrorMsg_t* msg) {
+
+  msg->message_id = LLCP_MINIPIX_ERROR_MSG_ID;
+
+  init_LLCP_MinipixError_t(&msg->payload);
 }
 
 //}
