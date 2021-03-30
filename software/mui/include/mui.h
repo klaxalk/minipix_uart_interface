@@ -79,6 +79,14 @@ typedef void (*mui_processStatus_t)(const LLCP_Status_t *status_data);
 typedef void (*mui_processAck_t)(const LLCP_Ack_t *status_data);
 
 /**
+ * @brief Function pointer to user implementation of callback to process
+ * incoming MiniPIX error message.
+ *
+ * @param pointer to the structure with the data
+ */
+typedef void (*mui_processMinipixError_t)(const LLCP_MinipixError_t *error_data);
+
+/**
  * @brief Function pointer for implementation of a sleep function.
  *
  * @param duration time to sleep in milliseconds
@@ -100,6 +108,7 @@ typedef struct
   mui_processStreamData_t          processStreamData;
   mui_processStatus_t              processStatus;
   mui_processAck_t                 processAck;
+  mui_processMinipixError_t        processMinipixError;
   mui_sleepHW_t                    sleepHW;
 } MUI_FcnPrototypes_t;
 
@@ -231,6 +240,16 @@ void mui_sendAck(MUI_Handler_t *mui_handler, const bool success);
 // --------------------------------------------------------------
 // |                           private                          |
 // --------------------------------------------------------------
+
+/**
+ * @brief Command to request measured frame data.
+ * As a result, the MiniPIX will start obtaning data and will call the
+ *                        processFrameData()
+ * function will be called.
+ *
+ * @param mui_handler
+ */
+void mui_getFrameData(MUI_Handler_t *mui_handler);
 
 // | -------------------- LED signalization ------------------- |
 

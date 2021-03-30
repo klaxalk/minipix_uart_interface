@@ -62,6 +62,7 @@ void gatherer_processStreamData(Gatherer_Handler_t *gatherer_handler, const LLCP
 void gatherer_processFrameDataTerminator(Gatherer_Handler_t *gatherer_handler, const LLCP_FrameDataTerminator_t *data);
 void gatherer_processStatus(Gatherer_Handler_t *gatherer_handler, const LLCP_Status_t *data);
 void gatherer_processAck(Gatherer_Handler_t *gatherer_handler, const LLCP_Ack_t *data);
+void gatherer_processMinipixError(Gatherer_Handler_t *gatherer_handler, const LLCP_MinipixError_t *data);
 
 #ifdef __cplusplus
 }

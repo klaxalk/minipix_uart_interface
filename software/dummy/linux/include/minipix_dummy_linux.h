@@ -40,7 +40,9 @@ public:
 
   void update_linux(void);
 
-  void simulateImageAcquisition(const uint16_t &acquisition_time);
+  void getFrameData(void);
+
+  void simulateFrameAcquisition(const uint16_t &acquisition_time);
 
   std::string data_folder;
   void        setDataFolder(const std::string &data_folder);
@@ -53,7 +55,8 @@ private:
   std::thread thread_serial_port_;
   void        threadSerialPort(void);
 
-  int randi(const int &from, const int &to);
+  int    randi(const int &from, const int &to);
+  double randd(const double &from, const double &to);
 
   std::vector<std::vector<double>> loadImage(const std::string &file_path);
 };

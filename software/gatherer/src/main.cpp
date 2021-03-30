@@ -311,6 +311,31 @@ void Gatherer::threadMain(void) {
               break;
             };
 
+            case LLCP_MINIPIX_ERROR_MSG_ID: {
+
+              LLCP_MinipixErrorMsg_t* msg = (LLCP_MinipixErrorMsg_t*)message_in;
+              ntoh_LLCP_MinipixErrorMsg_t(msg);
+              LLCP_MinipixError_t* error = (LLCP_MinipixError_t*)&msg->payload;
+
+              switch (error->error_id) {
+
+                case LLPC_MINIPIX_ERROR_MEASUREMENT_FAILED: {
+
+                  measuring_frame_ = false;
+
+                  break;
+                }
+
+                default: {
+                  printf("received unhandled error message, id %d\n", error->error_id);
+                }
+              }
+
+              printf("received MiniPIX error %d: %s\n", error->error_id, LLCP_MinipixErrors[error->error_id]);
+
+              break;
+            };
+
             default: {
 
               printf("Received unsupported message with id = %d\n", message_in->id);
@@ -613,7 +638,7 @@ int main(int argc, char* argv[]) {
 
     gatherer.measureFrame(1);
 
-    std::this_thread::sleep_for(std::chrono::milliseconds(10));
+    std::this_thread::sleep_for(std::chrono::milliseconds(1));
   }
 
   gatherer.pwr(false);

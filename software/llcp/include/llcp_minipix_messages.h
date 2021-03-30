@@ -56,6 +56,17 @@ extern "C" {
 
 //}
 
+/* definition of error IDs //{ */
+
+extern const char* LLCP_MinipixErrors[2];
+
+#define LLPC_MINIPIX_ERROR_MEASUREMENT_FAILED 0
+#define LLPC_MINIPIX_ERROR_POWERUP_FAILED 1
+// ...
+// TODO: Dan Turecek please specify
+
+//}
+
 // | ------- Pixel data, common to frame and stream mode ------ |
 
 /* LLCP_PixelData_t //{ */
@@ -1070,7 +1081,7 @@ static_assert((sizeof(LLCP_GetStatusReqMsg_t) > 255) == 0, "LLCP_GetStatusReqMsg
 
 //}
 
-// | -------------------------- Error ------------------------- |
+// | ------------------------- Errors ------------------------- |
 
 /* LLCP_MinipixErrorMsg_t //{ */
 

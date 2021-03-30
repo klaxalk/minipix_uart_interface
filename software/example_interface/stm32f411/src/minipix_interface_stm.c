@@ -98,6 +98,15 @@ void mui_stm_processAck(const LLCP_Ack_t *data) {
 
 //}
 
+/* mui_stm_processMinipixError() //{ */
+
+void mui_stm_processMinipixError(const LLCP_MinipixError_t *data) {
+
+  gatherer_processMinipixError((Gatherer_Handler_t *)gatherer_handler_ptr_, data);
+}
+
+//}
+
 /* mui_stm_ledSetHW() //{ */
 
 void mui_stm_ledSetHW(const bool new_state) {

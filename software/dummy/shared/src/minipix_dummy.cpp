@@ -49,6 +49,23 @@ void MinipixDummy::sendAck(void) {
 
 //}
 
+/* sendError() //{ */
+
+void MinipixDummy::sendError(const uint8_t &id) {
+
+  LLCP_MinipixErrorMsg_t msg;
+  init_LLCP_MinipixErrorMsg_t(&msg);
+
+  msg.payload.error_id = id;
+
+  hton_LLCP_MinipixErrorMsg_t(&msg);
+
+  uint16_t n_bytes = llcp_prepareMessage((uint8_t *)&msg, sizeof(msg), tx_buffer_);
+  sendMessageNoAck(tx_buffer_, n_bytes);
+}
+
+//}
+
 /* testStripe() //{ */
 
 void MinipixDummy::testStripe() {
@@ -183,10 +200,20 @@ void MinipixDummy::update(void) {
           LLCP_MeasureFrameReq_t *req = (LLCP_MeasureFrameReq_t *)(&msg->payload);
 
           if (powered_) {
-            simulateImageAcquisition(req->acquisition_time_ms);
+            simulateFrameAcquisition(req->acquisition_time_ms);
           } else {
             printf("cannot do frame measurement, not powered!\n");
           }
+
+          break;
+        };
+
+        case LLCP_GET_FRAME_DATA_REQ_MSG_ID: {
+
+          printf("processing frame data request from the queue\n");
+
+
+          getFrameData();
 
           break;
         };
@@ -243,6 +270,17 @@ void MinipixDummy::serialDataCallback(const uint8_t *bytes_in, const uint16_t &l
         case LLCP_MEASURE_FRAME_REQ_MSG_ID: {
 
           printf("received frame measurement request\n");
+
+          std::scoped_lock lock(mutex_message_buffer_);
+
+          message_buffer_.push_back(*message_in);
+
+          break;
+        };
+
+        case LLCP_GET_FRAME_DATA_REQ_MSG_ID: {
+
+          printf("received frame data request\n");
 
           std::scoped_lock lock(mutex_message_buffer_);
 

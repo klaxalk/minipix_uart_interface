@@ -22,5 +22,6 @@ void mui_linux_processFrameDataTerminator(const LLCP_FrameDataTerminator_t *data
 void mui_linux_processStreamData(const LLCP_StreamData_t *data);
 void mui_linux_processStatus(const LLCP_Status_t *data);
 void mui_linux_processAck(const LLCP_Ack_t *data);
+void mui_linux_processMinipixError(const LLCP_MinipixError_t *data);
 
 #endif  // MINIPIX_INTERFACE_LINUX_H

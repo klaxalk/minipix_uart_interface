@@ -19,7 +19,8 @@ public:
   virtual void sendString([[maybe_unused]] const uint8_t *bytes_out, [[maybe_unused]] const uint16_t &len){};
   void         serialDataCallback(const uint8_t *bytes_in, const uint16_t &len);
   virtual void sleep([[maybe_unused]] const uint16_t &milliseconds){};
-  virtual void simulateImageAcquisition([[maybe_unused]] const uint16_t &acquisition_time){};
+  virtual void getFrameData(void){};
+  virtual void simulateFrameAcquisition([[maybe_unused]] const uint16_t &acquisition_time){};
 
 protected:
   LLCP_Receiver_t llcp_receiver_;
@@ -34,23 +35,24 @@ protected:
   void sendMessage([[maybe_unused]] const uint8_t *bytes_out, [[maybe_unused]] const uint16_t &len);
   void sendMessageNoAck([[maybe_unused]] const uint8_t *bytes_out, [[maybe_unused]] const uint16_t &len);
   void sendAck(void);
+  void sendError(const uint8_t &id);
 
-  private:
-    // send an image with a diagonal test stripe
-    void testStripe();
+private:
+  // send an image with a diagonal test stripe
+  void testStripe();
 
-    void continuousStreamMeasurement();
+  void continuousStreamMeasurement();
 
-    void              clearToSend(void);
-    std::atomic<bool> clear_to_send_ = true;
+  void              clearToSend(void);
+  std::atomic<bool> clear_to_send_ = true;
 
-    std::list<LLCP_Message_t> message_buffer_;
-    std::mutex                mutex_message_buffer_;
+  std::list<LLCP_Message_t> message_buffer_;
+  std::mutex                mutex_message_buffer_;
 
-    std::atomic<bool> stream_measurement_on_        = false;
-    uint16_t          stream_measurement_duty_cycle = 0;
+  std::atomic<bool> stream_measurement_on_        = false;
+  uint16_t          stream_measurement_duty_cycle = 0;
 
-    std::atomic<bool> powered_ = false;
-  };
+  std::atomic<bool> powered_ = false;
+};
 
 #endif  // MINIPIX_DUMMY_H

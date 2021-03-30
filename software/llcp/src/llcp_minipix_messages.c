@@ -2,6 +2,15 @@
 
 #define UNUSED(x) (void)(x)
 
+/* LLCP_MinipixErrors //{ */
+
+const char* LLCP_MinipixErrors[2] = {
+  "MiniPIX: Frame measurement failed.",
+  "MiniPIX: Powerup failed."
+};
+
+//}
+
 /* LLCP_PixelData_t //{ */
 
 void hton_LLCP_PixelData_t(LLCP_PixelData_t* data) {

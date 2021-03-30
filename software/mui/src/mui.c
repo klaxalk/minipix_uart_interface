@@ -211,6 +211,13 @@ void mui_receiveCharCallback(MUI_Handler_t* mui_handler, const uint8_t byte_in) 
         break;
       };
 
+      case LLCP_FRAME_MEASUREMENT_FINISHED_MSG_ID: {
+
+        mui_getFrameData(mui_handler);
+
+        break;
+      };
+
       case LLCP_FRAME_DATA_TERMINATOR_MSG_ID: {
 
         // load up the message and convert it to our endian
@@ -253,9 +260,20 @@ void mui_receiveCharCallback(MUI_Handler_t* mui_handler, const uint8_t byte_in) 
         LLCP_AckMsg_t* msg = (LLCP_AckMsg_t*)message_in;
         ntoh_LLCP_AckMsg_t(msg);
 
-        // TODO what to do with the ack?
         // call the user's callback
         mui_handler->fcns.processAck(&(msg->payload));
+
+        break;
+      };
+
+      case LLCP_MINIPIX_ERROR_MSG_ID: {
+
+        // load up the message and convert it to our endian
+        LLCP_MinipixErrorMsg_t* msg = (LLCP_MinipixErrorMsg_t*)message_in;
+        ntoh_LLCP_MinipixErrorMsg_t(msg);
+
+        // call the user's callbminipixerror
+        mui_handler->fcns.processMinipixError(&(msg->payload));
 
         break;
       };
@@ -311,6 +329,24 @@ void mui_sendAck(MUI_Handler_t* mui_handler, const bool success) {
 // --------------------------------------------------------------
 // |                           private                          |
 // --------------------------------------------------------------
+
+/* mui_getFrameData() //{ */
+
+void mui_getFrameData(MUI_Handler_t* mui_handler) {
+
+  // create the message
+  LLCP_GetFrameDataReqMsg_t msg;
+  init_LLCP_GetFrameDataReqMsg_t(&msg);
+
+  // convert to network endian
+  hton_LLCP_GetFrameDataReqMsg_t(&msg);
+
+  uint16_t n_bytes = llcp_prepareMessage((uint8_t*)&msg, sizeof(msg), mui_handler->tx_buffer);
+
+  mui_handler->fcns.sendString(mui_handler->tx_buffer, n_bytes);
+}
+
+//}
 
 // | -------------------- LED signalization ------------------- |
 

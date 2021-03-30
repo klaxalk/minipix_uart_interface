@@ -74,11 +74,20 @@ void mui_linux_processStatus(const LLCP_Status_t *data) {
 
 //}
 
-/* mui_linux_processStatus() //{ */
+/* mui_linux_processAck() //{ */
 
 void mui_linux_processAck(const LLCP_Ack_t *data) {
 
   gatherer_processAck(&gatherer_handler_, data);
+}
+
+//}
+
+/* mui_linux_processMinipixError() //{ */
+
+void mui_linux_processMinipixError(const LLCP_MinipixError_t *data) {
+
+  gatherer_processMinipixError(&gatherer_handler_, data);
 }
 
 //}

@@ -155,6 +155,17 @@ int MinipixDummyLinux::randi(const int& from, const int& to) {
 
 //}
 
+/* randd() //{ */
+
+double MinipixDummyLinux::randd(const double& from, const double& to) {
+
+  double zero_to_one = double((float)rand()) / double(RAND_MAX);
+
+  return floor(to - from) * zero_to_one + from;
+}
+
+//}
+
 /* setDataFolder() //{ */
 
 void MinipixDummyLinux::setDataFolder(const std::string& data_folder) {
@@ -163,13 +174,40 @@ void MinipixDummyLinux::setDataFolder(const std::string& data_folder) {
 
 //}
 
-/* simulateImageAcquisition() //{ */
+/* simulateFrameAcquisition() //{ */
 
-void MinipixDummyLinux::simulateImageAcquisition(const uint16_t& acquisition_time) {
+void MinipixDummyLinux::simulateFrameAcquisition(const uint16_t& acquisition_time) {
 
   printf("simulating acquisition, time %f s\n", double(acquisition_time) / 1000);
 
   sleep(acquisition_time);
+
+  // simulate error
+
+  if (randd(0, 1) > 0.9) {
+
+    printf("Error: measurement failed\n");
+
+    sendError(LLPC_MINIPIX_ERROR_MEASUREMENT_FAILED);
+    return;
+  }
+
+  // send confirmation of the finished measurement
+
+  LLCP_FrameMeasurementFinishedMsg_t msg;
+  init_LLCP_FrameMeasurementFinishedMsg_t(&msg);
+
+  hton_LLCP_FrameMeasurementFinishedMsg_t(&msg);
+
+  uint16_t n_bytes = llcp_prepareMessage((uint8_t*)&msg, sizeof(msg), tx_buffer_);
+  sendMessageNoAck(tx_buffer_, n_bytes);
+}
+
+//}
+
+/* getFrameData() //{ */
+
+void MinipixDummyLinux::getFrameData(void) {
 
   // select image from the database
   uint16_t image_id = randi(0, 992);
