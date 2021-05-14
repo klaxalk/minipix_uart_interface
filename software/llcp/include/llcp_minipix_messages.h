@@ -58,12 +58,19 @@ extern "C" {
 
 /* definition of error IDs //{ */
 
-extern const char* LLCP_MinipixErrors[2];
+#define LLCP_MINIPIX_ERROR_COUNT 10 
+extern const char* LLCP_MinipixErrors[LLCP_MINIPIX_ERROR_COUNT];
 
-#define LLPC_MINIPIX_ERROR_MEASUREMENT_FAILED 0
-#define LLPC_MINIPIX_ERROR_POWERUP_FAILED 1
-// ...
-// TODO: Dan Turecek please specify
+#define LLCP_MINIPIX_ERROR_MEASUREMENT_FAILED 0
+#define LLCP_MINIPIX_ERROR_POWERUP_FAILED 1
+#define LLCP_MINIPIX_ERROR_POWERUP_TPX3_RESET_SYNC 2
+#define LLCP_MINIPIX_ERROR_POWERUP_TPX3_RESET_RECVDATA 3
+#define LLCP_MINIPIX_ERROR_POWERUP_TPX3_INIT_RESETS 4
+#define LLCP_MINIPIX_ERROR_POWERUP_TPX3_INIT_CHIPID 5
+#define LLCP_MINIPIX_ERROR_POWERUP_TPX3_INIT_DACS 6
+#define LLCP_MINIPIX_ERROR_POWERUP_TPX3_INIT_PIXCFG 7
+#define LLCP_MINIPIX_ERROR_POWERUP_TPX3_INIT_MATRIX 8
+#define LLCP_MINIPIX_ERROR_INVALID_PRESET 9
 
 //}
 
@@ -306,6 +313,7 @@ static_assert((sizeof(LLCP_FrameDataTerminatorMsg_t) > 255) == 0, "LLCP_FrameDat
 typedef struct __attribute__((packed))
 {
   uint16_t acquisition_time_ms;
+  uint8_t mode;
 } LLCP_MeasureFrameReq_t;
 
 /**
@@ -699,7 +707,8 @@ static_assert((sizeof(LLCP_UpdatePixelMaskReqMsg_t) > 255) == 0, "LLCP_UpdatePix
  */
 typedef struct __attribute__((packed))
 {
-  uint16_t threshold;
+  uint16_t thresholdCoarse;
+  uint16_t thresholdFine;
 } LLCP_SetThresholdReq_t;
 
 /**
