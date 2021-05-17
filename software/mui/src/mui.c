@@ -125,13 +125,14 @@ void mui_updatePixelMask(MUI_Handler_t* mui_handler, LLCP_UpdatePixelMaskReq_t* 
 
 /* mui_setThreshold() //{ */
 
-void mui_setThreshold(MUI_Handler_t* mui_handler, const uint16_t threshold) {
+void mui_setThreshold(MUI_Handler_t* mui_handler, const uint16_t threshold_coarse, const uint16_t threshold_fine) {
 
   // create the message
   LLCP_SetThresholdReqMsg_t msg;
   init_LLCP_SetThresholdReqMsg_t(&msg);
 
-  msg.payload.threshold = threshold;
+  msg.payload.threshold_coarse = threshold_coarse;
+  msg.payload.threshold_fine   = threshold_fine;
 
   // convert to network endian
   hton_LLCP_SetThresholdReqMsg_t(&msg);

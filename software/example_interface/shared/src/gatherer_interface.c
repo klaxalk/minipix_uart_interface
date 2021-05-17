@@ -84,7 +84,7 @@ void gatherer_receiveCharCallback(Gatherer_Handler_t *gatherer_handler, const ui
 
         LLCP_SetThresholdReq_t *req = (LLCP_SetThresholdReq_t *)(&msg->payload);
 
-        mui_setThreshold(gatherer_handler->mui_handler_ptr_, req->threshold);
+        mui_setThreshold(gatherer_handler->mui_handler_ptr_, req->threshold_coarse, req->threshold_fine);
 
         break;
       };

@@ -188,7 +188,7 @@ void MinipixDummyLinux::simulateFrameAcquisition(const uint16_t& acquisition_tim
 
     printf("Error: measurement failed\n");
 
-    sendError(LLPC_MINIPIX_ERROR_MEASUREMENT_FAILED);
+    sendError(LLCP_MINIPIX_ERROR_MEASUREMENT_FAILED);
     return;
   }
 

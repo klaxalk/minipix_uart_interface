@@ -707,8 +707,8 @@ static_assert((sizeof(LLCP_UpdatePixelMaskReqMsg_t) > 255) == 0, "LLCP_UpdatePix
  */
 typedef struct __attribute__((packed))
 {
-  uint16_t thresholdCoarse;
-  uint16_t thresholdFine;
+  uint16_t threshold_coarse;
+  uint16_t threshold_fine;
 } LLCP_SetThresholdReq_t;
 
 /**

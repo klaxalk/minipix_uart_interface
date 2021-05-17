@@ -335,7 +335,7 @@ void MinipixDummy::serialDataCallback(const uint8_t *bytes_in, const uint16_t &l
 
           LLCP_SetThresholdReq_t *req = (LLCP_SetThresholdReq_t *)(&msg->payload);
 
-          printf("setting threshold to %d\n", req->threshold);
+          printf("setting threshold to: coarse %d, fine: %d\n", req->threshold_coarse, req->threshold_fine);
 
           sendAck();
 

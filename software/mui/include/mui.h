@@ -173,7 +173,7 @@ void mui_measureStream(MUI_Handler_t *mui_handler, const uint16_t duty_cycle);
  * @param mui_handler
  * @param threshold
  */
-void mui_setThreshold(MUI_Handler_t *mui_handler, const uint16_t threshold);
+void mui_setThreshold(MUI_Handler_t* mui_handler, const uint16_t threshold_coarse, const uint16_t threshold_fine);
 
 /**
  * @brief Command to set configuration preset

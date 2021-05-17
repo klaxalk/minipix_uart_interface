@@ -4,18 +4,11 @@
 
 /* LLCP_MinipixErrors //{ */
 
-const char* LLCP_MinipixErrors[LLCP_MINIPIX_ERROR_COUNT] = {
-  "MiniPIX: Frame measurement failed.",
-  "MiniPIX: Powerup failed.",
-  "MiniPIX: Powerup TPX3 reset sync error.",
-  "MiniPIX: Powerup TPX3 reset recv data error.",
-  "MiniPIX: Powerup TPX3 init resets error.",
-  "MiniPIX: Powerup TPX3 init chip ID error.",
-  "MiniPIX: Powerup TPX3 init DACs error.",
-  "MiniPIX: Powerup TPX3 init PixCfg error.",
-  "MiniPIX: Powerup TPX3 init matrix error.",
-  "MiniPIX: Invalid preset parameter."
-};
+const char* LLCP_MinipixErrors[LLCP_MINIPIX_ERROR_COUNT] = {"MiniPIX: Frame measurement failed.",       "MiniPIX: Powerup failed.",
+                                                            "MiniPIX: Powerup TPX3 reset sync error.",  "MiniPIX: Powerup TPX3 reset recv data error.",
+                                                            "MiniPIX: Powerup TPX3 init resets error.", "MiniPIX: Powerup TPX3 init chip ID error.",
+                                                            "MiniPIX: Powerup TPX3 init DACs error.",   "MiniPIX: Powerup TPX3 init PixCfg error.",
+                                                            "MiniPIX: Powerup TPX3 init matrix error.", "MiniPIX: Invalid preset parameter."};
 
 //}
 
@@ -159,7 +152,7 @@ void ntoh_MeasureFrameReq_t(LLCP_MeasureFrameReq_t* data) {
 void init_LLCP_MeasureFrameReq_t(LLCP_MeasureFrameReq_t* data) {
 
   data->acquisition_time_ms = 0;
-  data->mode = 0;
+  data->mode                = 0;
 }
 
 //}
@@ -377,20 +370,20 @@ void init_LLCP_UpdatePixelMaskReqMsg_t(LLCP_UpdatePixelMaskReqMsg_t* msg) {
 
 void hton_LLCP_SetThresholdReq_t(LLCP_SetThresholdReq_t* data) {
 
-  data->thresholdFine = llcp_hton16(data->thresholdFine);
-  data->thresholdCoarse = llcp_hton16(data->thresholdCoarse);
+  data->threshold_fine   = llcp_hton16(data->threshold_fine);
+  data->threshold_coarse = llcp_hton16(data->threshold_coarse);
 }
 
 void ntoh_LLCP_SetThresholdReq_t(LLCP_SetThresholdReq_t* data) {
 
-  data->thresholdFine = llcp_ntoh16(data->thresholdFine);
-  data->thresholdCoarse = llcp_ntoh16(data->thresholdCoarse);
+  data->threshold_fine   = llcp_ntoh16(data->threshold_fine);
+  data->threshold_coarse = llcp_ntoh16(data->threshold_coarse);
 }
 
 void init_LLCP_SetThresholdReq_t(LLCP_SetThresholdReq_t* data) {
 
-  data->thresholdFine = 0;
-  data->thresholdCoarse = 0;
+  data->threshold_fine   = 0;
+  data->threshold_coarse = 0;
 }
 
 //}

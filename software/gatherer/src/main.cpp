@@ -48,7 +48,7 @@ public:
   void startStream(const uint16_t& duty_cycle);
   void pwr(const bool& state);
   void maskPixel(const uint8_t& x, const uint8_t& y);
-  void setThreshold(const uint16_t& thr);
+  void setThreshold(const uint16_t& coarse, const uint16_t& fine);
   void setConfigurationPreset(const uint16_t& preset);
   void sendAck(bool ack);
 
@@ -319,7 +319,7 @@ void Gatherer::threadMain(void) {
 
               switch (error->error_id) {
 
-                case LLPC_MINIPIX_ERROR_MEASUREMENT_FAILED: {
+                case LLCP_MINIPIX_ERROR_MEASUREMENT_FAILED: {
 
                   measuring_frame_ = false;
 
@@ -543,14 +543,15 @@ void Gatherer::maskPixel(const uint8_t& x, const uint8_t& y) {
 
 /* setThreshold() //{ */
 
-void Gatherer::setThreshold(const uint16_t& thr) {
+void Gatherer::setThreshold(const uint16_t& coarse, const uint16_t& fine) {
 
   // create the message
   LLCP_SetThresholdReqMsg_t msg;
   init_LLCP_SetThresholdReqMsg_t(&msg);
 
   // fill in the payload
-  msg.payload.threshold = thr;
+  msg.payload.threshold_coarse = coarse;
+  msg.payload.threshold_fine   = fine;
 
   // convert to network endian
   hton_LLCP_SetThresholdReqMsg_t(&msg);
@@ -626,7 +627,7 @@ int main(int argc, char* argv[]) {
 
   std::this_thread::sleep_for(std::chrono::milliseconds(100));
 
-  gatherer.setThreshold(333);
+  gatherer.setThreshold(333, 555);
 
   std::this_thread::sleep_for(std::chrono::milliseconds(100));
 
