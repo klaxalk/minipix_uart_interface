@@ -44,6 +44,7 @@ public:
   // | --------------------- MiniPIX control -------------------- |
 
   void getStatus(void);
+  void getTemperature(void);
   void measureFrame(const uint16_t& acquisition_time_ms);
   void startStream(const uint16_t& duty_cycle);
   void pwr(const bool& state);
@@ -285,6 +286,19 @@ void Gatherer::threadMain(void) {
               break;
             };
 
+            case LLCP_TEMPERATURE_MSG_ID: {
+
+              LLCP_TemperatureMsg_t* msg = (LLCP_TemperatureMsg_t*)message_in;
+              ntoh_LLCP_TemperatureMsg_t(msg);
+              LLCP_Temperature_t* temperature = (LLCP_Temperature_t*)&msg->payload;
+
+              printf("received temperature: %d deg\n", temperature->temperature);
+
+              sendAck(true);
+
+              break;
+            };
+
             case LLCP_FRAME_DATA_TERMINATOR_MSG_ID: {
 
               LLCP_FrameDataTerminatorMsg_t* msg = (LLCP_FrameDataTerminatorMsg_t*)message_in;
@@ -421,6 +435,28 @@ void Gatherer::getStatus(void) {
 
   // convert to network endian
   hton_LLCP_GetStatusReqMsg_t(&msg);
+
+  uint16_t n_bytes = llcp_prepareMessage((uint8_t*)&msg, sizeof(msg), tx_buffer);
+
+  {
+    std::scoped_lock lock(mutex_serial_port_);
+
+    serial_port_.sendCharArray(tx_buffer, n_bytes);
+  }
+}
+
+//}
+
+/* getTemperature() //{ */
+
+void Gatherer::getTemperature(void) {
+
+  // create the message
+  LLCP_GetTemperatureReqMsg_t msg;
+  init_LLCP_GetTemperatureReqMsg_t(&msg);
+
+  // convert to network endian
+  hton_LLCP_GetTemperatureReqMsg_t(&msg);
 
   uint16_t n_bytes = llcp_prepareMessage((uint8_t*)&msg, sizeof(msg), tx_buffer);
 
@@ -623,6 +659,10 @@ int main(int argc, char* argv[]) {
 
   std::this_thread::sleep_for(std::chrono::milliseconds(100));
 
+  gatherer.getTemperature();
+
+  std::this_thread::sleep_for(std::chrono::milliseconds(100));
+
   gatherer.maskPixel(10, 20);
 
   std::this_thread::sleep_for(std::chrono::milliseconds(100));
@@ -639,7 +679,7 @@ int main(int argc, char* argv[]) {
 
     gatherer.measureFrame(1);
 
-    std::this_thread::sleep_for(std::chrono::milliseconds(1));
+    std::this_thread::sleep_for(std::chrono::milliseconds(10));
   }
 
   gatherer.pwr(false);

@@ -378,6 +378,26 @@ void MinipixDummy::serialDataCallback(const uint8_t *bytes_in, const uint16_t &l
           break;
         };
 
+        case LLCP_GET_TEMPERATURE_REQ_MSG_ID: {
+
+          printf("received temperature request\n");
+
+          // create the message
+          LLCP_TemperatureMsg_t temperature_msg;
+          init_LLCP_TemperatureMsg_t(&temperature_msg);
+
+          // fill in the payload
+          temperature_msg.payload.temperature = 23;
+
+          // convert to network endian
+          hton_LLCP_TemperatureMsg_t(&temperature_msg);
+
+          uint16_t n_bytes = llcp_prepareMessage((uint8_t *)&temperature_msg, sizeof(temperature_msg), tx_buffer_);
+          sendMessage(tx_buffer_, n_bytes);
+
+          break;
+        };
+
         case LLCP_ACK_MSG_ID: {
 
           LLCP_AckMsg_t *msg = (LLCP_AckMsg_t *)message_in;

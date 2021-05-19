@@ -25,6 +25,7 @@ void mui_stm_processFrameData(const LLCP_FrameData_t *data);
 void mui_stm_processFrameDataTerminator(const LLCP_FrameDataTerminator_t *data);
 void mui_stm_processStreamData(const LLCP_StreamData_t *data);
 void mui_stm_processStatus(const LLCP_Status_t *data);
+void mui_stm_processTemperature(const LLCP_Temperature_t *data);
 void mui_stm_processAck(const LLCP_Ack_t *data);
 void mui_stm_processMinipixError(const LLCP_MinipixError_t *data);
 

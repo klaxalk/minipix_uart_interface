@@ -74,6 +74,15 @@ void mui_linux_processStatus(const LLCP_Status_t *data) {
 
 //}
 
+/* mui_linux_processTemperature() //{ */
+
+void mui_linux_processTemperature(const LLCP_Temperature_t *data) {
+
+  gatherer_processTemperature(&gatherer_handler_, data);
+}
+
+//}
+
 /* mui_linux_processAck() //{ */
 
 void mui_linux_processAck(const LLCP_Ack_t *data) {

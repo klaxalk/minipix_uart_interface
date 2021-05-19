@@ -273,6 +273,18 @@ void mui_receiveCharCallback(MUI_Handler_t* mui_handler, const uint8_t byte_in) 
         break;
       };
 
+      case LLCP_TEMPERATURE_MSG_ID: {
+
+        // load up the message and convert it to our endian
+        LLCP_TemperatureMsg_t* msg = (LLCP_TemperatureMsg_t*)message_in;
+        ntoh_LLCP_TemperatureMsg_t(msg);
+
+        // call the user's callback
+        mui_handler->fcns.processTemperature(&(msg->payload));
+
+        break;
+      };
+
       case LLCP_ACK_MSG_ID: {
 
         // load up the message and convert it to our endian

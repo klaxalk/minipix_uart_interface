@@ -127,6 +127,7 @@ int main(void) {
   mui_handler_.fcns.processFrameDataTerminator = &mui_stm_processFrameDataTerminator;
   mui_handler_.fcns.processStreamData          = &mui_stm_processStreamData;
   mui_handler_.fcns.processStatus              = &mui_stm_processStatus;
+  mui_handler_.fcns.processTemperature         = &mui_stm_processTemperature;
   mui_handler_.fcns.processAck                 = &mui_stm_processAck;
   mui_handler_.fcns.processMinipixError        = &mui_stm_processMinipixError;
   mui_handler_.fcns.sendChar                   = &mui_stm_sendChar;
