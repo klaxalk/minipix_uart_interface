@@ -32,7 +32,7 @@ HW diagram of the Linux Dummy<->STM32F4 example<->Gatherer.
 | `mui_getTemperature()`         | gets the MiniPIX's temperature             | -                      | int16t (interpretation TBD)                    |
 | `mui_measureFrame()`           | requests frame acquisition                 | acquisition time       | packetized frame                               |
 | `mui_updatePixelMask()`        | set pixel mask                             | pixel coordinates, 1/0 | ack                                            |
-| `mui_setThreshold()`           | set energy threshold, mostly for debugging | threshold              | ack                                            |
+| `mui_setThreshold()`           | set energy threshold, mostly for debugging | coarse thre, fine thr  | ack                                            |
 | `mui_setConfigurationPreset()` | switches between pre-loaded configurations | preset ID              | ack                                            |
 
 
