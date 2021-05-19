@@ -529,6 +529,46 @@ void init_LLCP_StatusMsg_t(LLCP_StatusMsg_t* msg) {
 
 //}
 
+/* LLCP_TemperatureMsg_t //{ */
+
+/* LLCP_Temperature_t //{ */
+
+void hton_LLCP_Temperature_t(LLCP_Temperature_t* data) {
+
+  data->temperature = llcp_hton16(data->temperature);
+}
+
+void ntoh_LLCP_Temperature_t(LLCP_Temperature_t* data) {
+
+  data->temperature = llcp_ntoh16(data->temperature);
+}
+
+void init_LLCP_Temperature_t(LLCP_Temperature_t* data) {
+
+  data->temperature = 0;
+}
+
+//}
+
+void hton_LLCP_TemperatureMsg_t(LLCP_TemperatureMsg_t* msg) {
+
+  hton_LLCP_Temperature_t(&msg->payload);
+}
+
+void ntoh_LLCP_TemperatureMsg_t(LLCP_TemperatureMsg_t* msg) {
+
+  ntoh_LLCP_Temperature_t(&msg->payload);
+}
+
+void init_LLCP_TemperatureMsg_t(LLCP_TemperatureMsg_t* msg) {
+
+  msg->message_id = LLCP_TEMPERATURE_MSG_ID;
+
+  init_LLCP_Temperature_t(&msg->payload);
+}
+
+//}
+
 /* LLCP_MinipixErrorMsg_t //{ */
 
 /* LLCP_MinipixError_t //{ */
@@ -584,6 +624,25 @@ void ntoh_LLCP_GetStatusReqMsg_t(LLCP_GetStatusReqMsg_t* msg) {
 void init_LLCP_GetStatusReqMsg_t(LLCP_GetStatusReqMsg_t* msg) {
 
   msg->message_id = LLCP_GET_STATUS_REQ_MSG_ID;
+}
+
+//}
+
+/* LLCP_GetTemperatureReqMsg_t //{ */
+
+void hton_LLCP_GetTemperatureReqMsg_t(LLCP_GetTemperatureReqMsg_t* msg) {
+
+  UNUSED(msg);
+}
+
+void ntoh_LLCP_GetTemperatureReqMsg_t(LLCP_GetTemperatureReqMsg_t* msg) {
+
+  UNUSED(msg);
+}
+
+void init_LLCP_GetTemperatureReqMsg_t(LLCP_GetTemperatureReqMsg_t* msg) {
+
+  msg->message_id = LLCP_GET_TEMPERATURE_REQ_MSG_ID;
 }
 
 //}

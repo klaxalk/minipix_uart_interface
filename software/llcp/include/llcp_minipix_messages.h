@@ -22,6 +22,8 @@ extern "C" {
 // status
 #define LLCP_STATUS_MSG_ID 10
 #define LLCP_GET_STATUS_REQ_MSG_ID 11
+#define LLCP_TEMPERATURE_MSG_ID 12
+#define LLCP_GET_TEMPERATURE_REQ_MSG_ID 13
 
 // frame-based measurement
 #define LLCP_FRAME_DATA_MSG_ID 20
@@ -58,7 +60,7 @@ extern "C" {
 
 /* definition of error IDs //{ */
 
-#define LLCP_MINIPIX_ERROR_COUNT 10 
+#define LLCP_MINIPIX_ERROR_COUNT 10
 extern const char* LLCP_MinipixErrors[LLCP_MINIPIX_ERROR_COUNT];
 
 #define LLCP_MINIPIX_ERROR_MEASUREMENT_FAILED 0
@@ -313,7 +315,7 @@ static_assert((sizeof(LLCP_FrameDataTerminatorMsg_t) > 255) == 0, "LLCP_FrameDat
 typedef struct __attribute__((packed))
 {
   uint16_t acquisition_time_ms;
-  uint8_t mode;
+  uint8_t  mode;
 } LLCP_MeasureFrameReq_t;
 
 /**
@@ -1087,6 +1089,110 @@ void ntoh_LLCP_GetStatusReqMsg_t(LLCP_GetStatusReqMsg_t* msg);
 void init_LLCP_GetStatusReqMsg_t(LLCP_GetStatusReqMsg_t* msg);
 
 static_assert((sizeof(LLCP_GetStatusReqMsg_t) > 255) == 0, "LLCP_GetStatusReqMsg_t is too large");
+
+//}
+
+/* LLCP_TemperatureMsg_t //{ */
+
+/* LLCP_Temperature_t //{ */
+
+/**
+ * @brief Message data for LLCP_TemperatureMsg_t
+ */
+typedef struct __attribute__((packed))
+{
+  int16_t temperature;
+} LLCP_Temperature_t;
+
+/**
+ * @brief host-to-network conversion for LLCP_Temperature_t
+ *
+ * @param data
+ */
+void hton_LLCP_Temperature_t(LLCP_Temperature_t* data);
+
+/**
+ * @brief network-to-host conversion for LLCP_Temperature_t
+ *
+ * @param data
+ */
+void ntoh_LLCP_Temperature_t(LLCP_Temperature_t* data);
+
+/**
+ * @brief "constructor" for LLCP_Temperature_t
+ *
+ * @param data
+ */
+void init_LLCP_Temperature_t(LLCP_Temperature_t* data);
+
+//}
+
+/**
+ * @brief LLCP Message for MiniPIX temperature.
+ */
+typedef struct __attribute__((packed))
+{
+  uint8_t            message_id;
+  LLCP_Temperature_t payload;
+} LLCP_TemperatureMsg_t;
+
+/**
+ * @brief host-to-network conversion for LLCP_TemperatureMsg_t
+ *
+ * @param msg
+ */
+void hton_LLCP_TemperatureMsg_t(LLCP_TemperatureMsg_t* msg);
+
+/**
+ * @brief network-to-host conversion for LLCP_TemperatureMsg_t
+ *
+ * @param msg
+ */
+void ntoh_LLCP_TemperatureMsg_t(LLCP_TemperatureMsg_t* msg);
+
+/**
+ * @brief "constructor" for LLCP_TemperatureMsg_t
+ *
+ * @param msg
+ */
+void init_LLCP_TemperatureMsg_t(LLCP_TemperatureMsg_t* msg);
+
+static_assert((sizeof(LLCP_TemperatureMsg_t) > 255) == 0, "LLCP_TemperatureMsg_t is too large");
+
+//}
+
+/* LLCP_GetTemperatureReqMsg_t //{ */
+
+/**
+ * @brief LLCP Message for requesting a MiniPIX temperature.
+ */
+typedef struct __attribute__((packed))
+{
+  uint8_t message_id;
+} LLCP_GetTemperatureReqMsg_t;
+
+/**
+ * @brief host-to-network conversion for LLCP_GetTemperatureReqMsg_t
+ *
+ * @param msg
+ */
+void hton_LLCP_GetTemperatureReqMsg_t(LLCP_GetTemperatureReqMsg_t* msg);
+
+/**
+ * @brief network-to-host conversion for LLCP_GetTemperatureReqMsg_t
+ *
+ * @param msg
+ */
+void ntoh_LLCP_GetTemperatureReqMsg_t(LLCP_GetTemperatureReqMsg_t* msg);
+
+/**
+ * @brief "constructor" for LLCP_GetTemperatureReqMsg_t
+ *
+ * @param msg
+ */
+void init_LLCP_GetTemperatureReqMsg_t(LLCP_GetTemperatureReqMsg_t* msg);
+
+static_assert((sizeof(LLCP_GetTemperatureReqMsg_t) > 255) == 0, "LLCP_GetTemperatureReqMsg_t is too large");
 
 //}
 

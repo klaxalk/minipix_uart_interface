@@ -29,6 +29,13 @@ void gatherer_receiveCharCallback(Gatherer_Handler_t *gatherer_handler, const ui
         break;
       };
 
+      case LLCP_GET_TEMPERATURE_REQ_MSG_ID: {
+
+        mui_getTemperature(gatherer_handler->mui_handler_ptr_);
+
+        break;
+      };
+
       case LLCP_PWR_REQ_MSG_ID: {
 
         LLCP_PwrReqMsg_t *msg = (LLCP_PwrReqMsg_t *)&message_in;
@@ -104,7 +111,7 @@ void gatherer_receiveCharCallback(Gatherer_Handler_t *gatherer_handler, const ui
       case LLCP_ACK_MSG_ID: {
 
         // load up the message and convert it to our endian
-        LLCP_AckMsg_t* msg = (LLCP_AckMsg_t*)message_in;
+        LLCP_AckMsg_t *msg = (LLCP_AckMsg_t *)message_in;
         ntoh_LLCP_AckMsg_t(msg);
 
         mui_sendAck(gatherer_handler->mui_handler_ptr_, msg);
@@ -198,6 +205,26 @@ void gatherer_processStatus(Gatherer_Handler_t *gatherer_handler, const LLCP_Sta
 
   // convert it to the network endian
   hton_LLCP_StatusMsg_t(&msg);
+
+  uint16_t n_bytes = llcp_prepareMessage((uint8_t *)&msg, sizeof(msg), gatherer_handler->tx_buffer);
+  gatherer_handler->fcns.sendString(gatherer_handler->tx_buffer, n_bytes);
+}
+
+//}
+
+/* gatherer_processTemperature() //{ */
+
+void gatherer_processTemperature(Gatherer_Handler_t *gatherer_handler, const LLCP_Temperature_t *data) {
+
+  // create the message
+  LLCP_TemperatureMsg_t msg;
+  init_LLCP_TemperatureMsg_t(&msg);
+
+  // fill in the payload
+  msg.payload = *data;
+
+  // convert it to the network endian
+  hton_LLCP_TemperatureMsg_t(&msg);
 
   uint16_t n_bytes = llcp_prepareMessage((uint8_t *)&msg, sizeof(msg), gatherer_handler->tx_buffer);
   gatherer_handler->fcns.sendString(gatherer_handler->tx_buffer, n_bytes);

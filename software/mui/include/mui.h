@@ -72,11 +72,19 @@ typedef void (*mui_processStatus_t)(const LLCP_Status_t *status_data);
 
 /**
  * @brief Function pointer to user implementation of callback to process
+ * incoming Temperature message.
+ *
+ * @param pointer to the structure with the data
+ */
+typedef void (*mui_processTemperature_t)(const LLCP_Temperature_t *temperature_data);
+
+/**
+ * @brief Function pointer to user implementation of callback to process
  * incoming Ack message.
  *
  * @param pointer to the structure with the data
  */
-typedef void (*mui_processAck_t)(const LLCP_Ack_t *status_data);
+typedef void (*mui_processAck_t)(const LLCP_Ack_t *ack_data);
 
 /**
  * @brief Function pointer to user implementation of callback to process
@@ -107,6 +115,7 @@ typedef struct
   mui_processFrameDataTerminator_t processFrameDataTerminator;
   mui_processStreamData_t          processStreamData;
   mui_processStatus_t              processStatus;
+  mui_processTemperature_t         processTemperature;
   mui_processAck_t                 processAck;
   mui_processMinipixError_t        processMinipixError;
   mui_sleepHW_t                    sleepHW;
@@ -173,7 +182,7 @@ void mui_measureStream(MUI_Handler_t *mui_handler, const uint16_t duty_cycle);
  * @param mui_handler
  * @param threshold
  */
-void mui_setThreshold(MUI_Handler_t* mui_handler, const uint16_t threshold_coarse, const uint16_t threshold_fine);
+void mui_setThreshold(MUI_Handler_t *mui_handler, const uint16_t threshold_coarse, const uint16_t threshold_fine);
 
 /**
  * @brief Command to set configuration preset
@@ -207,6 +216,16 @@ void mui_updatePixelMask(MUI_Handler_t *mui_handler, LLCP_UpdatePixelMaskReq_t *
  * @param mui_handle
  */
 void mui_getStatus(MUI_Handler_t *mui_handle);
+
+/**
+ * @brief Command to get the temperature of the MinixPIX HW. As a result,
+ * the method
+ *                          processTemperature()
+ * will get called.
+ *
+ * @param mui_handle
+ */
+void mui_getTemperature(MUI_Handler_t *mui_handle);
 
 // | ------------- UART communication with MiniPIX ------------ |
 

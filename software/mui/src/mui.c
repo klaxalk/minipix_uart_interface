@@ -184,6 +184,24 @@ void mui_getStatus(MUI_Handler_t* mui_handler) {
 
 //}
 
+/* mui_getTemperature() //{ */
+
+void mui_getTemperature(MUI_Handler_t* mui_handler) {
+
+  // create the message
+  LLCP_GetTemperatureReqMsg_t msg;
+  init_LLCP_GetTemperatureReqMsg_t(&msg);
+
+  // convert to network endian
+  hton_LLCP_GetTemperatureReqMsg_t(&msg);
+
+  uint16_t n_bytes = llcp_prepareMessage((uint8_t*)&msg, sizeof(msg), mui_handler->tx_buffer);
+
+  mui_handler->fcns.sendString(mui_handler->tx_buffer, n_bytes);
+}
+
+//}
+
 // | ------------- UART communication with MiniPIX ------------ |
 
 /* mui_receiveCharCallback() //{ */
