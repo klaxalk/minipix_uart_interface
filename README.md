@@ -29,6 +29,7 @@ HW diagram of the Linux Dummy<->STM32F4 example<->Gatherer.
 |--------------------------------|--------------------------------------------|------------------------|------------------------------------------------|
 | `mui_pwr()`                    | turns on/off the TPX3 detector             | 0/1                    | ack                                            |
 | `mui_getStatus()`              | gets housekeeping data from MiniPIX        | -                      | a string of text, possibly with numeric values |
+| `mui_getTemperature()`         | gets the MiniPIX's temperature             | -                      | int16t (interpretation TBD)                    |
 | `mui_measureFrame()`           | requests frame acquisition                 | acquisition time       | packetized frame                               |
 | `mui_updatePixelMask()`        | set pixel mask                             | pixel coordinates, 1/0 | ack                                            |
 | `mui_setThreshold()`           | set energy threshold, mostly for debugging | threshold              | ack                                            |
