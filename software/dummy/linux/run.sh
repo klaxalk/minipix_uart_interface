@@ -6,4 +6,4 @@ MY_PATH=`( cd "$MY_PATH" && pwd )`
 
 cd $MY_PATH
 
-./build/minipix_dummy /tmp/ttyS0 921600 1
+./build/minipix_dummy /tmp/ttyS0 921600 1 ./../../vzlusat1-timepix-data/data
