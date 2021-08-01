@@ -14,11 +14,11 @@ int main(int argc, char *argv[]) {
   if (argc == 7) {
     serial_port_minipix         = argv[1];
     baud_rate_minipix           = atoi(argv[2]);
-    serial_port_minipix_virtual = argv[3];
+    serial_port_minipix_virtual = atoi(argv[3]);
 
     serial_port_gatherer         = argv[4];
     baud_rate_gatherer           = atoi(argv[5]);
-    serial_port_gatherer_virtual = argv[6];
+    serial_port_gatherer_virtual = atoi(argv[6]);
 
     printf("loaded params:\n");
     printf("minipix: %s, %d, %s\n", serial_port_minipix.c_str(), baud_rate_minipix, serial_port_minipix_virtual ? "VIRTUAL" : "REAL");

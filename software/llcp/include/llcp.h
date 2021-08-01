@@ -15,7 +15,7 @@ extern "C" {
 // ASCII characters, which do not spooke serial line drivers. It is also
 // much easier to debug, if all the data is human-readible.
 #ifndef LLCP_COMM_HEXADECIMAL
-#define LLCP_COMM_HEXADECIMAL 1
+#define LLCP_COMM_HEXADECIMAL 0
 #endif
 
 // should we send '\n' after each packet?
