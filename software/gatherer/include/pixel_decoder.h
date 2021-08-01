@@ -21,15 +21,15 @@ extern "C" {
 
 void decodePixelData(uint8_t* data, const uint8_t col_shift_num, const bool itot);
 
-extern int16_t LUT_EVENT[16];
+extern const int16_t LUT_EVENT[16];
 
-extern uint16_t LUT_ITOT[16384];
+extern const uint16_t LUT_ITOT[16384];
 
-extern uint16_t LUT_TOA[16384];
+extern const uint16_t LUT_TOA[16384];
 
-extern uint16_t LUT_TOT[1024];
+extern const uint16_t LUT_TOT[1024];
 
-extern uint8_t LUT_COLSHIFTS[1280];
+extern const uint8_t LUT_COLSHIFTS[1280];
 
 #ifdef __cplusplus
 }
