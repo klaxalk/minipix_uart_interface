@@ -67,7 +67,7 @@ private:
   std::thread thread_plot_;
   void        threadPlot(void);
 
-  std::atomic<bool> measuring_frame_;
+  bool measuring_frame_;
 
   std::atomic<bool> initialized_ = false;
 
@@ -305,9 +305,9 @@ void Gatherer::threadMain(void) {
               ntoh_LLCP_FrameDataTerminatorMsg_t(msg);
               LLCP_FrameDataTerminator_t* terminator = (LLCP_FrameDataTerminator_t*)&msg->payload;
 
-              printf("received frame data terminator: frame id %d, packet count: %d\n", terminator->frame_id, terminator->n_packets);
-
               measuring_frame_ = false;
+
+              printf("received frame data terminator: frame id %d, packet count: %d\n", terminator->frame_id, terminator->n_packets);
 
               sendAck(true);
 
@@ -493,8 +493,10 @@ void Gatherer::measureFrame(const uint16_t& acquisition_time_ms) {
     serial_port_.sendCharArray(tx_buffer, n_bytes);
   }
 
-  while (measuring_frame_) {
-    std::this_thread::sleep_for(std::chrono::milliseconds(10));
+  while (bool(measuring_frame_)) {
+
+    printf("data readout in progress: %d\n", bool(measuring_frame_));
+    std::this_thread::sleep_for(std::chrono::milliseconds(1000));
   }
 }
 
@@ -657,33 +659,31 @@ int main(int argc, char* argv[]) {
 
   std::this_thread::sleep_for(std::chrono::milliseconds(3000));
 
-  printf("getting status\n");
+  /* gatherer.maskPixel(10, 20); */
 
-  gatherer.getStatus();
+  /* std::this_thread::sleep_for(std::chrono::milliseconds(100)); */
 
-  std::this_thread::sleep_for(std::chrono::milliseconds(100));
+  /* gatherer.setThreshold(333, 555); */
 
-  gatherer.getTemperature();
+  /* std::this_thread::sleep_for(std::chrono::milliseconds(100)); */
 
-  std::this_thread::sleep_for(std::chrono::milliseconds(100));
+  /* gatherer.setConfigurationPreset(2); */
 
-  gatherer.maskPixel(10, 20);
-
-  std::this_thread::sleep_for(std::chrono::milliseconds(100));
-
-  gatherer.setThreshold(333, 555);
-
-  std::this_thread::sleep_for(std::chrono::milliseconds(100));
-
-  gatherer.setConfigurationPreset(2);
-
-  std::this_thread::sleep_for(std::chrono::milliseconds(100));
+  /* std::this_thread::sleep_for(std::chrono::milliseconds(100)); */
 
   while (true) {
 
+    gatherer.getStatus();
+
+    std::this_thread::sleep_for(std::chrono::milliseconds(100));
+
+    gatherer.getTemperature();
+
+    std::this_thread::sleep_for(std::chrono::milliseconds(100));
+
     gatherer.measureFrame(1);
 
-    std::this_thread::sleep_for(std::chrono::milliseconds(10));
+    std::this_thread::sleep_for(std::chrono::milliseconds(1000));
   }
 
   gatherer.pwr(false);

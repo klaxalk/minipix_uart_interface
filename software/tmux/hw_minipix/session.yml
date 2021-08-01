@@ -11,5 +11,5 @@ windows:
       layout: even-vertical
       pre_window: echo pes
       panes:
-        - sleep 0.5; ./example_interface /dev/ttyUSB0 115200 0 /tmp/ttyS2 115200 1
+        - sleep 0.5; ./example_interface /dev/ttyUSB1 115200 0 /tmp/ttyS2 115200 1
         - sleep 1.0; ./gatherer /tmp/ttyS3 115200 1
