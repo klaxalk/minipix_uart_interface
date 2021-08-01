@@ -33,6 +33,15 @@ def convert_packet(data, colShiftNum, itot):
     print("tot: {}".format(tot))
     print("ftoa: {}".format(ftoa))
 
+
+print("len(LUT_EVENT): {}".format(len(LUT_EVENT)))
+print("len(LUT_ITOT): {}".format(len(LUT_ITOT)))
+print("len(LUT_TOA): {}".format(len(LUT_TOA)))
+print("len(LUT_TOT): {}".format(len(LUT_TOT)))
+print("len(LUT_COLSHIFT16): {}".format(len(LUT_COLSHIFT16)))
+print("len(LUT_COLSHIFT8): {}".format(len(LUT_COLSHIFT8)))
+print("len(LUT_COLSHIFT4): {}".format(len(LUT_COLSHIFT4)))
+
 # INSERT DATA - 6 bytes of payload
 data = []
 for i in range(0, 6):

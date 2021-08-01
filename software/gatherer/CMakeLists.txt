@@ -25,6 +25,8 @@ add_executable(gatherer
   src/llcp/llcp.c
   src/llcp/llcp_endian.c
   src/llcp/llcp_minipix_messages.c
+
+  src/pixel_decoder.c
 )
 
 target_link_libraries(gatherer

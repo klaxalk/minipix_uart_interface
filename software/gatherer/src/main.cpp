@@ -26,6 +26,8 @@
 
 #include <thread>
 
+#include <pixel_decoder.h>
+
 //}
 
 #define SERIAL_BUFFER_SIZE 2048
@@ -203,9 +205,13 @@ void Gatherer::threadMain(void) {
                 }
               }
 
+              image->mode = LLCP_TPX3_PXL_MODE_TOA_TOT;
+
               printf("received frame data, id %d, packet %d, mode %s, n_pixels %d\n", image->frame_id, image->packet_id, mode_str.c_str(), n_pixels);
 
               for (int pix = 0; pix < n_pixels; pix++) {
+
+                decodePixelData((uint8_t*)&image->pixel_data[pix], 4, false);
 
                 std::scoped_lock lock(mutex_cv_frames_);
 
@@ -217,7 +223,7 @@ void Gatherer::threadMain(void) {
                   float tot = float(((LLCP_PixelDataToAToT_t*)&image->pixel_data[pix])->tot);
                   float toa = float(((LLCP_PixelDataToAToT_t*)&image->pixel_data[pix])->toa);
 
-                  cv::Vec3f tot_color(0, 0, log2(tot));    // BGR
+                  cv::Vec3f tot_color(0, 0, tot);    // BGR
                   cv::Vec3f toa_color(0, pow(toa, 2), 0);  // BGR
 
                   frame_top.at<cv::Vec3f>(cv::Point(x, y)) = tot_color;
@@ -252,7 +258,7 @@ void Gatherer::threadMain(void) {
                 }
               }
 
-              sendAck(true);
+              /* sendAck(true); */
 
               break;
             };
@@ -671,19 +677,19 @@ int main(int argc, char* argv[]) {
 
   /* std::this_thread::sleep_for(std::chrono::milliseconds(100)); */
 
+  gatherer.getStatus();
+
+  std::this_thread::sleep_for(std::chrono::milliseconds(100));
+
+  gatherer.getTemperature();
+
+  std::this_thread::sleep_for(std::chrono::milliseconds(100));
+
   while (true) {
 
-    gatherer.getStatus();
+    gatherer.measureFrame(100);
 
     std::this_thread::sleep_for(std::chrono::milliseconds(100));
-
-    gatherer.getTemperature();
-
-    std::this_thread::sleep_for(std::chrono::milliseconds(100));
-
-    gatherer.measureFrame(1);
-
-    std::this_thread::sleep_for(std::chrono::milliseconds(1000));
   }
 
   gatherer.pwr(false);
