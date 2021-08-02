@@ -55,6 +55,13 @@ public:
   void setConfigurationPreset(const uint16_t& preset);
   void sendAck(bool ack);
 
+public:
+
+  bool measuring_frame_    = false;
+  bool waiting_for_ack_    = false;
+  bool waiting_for_tmp_    = false;
+  bool waiting_for_status_ = false;
+
 private:
   SerialPort serial_port_;
   std::mutex mutex_serial_port_;
@@ -68,8 +75,6 @@ private:
 
   std::thread thread_plot_;
   void        threadPlot(void);
-
-  bool measuring_frame_;
 
   std::atomic<bool> initialized_ = false;
 
@@ -217,17 +222,21 @@ void Gatherer::threadMain(void) {
 
                 /* if (image->mode == LLCP_TPX3_PXL_MODE_TOA_TOT) { */
 
-                  uint8_t x = ((LLCP_PixelDataToAToT_t*)&image->pixel_data[pix])->address % 256;
-                  uint8_t y = (((LLCP_PixelDataToAToT_t*)&image->pixel_data[pix])->address - x) / 256;
+                uint8_t x = ((LLCP_PixelDataToAToT_t*)&image->pixel_data[pix])->address % 256;
+                uint8_t y = (((LLCP_PixelDataToAToT_t*)&image->pixel_data[pix])->address - x) / 256;
 
-                  float tot = float(((LLCP_PixelDataToAToT_t*)&image->pixel_data[pix])->tot);
-                  float toa = float(((LLCP_PixelDataToAToT_t*)&image->pixel_data[pix])->toa);
+                float tot = float(((LLCP_PixelDataToAToT_t*)&image->pixel_data[pix])->tot);
+                float toa = float(((LLCP_PixelDataToAToT_t*)&image->pixel_data[pix])->toa);
 
-                  cv::Vec3f tot_color(0, 0, tot);    // BGR
-                  cv::Vec3f toa_color(0, pow(toa, 2), 0);  // BGR
+                cv::Vec3f tot_color(0, 0, 0);          // BGR
+                if (tot > 0) {
+                  tot_color.val[2] = log2(tot);
+                }
 
-                  frame_top.at<cv::Vec3f>(cv::Point(x, y)) = tot_color;
-                  frame_bot.at<cv::Vec3f>(cv::Point(x, y)) = toa_color;
+                cv::Vec3f toa_color(0, pow(toa, 2), 0);  // BGR
+
+                frame_top.at<cv::Vec3f>(cv::Point(x, y)) = tot_color;
+                frame_bot.at<cv::Vec3f>(cv::Point(x, y)) = toa_color;
 
                 /* } */
 
@@ -275,7 +284,7 @@ void Gatherer::threadMain(void) {
 
               printf("received stream data, n_pixels %d\n", n_pixels);
 
-              sendAck(true);
+              /* sendAck(true); */
 
               break;
             };
@@ -288,7 +297,9 @@ void Gatherer::threadMain(void) {
 
               printf("received status: boot count = %d, string: '%s'\n", status->boot_count, status->status_str);
 
-              sendAck(true);
+              waiting_for_status_ = false;
+
+              /* sendAck(true); */
 
               break;
             };
@@ -301,7 +312,9 @@ void Gatherer::threadMain(void) {
 
               printf("received temperature: %d deg\n", temperature->temperature);
 
-              sendAck(true);
+              /* sendAck(true); */
+
+              waiting_for_tmp_ = false;
 
               break;
             };
@@ -316,7 +329,7 @@ void Gatherer::threadMain(void) {
 
               printf("received frame data terminator: frame id %d, packet count: %d\n", terminator->frame_id, terminator->n_packets);
 
-              sendAck(true);
+              /* sendAck(true); */
 
               break;
             };
@@ -328,6 +341,8 @@ void Gatherer::threadMain(void) {
               LLCP_Ack_t* ack = (LLCP_Ack_t*)&msg->payload;
 
               printf("received ack: %s\n", ack->success ? "true" : "false");
+
+              waiting_for_ack_ = false;
 
               break;
             };
@@ -450,6 +465,12 @@ void Gatherer::getStatus(void) {
 
     serial_port_.sendCharArray(tx_buffer, n_bytes);
   }
+
+  waiting_for_status_ = true;
+
+  while (waiting_for_status_) {
+    std::this_thread::sleep_for(std::chrono::milliseconds(10));
+  }
 }
 
 //}
@@ -471,6 +492,12 @@ void Gatherer::getTemperature(void) {
     std::scoped_lock lock(mutex_serial_port_);
 
     serial_port_.sendCharArray(tx_buffer, n_bytes);
+  }
+
+  waiting_for_tmp_ = true;
+
+  while (waiting_for_tmp_) {
+    std::this_thread::sleep_for(std::chrono::milliseconds(10));
   }
 }
 
@@ -555,6 +582,13 @@ void Gatherer::pwr(const bool& state) {
 
     serial_port_.sendCharArray(tx_buffer, n_bytes);
   }
+
+  waiting_for_ack_ = true;
+
+  while (waiting_for_ack_) {
+    std::this_thread::sleep_for(std::chrono::milliseconds(10));
+  }
+
 }
 
 //}
@@ -660,11 +694,13 @@ int main(int argc, char* argv[]) {
 
   std::this_thread::sleep_for(std::chrono::milliseconds(100));
 
+  printf("getting status\n");
+
+  gatherer.getStatus();
+
   printf("powering on\n");
 
   gatherer.pwr(true);
-
-  std::this_thread::sleep_for(std::chrono::milliseconds(3000));
 
   /* gatherer.maskPixel(10, 20); */
 
@@ -678,13 +714,9 @@ int main(int argc, char* argv[]) {
 
   /* std::this_thread::sleep_for(std::chrono::milliseconds(100)); */
 
-  gatherer.getStatus();
-
-  std::this_thread::sleep_for(std::chrono::milliseconds(100));
+  printf("gettting temperature\n");
 
   gatherer.getTemperature();
-
-  std::this_thread::sleep_for(std::chrono::milliseconds(100));
 
   while (true) {
 
