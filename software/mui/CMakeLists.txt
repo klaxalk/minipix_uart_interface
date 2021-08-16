@@ -3,14 +3,16 @@ project(mui)
 
 set(CMAKE_EXPORT_COMPILE_COMMANDS ON)
 
-set(CMAKE_C_FLAGS "${CMAKE_C_FLAGS} -Wall -Wextra")
+add_definitions(-DLLCP_LITTLE_ENDIAN)
+
+add_definitions(-Wall)
+add_definitions(-Wextra)
+add_definitions(-Wpedantic)
 
 include_directories(
   include
   include/llcp
 )
-
-add_definitions(-DLLCP_LITTLE_ENDIAN)
 
 add_library(mui
   src/mui.c

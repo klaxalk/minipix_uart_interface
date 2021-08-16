@@ -216,7 +216,6 @@ void MinipixDummy::update(void) {
 
           printf("processing frame data request from the queue\n");
 
-
           getFrameData();
 
           break;

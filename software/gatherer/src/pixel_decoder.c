@@ -1608,7 +1608,7 @@ void decodePixelData(uint8_t* data, const uint8_t col_shift_num, const bool itot
 
   } else {
 
-    if (toa >= 0 && toa < MAX_LUT_TOA) {
+    if (toa < MAX_LUT_TOA) {
       toa = LUT_TOA[toa];
     } else {
       toa = WRONG_LUT_TOA;

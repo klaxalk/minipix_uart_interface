@@ -10,13 +10,14 @@ set(STM32_TOOLCHAIN_PATH /usr/bin)
 set(STM32_CUBE_F4_PATH /usr/local/STM32Cube_FW_F4_V1.26.0)
 set(STM32_TARGET_TRIPLET arm-none-eabi)
 
-set(CMAKE_C_FLAGS "${CMAKE_C_FLAGS} -g -O0 -Wall -Wextra")
-# set(CMAKE_C_FLAGS "${CMAKE_C_FLAGS} -O3 -Wall -Wextra")
+add_definitions(-DLLCP_LITTLE_ENDIAN)
+
+add_definitions(-Wall)
+add_definitions(-Wextra)
+add_definitions(-Wpedantic)
 
 find_package(CMSIS COMPONENTS STM32F4 REQUIRED)
 find_package(HAL COMPONENTS STM32F4 RCC UART GPIO DMA CORTEX REQUIRED)
-
-add_definitions(-DLLCP_LITTLE_ENDIAN)
 
 include_directories(
   include

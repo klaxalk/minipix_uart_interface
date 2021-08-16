@@ -223,14 +223,14 @@ void hton_LLCP_StreamData_t(LLCP_StreamData_t* data) {
   for (uint8_t i = 0; i < data->n_pixels; i++) {
     hton_LLCP_PixelData_t(&(data->pixel_data[i]));
   }
-};
+}
 
 void ntoh_LLCP_StreamData_t(LLCP_StreamData_t* data) {
 
   for (uint8_t i = 0; i < data->n_pixels; i++) {
     ntoh_LLCP_PixelData_t(&(data->pixel_data[i]));
   }
-};
+}
 
 void init_LLCP_StreamData_t(LLCP_StreamData_t* data) {
 
