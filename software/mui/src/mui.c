@@ -60,47 +60,6 @@ void mui_measureFrame(MUI_Handler_t* mui_handler, const uint16_t acquisition_tim
 
 //}
 
-// | ----------------------- stream mode ---------------------- |
-
-/* mui_measureStream() //{ */
-
-void mui_measureStream(MUI_Handler_t* mui_handler, const uint16_t duty_cycle) {
-
-  // create the message
-  LLCP_MeasureStreamReqMsg_t msg;
-  init_LLCP_MeasureStreamReqMsg_t(&msg);
-
-  // fill in the payload
-  msg.payload.duty_cycle_ms = duty_cycle;
-
-  // convert to network endian
-  hton_LLCP_MeasureStreamReqMsg_t(&msg);
-
-  uint16_t n_bytes = llcp_prepareMessage((uint8_t*)&msg, sizeof(msg), mui_handler->tx_buffer);
-
-  mui_handler->fcns.sendString(mui_handler->tx_buffer, n_bytes);
-}
-
-//}
-
-/* mui_flushBuffer() //{ */
-
-void mui_flushBuffer(MUI_Handler_t* mui_handler) {
-
-  // create the message
-  LLCP_FlushBufferReqMsg_t msg;
-  init_LLCP_FlushBufferReqMsg_t(&msg);
-
-  // convert to network endian
-  hton_LLCP_FlushBufferReqMsg_t(&msg);
-
-  uint16_t n_bytes = llcp_prepareMessage((uint8_t*)&msg, sizeof(msg), mui_handler->tx_buffer);
-
-  mui_handler->fcns.sendString(mui_handler->tx_buffer, n_bytes);
-}
-
-//}
-
 // | ------------------------- masking ------------------------ |
 
 /* mui_updatePixelMask //{ */
@@ -245,18 +204,6 @@ void mui_receiveCharCallback(MUI_Handler_t* mui_handler, const uint8_t byte_in) 
 
         // call the user's callback
         mui_handler->fcns.processFrameDataTerminator(&(msg->payload));
-
-        break;
-      };
-
-      case LLCP_STREAM_DATA_MSG_ID: {
-
-        // load up the message and convert it to our endian
-        LLCP_StreamDataMsg_t* msg = (LLCP_StreamDataMsg_t*)message_in;
-        ntoh_LLCP_StreamDataMsg_t(msg);
-
-        // call the user's callback
-        mui_handler->fcns.processStreamData(&(msg->payload));
 
         break;
       };

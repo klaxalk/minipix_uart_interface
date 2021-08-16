@@ -127,55 +127,6 @@ void MinipixDummy::testStripe() {
 
 //}
 
-/* continuousStreamMeasurement() //{ */
-
-void MinipixDummy::continuousStreamMeasurement() {
-
-  uint16_t duty_cycle = stream_measurement_duty_cycle;  // TODO mutex
-
-  printf("starting stream acquisition (duty %d/1000)\n", duty_cycle);
-
-  uint16_t sleep_time;
-  if (duty_cycle < 1000) {
-    sleep_time = 1000 - duty_cycle;
-  } else {
-    sleep_time = 0;
-  }
-
-  sleep(sleep_time);
-
-  for (int j = 0; j < duty_cycle; j++) {
-
-    uint8_t n_pixels = 31;
-
-    // create the message
-    LLCP_StreamDataMsg_t image_data;
-    init_LLCP_StreamDataMsg_t(&image_data);
-
-    // | ------------------- fill in the payload ------------------ |
-
-    image_data.payload.n_pixels = n_pixels;
-
-    for (int i = 0; i < n_pixels; i++) {
-      LLCP_PixelDataToAToT_t *pixel = (LLCP_PixelDataToAToT_t *)&image_data.payload.pixel_data[i];
-      pixel->address                = j + j * 256;
-      pixel->tot                    = j;
-      pixel->toa                    = j;
-      pixel->ftoa                   = j;
-    }
-
-    // convert to network endian
-    hton_LLCP_StreamDataMsg_t(&image_data);
-
-    uint16_t n_bytes = llcp_prepareMessage((uint8_t *)&image_data, sizeof(image_data), tx_buffer_);
-    sendMessageNoAck(tx_buffer_, n_bytes); // TODO: should be with ack
-
-    sleep(1);
-  }
-}
-
-//}
-
 /* update() //{ */
 
 void MinipixDummy::update(void) {
@@ -222,25 +173,6 @@ void MinipixDummy::update(void) {
           break;
         };
 
-        case LLCP_MEASURE_STREAM_REQ_MSG_ID: {
-
-          printf("processing stream measurement request from the queue\n");
-
-          LLCP_MeasureStreamReqMsg_t *msg = (LLCP_MeasureStreamReqMsg_t *)&message_in;
-          ntoh_LLCP_MeasureStreamReqMsg_t(msg);
-
-          LLCP_MeasureStreamReq_t *req = (LLCP_MeasureStreamReq_t *)(&msg->payload);
-
-          if (powered_) {
-            stream_measurement_duty_cycle = req->duty_cycle_ms;
-            stream_measurement_on_        = true;
-          } else {
-            printf("cannot do stream measurement, not powered!\n");
-          }
-
-          break;
-        };
-
         default: {
           break;
         };
@@ -248,11 +180,7 @@ void MinipixDummy::update(void) {
     }
   }
 
-  if (stream_measurement_on_) {
-    continuousStreamMeasurement();
-  } else {
-    sleep(5);
-  }
+  sleep(5);
 }
 
 //}
@@ -285,17 +213,6 @@ void MinipixDummy::serialDataCallback(const uint8_t *bytes_in, const uint16_t &l
         case LLCP_GET_FRAME_DATA_REQ_MSG_ID: {
 
           printf("received frame data request\n");
-
-          std::scoped_lock lock(mutex_message_buffer_);
-
-          message_buffer_.push_back(*message_in);
-
-          break;
-        };
-
-        case LLCP_MEASURE_STREAM_REQ_MSG_ID: {
-
-          printf("received stream measurement request\n");
 
           std::scoped_lock lock(mutex_message_buffer_);
 

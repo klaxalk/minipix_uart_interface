@@ -32,12 +32,6 @@ extern "C" {
 #define LLCP_GET_FRAME_DATA_REQ_MSG_ID 23
 #define LLCP_FRAME_MEASUREMENT_FINISHED_MSG_ID 24
 
-// stream-based measurement
-#define LLCP_STREAM_DATA_MSG_ID 31
-#define LLCP_MEASURE_STREAM_REQ_MSG_ID 32
-#define LLCP_STOP_STREAM_REQ_MSG_ID 33
-#define LLCP_FLUSH_BUFFER_REQ_MSG_ID 34
-
 // ack
 #define LLCP_ACK_MSG_ID 40
 
@@ -76,7 +70,7 @@ extern const char* LLCP_MinipixErrors[LLCP_MINIPIX_ERROR_COUNT];
 
 //}
 
-// | ------- Pixel data, common to frame and stream mode ------ |
+// | ----------------------- Pixel data ----------------------- |
 
 /* LLCP_PixelData_t //{ */
 
@@ -442,186 +436,6 @@ void ntoh_LLCP_GetFrameDataReqMsg_t(LLCP_GetFrameDataReqMsg_t* msg);
 void init_LLCP_GetFrameDataReqMsg_t(LLCP_GetFrameDataReqMsg_t* msg);
 
 static_assert((sizeof(LLCP_GetFrameDataReqMsg_t) > 255) == 0, "LLCP_GetFrameDataReqMsg_t is too large");
-
-//}
-
-// | ---------- Stream data (continuous event stream) --------- |
-// for consideration
-
-/* LLCP_StreamDataMsg_t //{ */
-
-/* struct LLCP_StreamData_t //{ */
-
-#define LLCP_STREAM_DATA_N_PIXELS 41
-
-/**
- * @brief Message data for LLCP_StreamDataMsg_t
- */
-typedef struct __attribute__((packed))
-{
-  uint8_t          full_buffer;  // 1 if MiniPIX has a full buffer
-  uint8_t          n_pixels;     // how many pixels are filled in
-  LLCP_PixelData_t pixel_data[LLCP_STREAM_DATA_N_PIXELS];
-} LLCP_StreamData_t;
-
-/**
- * @brief host-to-network conversion for LLCP_StreamData_t
- *
- * @param data
- */
-void hton_LLCP_StreamData_t(LLCP_StreamData_t* data);
-
-/**
- * @brief network-to-host conversion for LLCP_StreamData_t
- *
- * @param data
- */
-void ntoh_LLCP_StreamData_t(LLCP_StreamData_t* data);
-
-/**
- * @brief "constructor" for LLCP_StreamData_t
- *
- * @param data
- */
-void init_LLCP_StreamData_t(LLCP_StreamData_t* data);
-
-//}
-
-/**
- * @brief LLCP Message for sending image stream.
- */
-typedef struct __attribute__((packed))
-{
-  uint8_t           message_id;
-  LLCP_StreamData_t payload;
-} LLCP_StreamDataMsg_t;
-
-/**
- * @brief host-to-network conversion for LLCP_StreamDataMsg_t
- *
- * @param data
- */
-void hton_LLCP_StreamDataMsg_t(LLCP_StreamDataMsg_t* msg);
-
-/**
- * @brief network-to-host conversion for LLCP_StreamDataMsg_t
- *
- * @param data
- */
-void ntoh_LLCP_StreamDataMsg_t(LLCP_StreamDataMsg_t* msg);
-
-/**
- * @brief "constructor" for LLCP_StreamDataMsg_t
- *
- * @param data
- */
-void init_LLCP_StreamDataMsg_t(LLCP_StreamDataMsg_t* msg);
-
-static_assert((sizeof(LLCP_StreamDataMsg_t) > 255) == 0, "LLCP_StreamDataMsg_t is too large");
-
-//}
-
-/* LLCP_MeasureStreamReqMsg_t //{ */
-
-/* LLCP_MeasureStreamReq_t //{ */
-
-/**
- * @brief Message data for LLCP_MeasureStreamReq_t
- */
-typedef struct __attribute__((packed))
-{
-  uint16_t duty_cycle_ms;  // duty cycle in ms per second, TOOD possible?
-} LLCP_MeasureStreamReq_t;
-
-/**
- * @brief host-to-network conversion for LLCP_MeasureStreamReq_t
- *
- * @param data
- */
-void hton_LLCP_MeasureStreamReq_t(LLCP_MeasureStreamReq_t* data);
-
-/**
- * @brief network-to-host conversion for LLCP_MeasureStreamReq_t
- *
- * @param data
- */
-void ntoh_LLCP_MeasureStreamReq_t(LLCP_MeasureStreamReq_t* data);
-
-/**
- * @brief "constructor" for LLCP_MeasureStreamReq_t
- *
- * @param data
- */
-void init_LLCP_MeasureStreamReq_t(LLCP_MeasureStreamReq_t* data);
-
-//}
-
-/**
- * @brief LLCP Message for requesting of measurement in the stream mode.
- */
-typedef struct __attribute__((packed))
-{
-  uint8_t                 message_id;
-  LLCP_MeasureStreamReq_t payload;
-} LLCP_MeasureStreamReqMsg_t;
-
-/**
- * @brief host-to-network conversion for LLCP_MeasureStreamReqMsg_t
- *
- * @param msg
- */
-void hton_LLCP_MeasureStreamReqMsg_t(LLCP_MeasureStreamReqMsg_t* msg);
-
-/**
- * @brief network-to-host conversion for LLCP_MeasureStreamReqMsg_t
- *
- * @param msg
- */
-void ntoh_LLCP_MeasureStreamReqMsg_t(LLCP_MeasureStreamReqMsg_t* msg);
-
-/**
- * @brief "constructor" for LLCP_MeasureStreamReqMsg_t
- *
- * @param msg
- */
-void init_LLCP_MeasureStreamReqMsg_t(LLCP_MeasureStreamReqMsg_t* msg);
-
-static_assert((sizeof(LLCP_MeasureStreamReqMsg_t) > 255) == 0, "LLCP_MeasureStreamReqMsg_t is too large");
-
-//}
-
-/* LLCP_FlushBufferReqMsg_t //{ */
-
-/**
- * @brief LLCP Message for requesting of flushing the event buffer in the MiniPIX
- */
-typedef struct __attribute__((packed))
-{
-  uint8_t message_id;
-} LLCP_FlushBufferReqMsg_t;
-
-/**
- * @brief host-to-network conversion for LLCP_FlushBufferReqMsg_t
- *
- * @param msg
- */
-void hton_LLCP_FlushBufferReqMsg_t(LLCP_FlushBufferReqMsg_t* msg);
-
-/**
- * @brief network-to-host conversion for LLCP_FlushBufferReqMsg_t
- *
- * @param msg
- */
-void ntoh_LLCP_FlushBufferReqMsg_t(LLCP_FlushBufferReqMsg_t* msg);
-
-/**
- * @brief "constructor" for LLCP_FlushBufferReqMsg_t
- *
- * @param data
- */
-void init_LLCP_FlushBufferReqMsg_t(LLCP_FlushBufferReqMsg_t* msg);
-
-static_assert((sizeof(LLCP_FlushBufferReqMsg_t) > 255) == 0, "LLCP_FlushBufferReqMsg_t is too large");
 
 //}
 

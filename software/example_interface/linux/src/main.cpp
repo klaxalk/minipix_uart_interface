@@ -40,7 +40,6 @@ int main(int argc, char *argv[]) {
   mui_handler.fcns.sleepHW                    = &mui_linux_sleepHW;
   mui_handler.fcns.processFrameData           = &mui_linux_processFrameData;
   mui_handler.fcns.processFrameDataTerminator = &mui_linux_processFrameDataTerminator;
-  mui_handler.fcns.processStreamData          = &mui_linux_processStreamData;
   mui_handler.fcns.processStatus              = &mui_linux_processStatus;
   mui_handler.fcns.processTemperature         = &mui_linux_processTemperature;
   mui_handler.fcns.processAck                 = &mui_linux_processAck;

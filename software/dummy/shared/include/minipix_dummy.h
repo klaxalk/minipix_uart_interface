@@ -43,16 +43,11 @@ private:
   // send an image with a diagonal test stripe
   void testStripe();
 
-  void continuousStreamMeasurement();
-
   void              clearToSend(void);
   std::atomic<bool> clear_to_send_ = true;
 
   std::list<LLCP_Message_t> message_buffer_;
   std::mutex                mutex_message_buffer_;
-
-  std::atomic<bool> stream_measurement_on_        = false;
-  uint16_t          stream_measurement_duty_cycle = 0;
 
   std::atomic<bool> powered_ = false;
 };

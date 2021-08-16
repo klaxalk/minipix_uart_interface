@@ -56,14 +56,6 @@ typedef void (*mui_processFrameDataTerminator_t)(const LLCP_FrameDataTerminator_
 
 /**
  * @brief Function pointer to user implementation of callback to process
- * incoming Stream data.
- *
- * @param pointer to the structure with the data
- */
-typedef void (*mui_processStreamData_t)(const LLCP_StreamData_t *image_data);
-
-/**
- * @brief Function pointer to user implementation of callback to process
  * incoming Status message.
  *
  * @param pointer to the structure with the data
@@ -113,7 +105,6 @@ typedef struct
   mui_sendString_t                 sendString;
   mui_processFrameData_t           processFrameData;
   mui_processFrameDataTerminator_t processFrameDataTerminator;
-  mui_processStreamData_t          processStreamData;
   mui_processStatus_t              processStatus;
   mui_processTemperature_t         processTemperature;
   mui_processAck_t                 processAck;
@@ -165,18 +156,6 @@ void mui_pwr(MUI_Handler_t *mui_handler, const bool state);
 void mui_measureFrame(MUI_Handler_t *mui_handler, const uint16_t acquisition_time);
 
 /**
- * @brief Command to start measurement in the form of the event stream.
- * As a result, packets with event data will be comming until stopped
- * with the mui_stopStream() function. The incoming data will cause the
- *                        processStreamData()
- * to be called.
- *
- * @param mui_handler
- * @param duty_cycle how many milliseconds in a second should the stream be outputed.
- */
-void mui_measureStream(MUI_Handler_t *mui_handler, const uint16_t duty_cycle);
-
-/**
  * @brief Command to set energy threshold
  *
  * @param mui_handler
@@ -191,13 +170,6 @@ void mui_setThreshold(MUI_Handler_t *mui_handler, const uint16_t threshold_coars
  * @param preset
  */
 void mui_setConfigurationPreset(MUI_Handler_t *mui_handler, const uint8_t preset);
-
-/**
- * @brief Command to flush the stream buffer in the MiniPIX.
- *
- * @param mui_handler
- */
-void mui_flushBuffer(MUI_Handler_t *mui_handler);
 
 /**
  * @brief Command to update a mask of a particular pixel.

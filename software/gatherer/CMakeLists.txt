@@ -21,14 +21,15 @@ include_directories(
 )
 
 add_executable(gatherer
+
   src/main.cpp
+  src/gatherer.cpp
+  src/pixel_decoder.c
   src/serial_port.cpp
 
   src/llcp/llcp.c
   src/llcp/llcp_endian.c
   src/llcp/llcp_minipix_messages.c
-
-  src/pixel_decoder.c
 )
 
 target_link_libraries(gatherer
