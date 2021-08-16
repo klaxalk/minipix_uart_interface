@@ -1601,12 +1601,13 @@ const uint16_t LUT_COLSHIFTS[1280] = {
  */
 void encodePixelData(uint8_t* data, const uint8_t col_shift_num, const bool itot) {
 
-  uint16_t toa  = ((LLCP_PixelDataToAToT_t*)data)->toa;
-  uint16_t tot  = ((LLCP_PixelDataToAToT_t*)data)->tot;
-  uint16_t ftoa = ((LLCP_PixelDataToAToT_t*)data)->ftoa;
-  uint16_t idx  = ((LLCP_PixelDataToAToT_t*)data)->address;
-  uint16_t x    = idx % 256;
-  uint16_t y    = idx / 256;
+  uint16_t toa       = ((LLCP_PixelDataToAToT_t*)data)->toa;
+  uint16_t tot       = ((LLCP_PixelDataToAToT_t*)data)->tot;
+  uint16_t ftoa      = ((LLCP_PixelDataToAToT_t*)data)->ftoa;
+  uint16_t idx       = ((LLCP_PixelDataToAToT_t*)data)->address;
+  uint8_t  mode_mask = ((LLCP_PixelDataToAToT_t*)data)->mode_mask;
+  uint16_t x         = idx % 256;
+  uint16_t y         = idx / 256;
 
   tot = LUT_TOT[tot];
 
@@ -1640,8 +1641,10 @@ void encodePixelData(uint8_t* data, const uint8_t col_shift_num, const bool itot
   address = address | (pix & 0x0007);
 
   data[0] = 0;
+  // 0000 0000 0000 XXXX -> 0000 0000 XXXX 0000
+  data[0] = data[0] | (mode_mask << 4);
   // XXXX 0000 0000 0000 -> 0000 0000 0000 XXXX
-  data[0] = (address & 0xF000) >> 12;
+  data[0] = data[0] | ((address & 0xF000) >> 12);
 
   data[1] = 0;
   // 0000 XXXX XXXX 0000 -> 0000 0000 XXXX XXXX
