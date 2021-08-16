@@ -171,7 +171,11 @@ void Gatherer::threadPlot(void) {
     /* cv::subtract(cv::Scalar::all(1.0), frame_top_plot, frame_top_plot); */
     /* cv::subtract(cv::Scalar::all(1.0), frame_bot_plot, frame_bot_plot); */
 
-    ShowManyImages<CV_32FC3>("frame", 2, frame_top_plot, frame_bot_plot);
+    std::vector<cv::Mat> images;
+    images.push_back(frame_top_plot);
+    images.push_back(frame_bot_plot);
+
+    showManyImages<CV_32FC3>("frame", images);
 
     cv::waitKey(30);
   }

@@ -6,7 +6,8 @@
 using namespace cv;
 using namespace std;
 
-/*Function///////////////////////////////////////////////////////////////
+/*
+Function///////////////////////////////////////////////////////////////
 
 Name:       ShowManyImages
 
@@ -18,7 +19,7 @@ image in a single window using Intel OpenCV
 Parameters:
 
 string title: Title of the window to be displayed
-int    nArgs: Number of images to be displayed
+int    n_images: Number of images to be displayed
 Mat    img1: First Mat, which contains the first image
 ...
 Mat    imgN: First Mat, which contains the Nth image
@@ -56,10 +57,13 @@ Chennai, India.
 cegparamesh[at]gmail[dot]com
 
 ...
-///////////////////////////////////////////////////////////////////////*/
+///////////////////////////////////////////////////////////////////////
+*/
 
 template <int PixelFormat>
-void ShowManyImages(const string &title, int nArgs, ...) {
+void showManyImages(const string &title, const std::vector<cv::Mat> &images) {
+
+  int n_images = images.size();
 
   int size;
   int i;
@@ -76,10 +80,10 @@ void ShowManyImages(const string &title, int nArgs, ...) {
 
   // If the number of arguments is lesser than 0 or greater than 12
   // return without displaying
-  if (nArgs <= 0) {
+  if (n_images <= 0) {
     printf("Number of arguments too small....\n");
     return;
-  } else if (nArgs > 14) {
+  } else if (n_images > 14) {
     printf("Number of arguments too large, can only handle maximally 12 images at a time ...\n");
     return;
   }
@@ -87,22 +91,22 @@ void ShowManyImages(const string &title, int nArgs, ...) {
   // Determine the size of the image,
   // and the number of rows/cols
   // from number of arguments
-  else if (nArgs == 1) {
+  else if (n_images == 1) {
     w = h = 1;
     size  = 500;
-  } else if (nArgs == 2) {
+  } else if (n_images == 2) {
     w    = 1;
     h    = 2;
     size = 500;
-  } else if (nArgs == 3 || nArgs == 4) {
+  } else if (n_images == 3 || n_images == 4) {
     w    = 2;
     h    = 2;
     size = 500;
-  } else if (nArgs == 5 || nArgs == 6) {
+  } else if (n_images == 5 || n_images == 6) {
     w    = 3;
     h    = 2;
     size = 200;
-  } else if (nArgs == 7 || nArgs == 8) {
+  } else if (n_images == 7 || n_images == 8) {
     w    = 4;
     h    = 2;
     size = 200;
@@ -115,32 +119,25 @@ void ShowManyImages(const string &title, int nArgs, ...) {
   // Create a new 3 channel image
   Mat DispImage = Mat::zeros(Size(100 + size * w, 60 + size * h), PixelFormat);
 
-  // Used to get the arguments passed
-  va_list args;
-  va_start(args, nArgs);
-
-  // Loop for nArgs number of arguments
-  for (i = 0, m = 20, n = 20; i < nArgs; i++, m += (20 + size)) {
-
-    // Get the Pointer to the IplImage
-    Mat img = va_arg(args, Mat);
+  // Loop for n_images number of arguments
+  for (i = 0, m = 20, n = 20; i < n_images; i++, m += (20 + size)) {
 
     // Check whether it is NULL or not
     // If it is NULL, release the image, and return
-    if (img.empty()) {
+    if (images[i].empty()) {
       printf("Invalid arguments");
       return;
     }
 
     // Find the width and height of the image
-    x = img.cols;
-    y = img.rows;
+    x = images[i].cols;
+    y = images[i].rows;
 
     // Find whether height or width is greater in order to resize the image
     max = (x > y) ? x : y;
 
     // Find the scaling factor to resize the image
-    scale = (float)((float)max / size);
+    scale = (float)((float)max / float(size));
 
     // Used to Align the images
     if (i % w == 0 && m != 20) {
@@ -150,15 +147,12 @@ void ShowManyImages(const string &title, int nArgs, ...) {
 
     // Set the image ROI to display the current image
     // Resize the input image and copy the it to the Single Big Image
-    Rect ROI(m, n, (int)(x / scale), (int)(y / scale));
+    Rect ROI(m, n, (int)(float(x) / scale), (int)(float(y) / scale));
     Mat  temp;
-    resize(img, temp, Size(ROI.width, ROI.height));
+    resize(images[i], temp, Size(ROI.width, ROI.height));
     temp.copyTo(DispImage(ROI));
   }
 
   // Create a new window, and show the Single Big Image
   imshow(title, DispImage);
-
-  // End the number of arguments
-  va_end(args);
 }
