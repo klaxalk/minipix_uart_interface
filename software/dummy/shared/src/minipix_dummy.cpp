@@ -14,13 +14,13 @@ MinipixDummy::MinipixDummy() {
 void MinipixDummy::sendMessage([[maybe_unused]] const uint8_t *bytes_out, [[maybe_unused]] const uint16_t &len) {
 
   // TODO use condition_varialbe to pause the thread
-  while (!clear_to_send_) {
-    sleep(1);
-  }
+  /* while (!clear_to_send_) { */
+  /*   sleep(1); */
+  /* } */
 
   sendString(bytes_out, len);
 
-  clear_to_send_ = false;
+  /* clear_to_send_ = false; */
 }
 
 //}
@@ -90,11 +90,14 @@ void MinipixDummy::testStripe() {
     image_data.payload.packet_id = packet_id++;
 
     for (int i = 0; i < n_pixels; i++) {
+
       LLCP_PixelDataToAToT_t *pixel = (LLCP_PixelDataToAToT_t *)&image_data.payload.pixel_data[i];
       pixel->address                = (j + i) + 256 * j;
       pixel->tot                    = i;
       pixel->toa                    = j * 41 + i;
       pixel->ftoa                   = 0;
+
+      encodePixelData((uint8_t*) pixel, 4, false);
     }
 
     // convert to network endian
@@ -201,6 +204,7 @@ void MinipixDummy::update(void) {
 
           if (powered_) {
             simulateFrameAcquisition(req->acquisition_time_ms);
+            /* testStripe(); */
           } else {
             printf("cannot do frame measurement, not powered!\n");
           }
@@ -311,6 +315,8 @@ void MinipixDummy::serialDataCallback(const uint8_t *bytes_in, const uint16_t &l
 
           powered_ = req->state == 1 ? true : false;
 
+          sendAck();
+
           break;
         };
 
@@ -393,7 +399,10 @@ void MinipixDummy::serialDataCallback(const uint8_t *bytes_in, const uint16_t &l
           hton_LLCP_TemperatureMsg_t(&temperature_msg);
 
           uint16_t n_bytes = llcp_prepareMessage((uint8_t *)&temperature_msg, sizeof(temperature_msg), tx_buffer_);
+
+          printf("pes 1\n");
           sendMessage(tx_buffer_, n_bytes);
+          printf("pes 2\n");
 
           break;
         };

@@ -26,6 +26,8 @@ add_executable(minipix_dummy
   src/llcp/llcp.c
   src/llcp/llcp_endian.c
   src/llcp/llcp_minipix_messages.c
+
+  src/pixel_encoder.c
 )
 
 target_link_libraries(minipix_dummy

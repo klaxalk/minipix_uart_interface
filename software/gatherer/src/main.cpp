@@ -56,7 +56,6 @@ public:
   void sendAck(bool ack);
 
 public:
-
   bool measuring_frame_    = false;
   bool waiting_for_ack_    = false;
   bool waiting_for_tmp_    = false;
@@ -223,15 +222,20 @@ void Gatherer::threadMain(void) {
                 /* if (image->mode == LLCP_TPX3_PXL_MODE_TOA_TOT) { */
 
                 uint8_t x = ((LLCP_PixelDataToAToT_t*)&image->pixel_data[pix])->address % 256;
-                uint8_t y = (((LLCP_PixelDataToAToT_t*)&image->pixel_data[pix])->address - x) / 256;
+                uint8_t y = ((LLCP_PixelDataToAToT_t*)&image->pixel_data[pix])->address / 256;
 
                 float tot = float(((LLCP_PixelDataToAToT_t*)&image->pixel_data[pix])->tot);
                 float toa = float(((LLCP_PixelDataToAToT_t*)&image->pixel_data[pix])->toa);
 
-                cv::Vec3f tot_color(0, 0, 0);          // BGR
+                cv::Vec3f tot_color(0, 0, 0);  // BGR
                 if (tot > 0) {
                   tot_color.val[2] = log2(tot);
                 }
+
+                /* cv::Vec3f toa_color(0, 0, 0);  // BGR */
+                /* if (toa > 0) { */
+                /*   toa_color.val[1] = log2(toa); */
+                /* } */
 
                 cv::Vec3f toa_color(0, pow(toa, 2), 0);  // BGR
 
@@ -588,7 +592,6 @@ void Gatherer::pwr(const bool& state) {
   while (waiting_for_ack_) {
     std::this_thread::sleep_for(std::chrono::milliseconds(10));
   }
-
 }
 
 //}
@@ -678,6 +681,7 @@ int main(int argc, char* argv[]) {
   bool        serial_port_virtual;
 
   if (argc == 4) {
+
     serial_port_file    = argv[1];
     baud_rate           = atoi(argv[2]);
     serial_port_virtual = atoi(argv[3]);
@@ -714,7 +718,7 @@ int main(int argc, char* argv[]) {
 
   /* std::this_thread::sleep_for(std::chrono::milliseconds(100)); */
 
-  printf("gettting temperature\n");
+  printf("getting temperature\n");
 
   gatherer.getTemperature();
 

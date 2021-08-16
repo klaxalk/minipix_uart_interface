@@ -10,6 +10,8 @@
 #include <llcp.h>
 #include <llcp_minipix_messages.h>
 
+#include <pixel_encoder.h>
+
 class MinipixDummy {
 
 public:

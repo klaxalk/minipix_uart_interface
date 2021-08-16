@@ -248,6 +248,8 @@ void MinipixDummyLinux::getFrameData(void) {
         pixel->tot                    = uint8_t(pixel_value);
         pixel->toa                    = 500 - int(pixel_value) >= 0 ? 500 - int(pixel_value) : 0;
 
+        encodePixelData((uint8_t*) pixel, 4, false);
+
         // pixel->mode_mask = // TODO
       }
 
@@ -264,7 +266,6 @@ void MinipixDummyLinux::getFrameData(void) {
 
         // convert it back, since we are gonna use the structure again
         ntoh_LLCP_FrameDataMsg_t(&image_data);
-
 
         sendMessage(tx_buffer_, n_bytes);
 
