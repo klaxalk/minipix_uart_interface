@@ -244,11 +244,11 @@ void MinipixDummyLinux::getFrameData(void) {
 
         LLCP_PixelDataToAToT_t* pixel = (LLCP_PixelDataToAToT_t*)&image_data.payload.pixel_data[n_pixels_counter++];
         pixel->address                = i + j * 256;
-        pixel->ftoa                   = 0;
+        pixel->ftoa                   = pixel_value > 0 ? 1 : 0;
         pixel->tot                    = uint8_t(pixel_value);
-        pixel->toa                    = 500 - int(pixel_value) >= 0 ? 500 - int(pixel_value) : 0;
+        pixel->toa                    = 500 - uint8_t(pixel_value) >= 0 ? 500 - uint8_t(pixel_value) : 0;
 
-        encodePixelData((uint8_t*) pixel, 4, false);
+        encodePixelData((uint8_t*)pixel, 4, false);
 
         // pixel->mode_mask = // TODO
       }
@@ -267,7 +267,7 @@ void MinipixDummyLinux::getFrameData(void) {
         // convert it back, since we are gonna use the structure again
         ntoh_LLCP_FrameDataMsg_t(&image_data);
 
-        sendMessageNoAck(tx_buffer_, n_bytes); // TODO: should be with ack
+        sendMessageNoAck(tx_buffer_, n_bytes);  // TODO: should be with ack
 
         printf("packet %d full, sending\n", image_data.payload.packet_id);
 
@@ -290,7 +290,7 @@ void MinipixDummyLinux::getFrameData(void) {
     // convert it back, since we are gonna use the structure again
     ntoh_LLCP_FrameDataMsg_t(&image_data);
 
-    sendMessageNoAck(tx_buffer_, n_bytes); // TODO: should be with ack
+    sendMessageNoAck(tx_buffer_, n_bytes);  // TODO: should be with ack
 
     printf("sent the last packet (%d)\n", packet_id_counter);
 

@@ -10,8 +10,10 @@ Gatherer::Gatherer() {
   int flags = cv::WINDOW_NORMAL;
   cv::namedWindow("frame", flags);
 
-  frame_top = cv::Mat(256, 256, CV_32FC3);
-  frame_bot = cv::Mat(256, 256, CV_32FC3);
+  frame_top_left  = cv::Mat(256, 256, CV_32FC3);
+  frame_top_right = cv::Mat(256, 256, CV_32FC3);
+  frame_bot_left  = cv::Mat(256, 256, CV_32FC3);
+  frame_bot_right = cv::Mat(256, 256, CV_32FC3);
 
   thread_plot_ = std::thread(&Gatherer::threadPlot, this);
   thread_main_ = std::thread(&Gatherer::threadMain, this);
@@ -158,22 +160,28 @@ void Gatherer::threadPlot(void) {
 
   while (true) {
 
-    cv::Mat frame_top_plot(256, 256, CV_32FC3);
-    cv::Mat frame_bot_plot(256, 256, CV_32FC3);
+    cv::Mat frame_top_left_plot(256, 256, CV_32FC3);
+    cv::Mat frame_top_right_plot(256, 256, CV_32FC3);
+    cv::Mat frame_bot_left_plot(256, 256, CV_32FC3);
+    cv::Mat frame_bot_right_plot(256, 256, CV_32FC3);
 
     {
       std::scoped_lock lock(mutex_cv_frames_);
 
-      cv::normalize(frame_top, frame_top_plot, 0.05, 1.0, cv::NORM_MINMAX);
-      cv::normalize(frame_bot, frame_bot_plot, 0.05, 1.0, cv::NORM_MINMAX);
+      cv::normalize(frame_top_left, frame_top_left_plot, 0.05, 1.0, cv::NORM_MINMAX);
+      cv::normalize(frame_top_right, frame_top_right_plot, 0.05, 1.0, cv::NORM_MINMAX);
+      cv::normalize(frame_bot_left, frame_bot_left_plot, 0.05, 1.0, cv::NORM_MINMAX);
+      cv::normalize(frame_bot_right, frame_bot_right_plot, 0.05, 1.0, cv::NORM_MINMAX);
     }
 
     /* cv::subtract(cv::Scalar::all(1.0), frame_top_plot, frame_top_plot); */
     /* cv::subtract(cv::Scalar::all(1.0), frame_bot_plot, frame_bot_plot); */
 
     std::vector<cv::Mat> images;
-    images.push_back(frame_top_plot);
-    images.push_back(frame_bot_plot);
+    images.push_back(frame_top_left_plot);
+    images.push_back(frame_top_right_plot);
+    images.push_back(frame_bot_left_plot);
+    images.push_back(frame_bot_right_plot);
 
     showManyImages<CV_32FC3>("frame", images);
 
@@ -196,15 +204,19 @@ void Gatherer::callbackFrameData(const LLCP_Message_t* message_in) {
 
   uint8_t n_pixels = image->n_pixels;
 
-  // clear the old images
-  if (image->packet_id == 0) {
+  {  // FOR PLOTTING
+    // clear the old images
+    if (image->packet_id == 0) {
 
-    std::scoped_lock lock(mutex_cv_frames_);
+      std::scoped_lock lock(mutex_cv_frames_);
 
-    for (int i = 0; i < 256; i++) {
-      for (int j = 0; j < 256; j++) {
-        frame_top.at<cv::Vec3f>(cv::Point(i, j)) = 0;
-        frame_bot.at<cv::Vec3f>(cv::Point(i, j)) = 0;
+      for (int i = 0; i < 256; i++) {
+        for (int j = 0; j < 256; j++) {
+          frame_top_left.at<cv::Vec3f>(cv::Point(i, j))  = 0;
+          frame_top_right.at<cv::Vec3f>(cv::Point(i, j)) = 0;
+          frame_bot_left.at<cv::Vec3f>(cv::Point(i, j))  = 0;
+          frame_bot_right.at<cv::Vec3f>(cv::Point(i, j)) = 0;
+        }
       }
     }
   }
@@ -240,60 +252,109 @@ void Gatherer::callbackFrameData(const LLCP_Message_t* message_in) {
 
   printf("received frame data, id %d, packet %d, n_pixels %d\n", image->frame_id, image->packet_id, n_pixels);
 
+  // for all the pixels in the packet
   for (int pix = 0; pix < n_pixels; pix++) {
 
+    // derandomize and deserialize the pixel data
     decodePixelData((uint8_t*)&image->pixel_data[pix], 4, false);
 
     std::scoped_lock lock(mutex_cv_frames_);
 
-    if (image->mode == LLCP_TPX3_PXL_MODE_TOA_TOT) {
+    uint8_t  x, y;
+    uint16_t tot, toa, ftoa, mpx, itot;
 
-      uint8_t x = ((LLCP_PixelDataToAToT_t*)&image->pixel_data[pix])->address % 256;
-      uint8_t y = ((LLCP_PixelDataToAToT_t*)&image->pixel_data[pix])->address / 256;
+    // FOR PLOTTING
+    uint16_t value1, value2, value3;
 
-      float tot = float(((LLCP_PixelDataToAToT_t*)&image->pixel_data[pix])->tot);
-      float toa = float(((LLCP_PixelDataToAToT_t*)&image->pixel_data[pix])->toa);
+    switch (image->mode) {
 
-      cv::Vec3f tot_color(0, 0, 0);  // BGR
-      if (tot > 0) {
-        tot_color.val[2] = log2(tot);
+      case LLCP_TPX3_PXL_MODE_TOA_TOT: {
+
+        x = ((LLCP_PixelDataToAToT_t*)&image->pixel_data[pix])->address % 256;
+        y = ((LLCP_PixelDataToAToT_t*)&image->pixel_data[pix])->address / 256;
+
+        ftoa = float(((LLCP_PixelDataToAToT_t*)&image->pixel_data[pix])->ftoa);
+        tot  = float(((LLCP_PixelDataToAToT_t*)&image->pixel_data[pix])->tot);
+        toa  = float(((LLCP_PixelDataToAToT_t*)&image->pixel_data[pix])->toa);
+
+        mpx  = 0;
+        itot = 0;
+
+        // FOR PLOTTING
+        {
+          value1 = toa;
+          value2 = tot;
+          value3 = ftoa;
+        }
+
+        break;
       }
 
-      cv::Vec3f toa_color(0, pow(toa, 2), 0);  // BGR
+      case LLCP_TPX3_PXL_MODE_TOA: {
 
-      frame_top.at<cv::Vec3f>(cv::Point(x, y)) = tot_color;
-      frame_bot.at<cv::Vec3f>(cv::Point(x, y)) = toa_color;
-    }
+        x = ((LLCP_PixelDataToA_t*)&image->pixel_data[pix])->address % 256;
+        y = ((LLCP_PixelDataToA_t*)&image->pixel_data[pix])->address / 256;
 
-    if (image->mode == LLCP_TPX3_PXL_MODE_TOA) {
+        ftoa = float(((LLCP_PixelDataToA_t*)&image->pixel_data[pix])->ftoa);
+        toa  = float(((LLCP_PixelDataToA_t*)&image->pixel_data[pix])->toa);
 
-      uint8_t x = ((LLCP_PixelDataToA_t*)&image->pixel_data[pix])->address % 256;
-      uint8_t y = (((LLCP_PixelDataToA_t*)&image->pixel_data[pix])->address - x) / 256;
+        tot  = 0;
+        mpx  = 0;
+        itot = 0;
 
-      float toa = float(((LLCP_PixelDataToA_t*)&image->pixel_data[pix])->toa);
+        // FOR PLOTTING
+        {
+          value1 = toa;
+          value2 = ftoa;
+          value3 = 0;
+        }
 
-      cv::Vec3f toa_color(0, pow(toa, 2), 0);  // BGR
-
-      frame_bot.at<cv::Vec3f>(cv::Point(x, y)) = toa_color;
-    }
-
-    if (image->mode == LLCP_TPX3_PXL_MODE_MPX_ITOT) {
-
-      uint8_t x = ((LLCP_PixelDataMpxiToT_t*)&image->pixel_data[pix])->address % 256;
-      uint8_t y = (((LLCP_PixelDataMpxiToT_t*)&image->pixel_data[pix])->address - x) / 256;
-
-      float tot = float(((LLCP_PixelDataMpxiToT_t*)&image->pixel_data[pix])->itot);
-      int   mpx = ((LLCP_PixelDataMpxiToT_t*)&image->pixel_data[pix])->event_counter;
-
-      cv::Vec3f tot_color(0, 0, 0);  // BGR
-      if (tot > 0) {
-        tot_color.val[2] = log2(tot);
+        break;
       }
 
-      cv::Vec3f mpx_color(0, pow(mpx, 2), 0);  // BGR
+      case LLCP_TPX3_PXL_MODE_MPX_ITOT: {
 
-      frame_top.at<cv::Vec3f>(cv::Point(x, y)) = tot_color;
-      frame_bot.at<cv::Vec3f>(cv::Point(x, y)) = mpx_color;
+        x = ((LLCP_PixelDataMpxiToT_t*)&image->pixel_data[pix])->address % 256;
+        y = ((LLCP_PixelDataMpxiToT_t*)&image->pixel_data[pix])->address / 256;
+
+        mpx  = ((LLCP_PixelDataMpxiToT_t*)&image->pixel_data[pix])->event_counter;
+        itot = float(((LLCP_PixelDataMpxiToT_t*)&image->pixel_data[pix])->itot);
+
+        toa  = 0;
+        ftoa = 0;
+        tot  = 0;
+
+        // FOR PLOTTING
+        {
+          value1 = mpx;
+          value2 = itot;
+          value3 = 0;
+        }
+
+        break;
+      }
+    }
+
+    // FOR PLOTTING
+    {
+      cv::Vec3f value1_color(0, 0, 0);  // BGR
+      if (value1 > 0) {
+        value1_color.val[2] = log2(value1);
+      }
+
+      cv::Vec3f value2_color(0, 0, 0);  // BGR
+      if (value2 > 0) {
+        value2_color.val[2] = log2(value2);
+      }
+
+      cv::Vec3f value3_color(0, 0, 0);  // BGR
+      if (value3 > 0) {
+        value3_color.val[2] = log2(value3);
+      }
+
+      frame_top_left.at<cv::Vec3f>(cv::Point(x, y))  = value1;
+      frame_top_right.at<cv::Vec3f>(cv::Point(x, y)) = value2;
+      frame_bot_left.at<cv::Vec3f>(cv::Point(x, y))  = value3;
     }
   }
 }

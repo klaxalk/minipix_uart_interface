@@ -81,8 +81,11 @@ private:
 
   // | ------------------------ plotting ------------------------ |
 
-  cv::Mat    frame_top;
-  cv::Mat    frame_bot;
+  cv::Mat frame_top_left;
+  cv::Mat frame_top_right;
+  cv::Mat frame_bot_left;
+  cv::Mat frame_bot_right;
+
   std::mutex mutex_cv_frames_;
 };
 
