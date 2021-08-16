@@ -272,6 +272,7 @@ void Gatherer::threadMain(void) {
                 }
               }
 
+              // TODO: brakes MiniPIX
               /* sendAck(true); */
 
               break;
@@ -288,6 +289,7 @@ void Gatherer::threadMain(void) {
 
               printf("received stream data, n_pixels %d\n", n_pixels);
 
+              // TODO: brakes MiniPIX
               /* sendAck(true); */
 
               break;
@@ -303,6 +305,7 @@ void Gatherer::threadMain(void) {
 
               waiting_for_status_ = false;
 
+              // TODO: brakes MiniPIX
               /* sendAck(true); */
 
               break;
@@ -316,6 +319,7 @@ void Gatherer::threadMain(void) {
 
               printf("received temperature: %d deg\n", temperature->temperature);
 
+              // TODO: brakes MiniPIX
               /* sendAck(true); */
 
               waiting_for_tmp_ = false;
@@ -333,6 +337,7 @@ void Gatherer::threadMain(void) {
 
               printf("received frame data terminator: frame id %d, packet count: %d\n", terminator->frame_id, terminator->n_packets);
 
+              // TODO: brakes MiniPIX
               /* sendAck(true); */
 
               break;

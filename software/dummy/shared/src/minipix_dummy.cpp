@@ -13,14 +13,13 @@ MinipixDummy::MinipixDummy() {
 
 void MinipixDummy::sendMessage([[maybe_unused]] const uint8_t *bytes_out, [[maybe_unused]] const uint16_t &len) {
 
-  // TODO use condition_varialbe to pause the thread
-  /* while (!clear_to_send_) { */
-  /*   sleep(1); */
-  /* } */
+  while (!clear_to_send_) {
+    sleep(1);
+  }
 
   sendString(bytes_out, len);
 
-  /* clear_to_send_ = false; */
+  clear_to_send_ = false;
 }
 
 //}
@@ -30,6 +29,8 @@ void MinipixDummy::sendMessage([[maybe_unused]] const uint8_t *bytes_out, [[mayb
 void MinipixDummy::sendMessageNoAck([[maybe_unused]] const uint8_t *bytes_out, [[maybe_unused]] const uint16_t &len) {
 
   sendString(bytes_out, len);
+
+  clear_to_send_ = true;
 }
 
 //}
@@ -105,7 +106,7 @@ void MinipixDummy::testStripe() {
 
     uint16_t n_bytes = llcp_prepareMessage((uint8_t *)&image_data, sizeof(image_data), tx_buffer_);
 
-    sendMessage(tx_buffer_, n_bytes);
+    sendMessageNoAck(tx_buffer_, n_bytes); // TODO: should be with ack
   }
 
   // | ---------------- send FrameDataTerminator ---------------- |
@@ -121,7 +122,7 @@ void MinipixDummy::testStripe() {
 
   uint16_t n_bytes = llcp_prepareMessage((uint8_t *)&terminator, sizeof(terminator), tx_buffer_);
 
-  sendMessage(tx_buffer_, n_bytes);
+  sendMessageNoAck(tx_buffer_, n_bytes); // TODO: should be with ack
 }
 
 //}
@@ -167,7 +168,7 @@ void MinipixDummy::continuousStreamMeasurement() {
     hton_LLCP_StreamDataMsg_t(&image_data);
 
     uint16_t n_bytes = llcp_prepareMessage((uint8_t *)&image_data, sizeof(image_data), tx_buffer_);
-    sendMessage(tx_buffer_, n_bytes);
+    sendMessageNoAck(tx_buffer_, n_bytes); // TODO: should be with ack
 
     sleep(1);
   }
@@ -378,7 +379,7 @@ void MinipixDummy::serialDataCallback(const uint8_t *bytes_in, const uint16_t &l
           hton_LLCP_StatusMsg_t(&status_msg);
 
           uint16_t n_bytes = llcp_prepareMessage((uint8_t *)&status_msg, sizeof(status_msg), tx_buffer_);
-          sendMessage(tx_buffer_, n_bytes);
+          sendMessageNoAck(tx_buffer_, n_bytes); // TODO: should be with ack
 
           break;
         };
@@ -400,7 +401,7 @@ void MinipixDummy::serialDataCallback(const uint8_t *bytes_in, const uint16_t &l
           uint16_t n_bytes = llcp_prepareMessage((uint8_t *)&temperature_msg, sizeof(temperature_msg), tx_buffer_);
 
           printf("pes 1\n");
-          sendMessage(tx_buffer_, n_bytes);
+          sendMessageNoAck(tx_buffer_, n_bytes); // TODO: should be with ack
           printf("pes 2\n");
 
           break;
