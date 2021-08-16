@@ -1,6 +1,6 @@
 /* includes //{ */
 
-#define LLCP_DEBUG_PRINT 1
+#define LLCP_DEBUG_PRINT 0
 
 #include <llcp.h>
 #include <llcp_minipix_messages.h>
@@ -184,32 +184,34 @@ void Gatherer::threadMain(void) {
                 }
               }
 
-              /* std::string mode_str; */
-              /* switch (image->mode) { */
+              std::string mode_str;
+              switch (image->mode) {
 
-              /*   case LLCP_TPX3_PXL_MODE_TOA_TOT: { */
-              /*     mode_str = "TOA_TOT"; */
-              /*     break; */
-              /*   } */
+                case LLCP_TPX3_PXL_MODE_TOA_TOT: {
+                  mode_str = "TOA_TOT";
+                  break;
+                }
 
-              /*   case LLCP_TPX3_PXL_MODE_TOA: { */
-              /*     mode_str = "TOA"; */
-              /*     break; */
-              /*   } */
+                case LLCP_TPX3_PXL_MODE_TOA: {
+                  mode_str = "TOA";
+                  break;
+                }
 
-              /*   case LLCP_TPX3_PXL_MODE_MPX_ITOT: { */
-              /*     mode_str = "MPX_ITOT"; */
-              /*     break; */
-              /*   } */
+                case LLCP_TPX3_PXL_MODE_MPX_ITOT: {
+                  mode_str = "MPX_ITOT";
+                  break;
+                }
 
-              /*   default: { */
-              /*     mode_str = "UNKNOWN"; */
-              /*     printf("pixel mode mode undefined, %d!\n", image->mode); */
-              /*     break; */
-              /*   } */
-              /* } */
+                default: {
+                  mode_str = "UNKNOWN";
+                  printf("pixel mode mode undefined, %d!\n", image->mode);
 
-              /* image->mode = LLCP_TPX3_PXL_MODE_TOA_TOT; */
+                  // TODO: this is here because MiniPIX does not fill this properly
+                  image->mode = LLCP_TPX3_PXL_MODE_TOA_TOT;
+
+                  break;
+                }
+              }
 
               printf("received frame data, id %d, packet %d, n_pixels %d\n", image->frame_id, image->packet_id, n_pixels);
 
@@ -219,57 +221,55 @@ void Gatherer::threadMain(void) {
 
                 std::scoped_lock lock(mutex_cv_frames_);
 
-                /* if (image->mode == LLCP_TPX3_PXL_MODE_TOA_TOT) { */
+                if (image->mode == LLCP_TPX3_PXL_MODE_TOA_TOT) {
 
-                uint8_t x = ((LLCP_PixelDataToAToT_t*)&image->pixel_data[pix])->address % 256;
-                uint8_t y = ((LLCP_PixelDataToAToT_t*)&image->pixel_data[pix])->address / 256;
+                  uint8_t x = ((LLCP_PixelDataToAToT_t*)&image->pixel_data[pix])->address % 256;
+                  uint8_t y = ((LLCP_PixelDataToAToT_t*)&image->pixel_data[pix])->address / 256;
 
-                float tot = float(((LLCP_PixelDataToAToT_t*)&image->pixel_data[pix])->tot);
-                float toa = float(((LLCP_PixelDataToAToT_t*)&image->pixel_data[pix])->toa);
+                  float tot = float(((LLCP_PixelDataToAToT_t*)&image->pixel_data[pix])->tot);
+                  float toa = float(((LLCP_PixelDataToAToT_t*)&image->pixel_data[pix])->toa);
 
-                cv::Vec3f tot_color(0, 0, 0);  // BGR
-                if (tot > 0) {
-                  tot_color.val[2] = log2(tot);
+                  cv::Vec3f tot_color(0, 0, 0);  // BGR
+                  if (tot > 0) {
+                    tot_color.val[2] = log2(tot);
+                  }
+
+                  cv::Vec3f toa_color(0, pow(toa, 2), 0);  // BGR
+
+                  frame_top.at<cv::Vec3f>(cv::Point(x, y)) = tot_color;
+                  frame_bot.at<cv::Vec3f>(cv::Point(x, y)) = toa_color;
                 }
 
-                /* cv::Vec3f toa_color(0, 0, 0);  // BGR */
-                /* if (toa > 0) { */
-                /*   toa_color.val[1] = log2(toa); */
-                /* } */
+                if (image->mode == LLCP_TPX3_PXL_MODE_TOA) {
 
-                cv::Vec3f toa_color(0, pow(toa, 2), 0);  // BGR
+                  uint8_t x = ((LLCP_PixelDataToA_t*)&image->pixel_data[pix])->address % 256;
+                  uint8_t y = (((LLCP_PixelDataToA_t*)&image->pixel_data[pix])->address - x) / 256;
 
-                frame_top.at<cv::Vec3f>(cv::Point(x, y)) = tot_color;
-                frame_bot.at<cv::Vec3f>(cv::Point(x, y)) = toa_color;
+                  float toa = float(((LLCP_PixelDataToA_t*)&image->pixel_data[pix])->toa);
 
-                /* } */
+                  cv::Vec3f toa_color(0, pow(toa, 2), 0);  // BGR
 
-                /* if (image->mode == LLCP_TPX3_PXL_MODE_TOA) { */
+                  frame_bot.at<cv::Vec3f>(cv::Point(x, y)) = toa_color;
+                }
 
-                /*   uint8_t x = ((LLCP_PixelDataToA_t*)&image->pixel_data[pix])->address % 256; */
-                /*   uint8_t y = (((LLCP_PixelDataToA_t*)&image->pixel_data[pix])->address - x) / 256; */
+                if (image->mode == LLCP_TPX3_PXL_MODE_MPX_ITOT) {
 
-                /*   float toa = float(((LLCP_PixelDataToA_t*)&image->pixel_data[pix])->toa); */
+                  uint8_t x = ((LLCP_PixelDataMpxiToT_t*)&image->pixel_data[pix])->address % 256;
+                  uint8_t y = (((LLCP_PixelDataMpxiToT_t*)&image->pixel_data[pix])->address - x) / 256;
 
-                /*   cv::Vec3f toa_color(0, pow(toa, 2), 0);  // BGR */
+                  float tot = float(((LLCP_PixelDataMpxiToT_t*)&image->pixel_data[pix])->itot);
+                  int   mpx = ((LLCP_PixelDataMpxiToT_t*)&image->pixel_data[pix])->event_counter;
 
-                /*   frame_bot.at<cv::Vec3f>(cv::Point(x, y)) = toa_color; */
-                /* } */
+                  cv::Vec3f tot_color(0, 0, 0);  // BGR
+                  if (tot > 0) {
+                    tot_color.val[2] = log2(tot);
+                  }
 
-                /* if (image->mode == LLCP_TPX3_PXL_MODE_MPX_ITOT) { */
+                  cv::Vec3f mpx_color(0, pow(mpx, 2), 0);  // BGR
 
-                /*   uint8_t x = ((LLCP_PixelDataMpxiToT_t*)&image->pixel_data[pix])->address % 256; */
-                /*   uint8_t y = (((LLCP_PixelDataMpxiToT_t*)&image->pixel_data[pix])->address - x) / 256; */
-
-                /*   float tot = float(((LLCP_PixelDataMpxiToT_t*)&image->pixel_data[pix])->itot); */
-                /*   int   mpx = float(((LLCP_PixelDataMpxiToT_t*)&image->pixel_data[pix])->event_counter); */
-
-                /*   cv::Vec3f tot_color(0, 0, log2(tot));    // BGR */
-                /*   cv::Vec3f mpx_color(0, pow(mpx, 2), 0);  // BGR */
-
-                /*   frame_top.at<cv::Vec3f>(cv::Point(x, y)) = tot_color; */
-                /*   frame_bot.at<cv::Vec3f>(cv::Point(x, y)) = mpx_color; */
-                /* } */
+                  frame_top.at<cv::Vec3f>(cv::Point(x, y)) = tot_color;
+                  frame_bot.at<cv::Vec3f>(cv::Point(x, y)) = mpx_color;
+                }
               }
 
               /* sendAck(true); */

@@ -1,7 +1,5 @@
 #include <pixel_decoder.h>
 
-#include <stdio.h>
-
 const int16_t LUT_EVENT[16] = {0, 4, 5, 8, 6, 12, 9, 14, 3, 7, 11, 13, 2, 10, 1, 0};
 
 const uint16_t LUT_ITOT[16384] = {

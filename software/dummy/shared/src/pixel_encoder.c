@@ -1,7 +1,5 @@
 #include <pixel_encoder.h>
 
-#include <stdio.h>
-
 const int16_t LUT_EVENT[16] = {
     0, 15, 14, 12, 8, 1, 2, 4, 9, 3, 6, 13, 10, 5, 11, 7,
 };
