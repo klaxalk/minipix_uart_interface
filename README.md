@@ -23,24 +23,12 @@ HW diagram of the Linux Dummy<->STM32F4 example<->Gatherer.
 
 ![](fig/hw_diagram_labels.png)
 
-### Commands provided by the MiniPIX Interface
-
 | "command"                      | description                                | parameters             | output form                                    |
 |--------------------------------|--------------------------------------------|------------------------|------------------------------------------------|
 | `mui_pwr()`                    | turns on/off the TPX3 detector             | 0/1                    | ack                                            |
 | `mui_getStatus()`              | gets housekeeping data from MiniPIX        | -                      | a string of text, possibly with numeric values |
-| `mui_getTemperature()`         | gets the MiniPIX's temperature             | -                      | int16t (interpretation TBD)                    |
-| `mui_measureFrame()`           | requests frame acquisition                 | acquisition time       | packetized frame                               |
+| `mui_getTemperature()`         | gets the MiniPIX's temperature             | -                      | int16_t (interpretation TBD)                   |
+| `mui_measureFrame()`           | requests frame acquisition                 | acquisition time [ms]  | packetized frame                               |
 | `mui_updatePixelMask()`        | set pixel mask                             | pixel coordinates, 1/0 | ack                                            |
-| `mui_setThreshold()`           | set energy threshold, mostly for debugging | coarse thre, fine thr  | ack                                            |
+| `mui_setThreshold()`           | set energy threshold, mostly for debugging | coarse thr, fine thr   | ack                                            |
 | `mui_setConfigurationPreset()` | switches between pre-loaded configurations | preset ID              | ack                                            |
-
-
-For consideration
-
-| "command"              | description                                                  | parameters       | output form                      |
-|------------------------|--------------------------------------------------------------|------------------|----------------------------------|
-| `mui_measureStream()`  | request stream acquisition (problematic to implement)        | duty cycle       | packets of measured event pixels |
-| `mui_stopStream()`     | stop stream acquisition (might not be possible to implement) | -                | ack                              |
-| `mui_flushBuffer()`    | request flusing of MiniPIX stream buffer                     | -                | ack                              |
-| `getSinglePxlStream()` | requests image stream of single-pixel events (for VZLU)      | acquisition time | packetized stream                |

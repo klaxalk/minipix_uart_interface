@@ -156,8 +156,8 @@ void MinipixDummy::update(void) {
           LLCP_MeasureFrameReq_t *req = (LLCP_MeasureFrameReq_t *)(&msg->payload);
 
           if (powered_) {
-            /* simulateFrameAcquisition(req->acquisition_time_ms); */
-            testStripe();
+            simulateFrameAcquisition(req->acquisition_time_ms);
+            /* testStripe(); */
           } else {
             printf("cannot do frame measurement, not powered!\n");
           }

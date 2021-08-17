@@ -344,17 +344,17 @@ void Gatherer::callbackFrameData(const LLCP_Message_t* message_in) {
 
       cv::Vec3f value2_color(0, 0, 0);  // BGR
       if (value2 > 0) {
-        value2_color.val[2] = log2(value2);
+        value2_color.val[1] = log2(value2);
       }
 
       cv::Vec3f value3_color(0, 0, 0);  // BGR
       if (value3 > 0) {
-        value3_color.val[2] = log2(value3);
+        value3_color.val[0] = log2(value3);
       }
 
-      frame_top_left.at<cv::Vec3f>(cv::Point(x, y))  = value1;
-      frame_top_right.at<cv::Vec3f>(cv::Point(x, y)) = value2;
-      frame_bot_left.at<cv::Vec3f>(cv::Point(x, y))  = value3;
+      frame_top_left.at<cv::Vec3f>(cv::Point(x, y))  = value1_color;
+      frame_top_right.at<cv::Vec3f>(cv::Point(x, y)) = value2_color;
+      frame_bot_left.at<cv::Vec3f>(cv::Point(x, y))  = value3_color;
     }
   }
 }
