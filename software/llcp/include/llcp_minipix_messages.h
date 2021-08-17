@@ -74,6 +74,15 @@ extern const char* LLCP_MinipixErrors[LLCP_MINIPIX_ERROR_COUNT];
 
 /* LLCP_PixelData_t //{ */
 
+typedef struct __attribute__((packed))
+{
+  uint8_t  value1 : 4;
+  uint16_t value2 : 10;
+  uint16_t value3 : 14;
+  uint16_t address : 16;
+  uint16_t mode_mask : 4;
+} LLCP_PixelDataCommon_t;
+
 /**
  * @brief Structure for interpreting the ToA and ToT mode
  * can be used only after derandomization of the data

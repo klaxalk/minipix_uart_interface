@@ -256,7 +256,7 @@ void Gatherer::callbackFrameData(const LLCP_Message_t* message_in) {
   for (int pix = 0; pix < n_pixels; pix++) {
 
     // derandomize and deserialize the pixel data
-    decodePixelData((uint8_t*)&image->pixel_data[pix], 4, false);
+    decodePixelData((uint8_t*)&image->pixel_data[pix], 4);
 
     std::scoped_lock lock(mutex_cv_frames_);
 

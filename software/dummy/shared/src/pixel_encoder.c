@@ -1599,28 +1599,54 @@ const uint16_t LUT_COLSHIFTS[1280] = {
  * @param col_shift_num = 4
  * @param itot = false
  */
-void encodePixelData(uint8_t* data, const uint8_t col_shift_num, const bool itot) {
+void encodePixelData(uint8_t* data, const uint8_t col_shift_num) {
 
-  uint16_t toa       = ((LLCP_PixelDataToAToT_t*)data)->toa;
-  uint16_t tot       = ((LLCP_PixelDataToAToT_t*)data)->tot;
-  uint16_t ftoa      = ((LLCP_PixelDataToAToT_t*)data)->ftoa;
-  uint16_t idx       = ((LLCP_PixelDataToAToT_t*)data)->address;
-  uint8_t  mode_mask = ((LLCP_PixelDataToAToT_t*)data)->mode_mask;
-  uint16_t x         = idx % 256;
-  uint16_t y         = idx / 256;
+  LLCP_PixelDataCommon_t* data_common = (LLCP_PixelDataCommon_t*)data;
 
-  tot = LUT_TOT[tot];
+  uint8_t  mode_mask = data_common->mode_mask;
+  uint16_t x         = data_common->address % 256;
+  uint16_t y         = data_common->address / 256;
 
-  if (itot) {
+  switch (mode_mask) {
 
-    toa  = LUT_ITOT[toa];
-    ftoa = LUT_EVENT[ftoa];
+    // TODO what is this mask for the real Timepix?
+    case 1: {
 
-  } else {
+      LLCP_PixelDataToAToT_t* packet = (LLCP_PixelDataToAToT_t*)data;
 
-    toa  = LUT_TOA[toa];
-    ftoa = (ftoa - LUT_COLSHIFTS[col_shift_num * 256 + x]);
+      packet->tot  = LUT_TOT[packet->tot];
+      packet->toa  = LUT_TOA[packet->toa];
+      packet->ftoa = (packet->ftoa - LUT_COLSHIFTS[col_shift_num * 256 + x]);
+
+      break;
+    }
+
+    // TODO what is this mask for the real Timepix?
+    case 2: {
+
+      LLCP_PixelDataToA_t* packet = (LLCP_PixelDataToA_t*)data;
+
+      packet->toa   = LUT_TOA[packet->toa];
+      packet->ftoa  = (packet->ftoa - LUT_COLSHIFTS[col_shift_num * 256 + x]);
+      packet->dummy = 0;
+
+      break;
+    }
+
+    // TODO what is this mask for the real Timepix?
+    case 3: {
+
+      LLCP_PixelDataMpxiToT_t* packet = (LLCP_PixelDataMpxiToT_t*)data;
+
+      packet->event_counter = LUT_EVENT[packet->event_counter];
+      packet->itot          = LUT_ITOT[packet->itot];
+      packet->dummy         = 0;
+
+      break;
+    }
   }
+
+  uint8_t data_out[6];
 
   // XXXX XXXA -> 0000 0A00
   uint8_t pix_x = (x & 0x01) << 2;
@@ -1640,35 +1666,39 @@ void encodePixelData(uint8_t* data, const uint8_t col_shift_num, const bool itot
   // 0000 0000 0000 0XXX -> 0000 0000 0000 0XXX
   address = address | (pix & 0x0007);
 
-  data[0] = 0;
+  data_out[0] = 0;
   // 0000 0000 0000 XXXX -> 0000 0000 XXXX 0000
-  data[0] = data[0] | (mode_mask << 4);
+  data_out[0] = data_out[0] | (mode_mask << 4);
   // XXXX 0000 0000 0000 -> 0000 0000 0000 XXXX
-  data[0] = data[0] | ((address & 0xF000) >> 12);
+  data_out[0] = data_out[0] | ((address & 0xF000) >> 12);
 
-  data[1] = 0;
+  data_out[1] = 0;
   // 0000 XXXX XXXX 0000 -> 0000 0000 XXXX XXXX
-  data[1] = (address & 0x0FF0) >> 4;
+  data_out[1] = (address & 0x0FF0) >> 4;
 
-  data[2] = 0;
+  data_out[2] = 0;
   // 0000 0000 0000 XXXX -> 0000 0000 XXXX 0000
-  data[2] = (address & 0x000F) << 4;
+  data_out[2] = (address & 0x000F) << 4;
   // 00XX XX00 0000 0000 -> 0000 0000 0000 XXXX
-  data[2] = data[2] | ((toa & 0x3C00) >> 10);
+  data_out[2] = data_out[2] | ((data_common->value3 & 0x3C00) >> 10);
 
-  data[3] = 0;
+  data_out[3] = 0;
   // 0000 00XX XXXX XX00 -> 0000 0000 XXXX XXXX
-  data[3] = (toa & 0x03FC) >> 2;
+  data_out[3] = (data_common->value3 & 0x03FC) >> 2;
 
-  data[4] = 0;
+  data_out[4] = 0;
   // 0000 0000 0000 00XX -> 0000 0000 XX00 0000
-  data[4] = ((toa & 0x0003) << 6);
+  data_out[4] = ((data_common->value3 & 0x0003) << 6);
   // 0000 00XX XXXX 0000 -> 0000 0000 00XX XXXX
-  data[4] = data[4] | ((tot & 0x03F0) >> 4);
+  data_out[4] = data_out[4] | ((data_common->value2 & 0x03F0) >> 4);
 
-  data[5] = 0;
+  data_out[5] = 0;
   // 0000 0000 XXXX 0000 -> 0000 0000 0000 XXXX
-  data[5] = ((tot & 0x000F) << 4);
+  data_out[5] = ((data_common->value2 & 0x000F) << 4);
   // 0000 0000 0000 XXXX -> 0000 0000 0000 XXXX
-  data[5] = data[5] | (ftoa & 0x000F);
+  data_out[5] = data_out[5] | (data_common->value1 & 0x000F);
+
+  for (int i = 0; i < 6; i++) {
+    data[i] = data_out[i];
+  }
 }

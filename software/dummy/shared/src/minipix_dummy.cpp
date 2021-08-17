@@ -97,8 +97,9 @@ void MinipixDummy::testStripe() {
       pixel->tot                    = i;
       pixel->toa                    = j * 41 + i;
       pixel->ftoa                   = 0;
+      pixel->mode_mask              = 1;
 
-      encodePixelData((uint8_t*) pixel, 4, false);
+      encodePixelData((uint8_t *)pixel, 4);
     }
 
     // convert to network endian
@@ -106,7 +107,7 @@ void MinipixDummy::testStripe() {
 
     uint16_t n_bytes = llcp_prepareMessage((uint8_t *)&image_data, sizeof(image_data), tx_buffer_);
 
-    sendMessageNoAck(tx_buffer_, n_bytes); // TODO: should be with ack
+    sendMessageNoAck(tx_buffer_, n_bytes);  // TODO: should be with ack
   }
 
   // | ---------------- send FrameDataTerminator ---------------- |
@@ -122,7 +123,7 @@ void MinipixDummy::testStripe() {
 
   uint16_t n_bytes = llcp_prepareMessage((uint8_t *)&terminator, sizeof(terminator), tx_buffer_);
 
-  sendMessageNoAck(tx_buffer_, n_bytes); // TODO: should be with ack
+  sendMessageNoAck(tx_buffer_, n_bytes);  // TODO: should be with ack
 }
 
 //}
@@ -155,8 +156,8 @@ void MinipixDummy::update(void) {
           LLCP_MeasureFrameReq_t *req = (LLCP_MeasureFrameReq_t *)(&msg->payload);
 
           if (powered_) {
-            simulateFrameAcquisition(req->acquisition_time_ms);
-            /* testStripe(); */
+            /* simulateFrameAcquisition(req->acquisition_time_ms); */
+            testStripe();
           } else {
             printf("cannot do frame measurement, not powered!\n");
           }
@@ -296,7 +297,7 @@ void MinipixDummy::serialDataCallback(const uint8_t *bytes_in, const uint16_t &l
           hton_LLCP_StatusMsg_t(&status_msg);
 
           uint16_t n_bytes = llcp_prepareMessage((uint8_t *)&status_msg, sizeof(status_msg), tx_buffer_);
-          sendMessageNoAck(tx_buffer_, n_bytes); // TODO: should be with ack
+          sendMessageNoAck(tx_buffer_, n_bytes);  // TODO: should be with ack
 
           break;
         };
@@ -318,7 +319,7 @@ void MinipixDummy::serialDataCallback(const uint8_t *bytes_in, const uint16_t &l
           uint16_t n_bytes = llcp_prepareMessage((uint8_t *)&temperature_msg, sizeof(temperature_msg), tx_buffer_);
 
           printf("pes 1\n");
-          sendMessageNoAck(tx_buffer_, n_bytes); // TODO: should be with ack
+          sendMessageNoAck(tx_buffer_, n_bytes);  // TODO: should be with ack
           printf("pes 2\n");
 
           break;

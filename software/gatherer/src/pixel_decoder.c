@@ -1575,104 +1575,59 @@ const uint8_t LUT_COLSHIFTS[1280] = {
  *
  * @param data pointer to 6 x uint8_t of data
  * @param col_shift_num = 4
- * @param itot = false
  */
-void decodePixelData(uint8_t* data, const uint8_t col_shift_num, const bool itot) {
+void decodePixelData(uint8_t* data, const uint8_t col_shift_num) {
 
-  uint16_t address = (data[0] & 0x0F) << 12 | (data[1] << 4) | ((data[2] >> 4) & 0x0F);
-  uint16_t toa     = ((data[2] & 0x0F) << 10) | (data[3] << 2) | ((data[4] >> 6) & 0x03);
-  uint16_t tot     = ((data[4] & 0x3F) << 4) | ((data[5] >> 4) & 0x0F);
-  uint16_t ftoa    = (data[5] & 0x0F);
-  uint16_t eoc     = (address >> 9) & 0x7F;
-  uint16_t sp      = (address >> 3) & 0x3F;
-  uint16_t pix     = address & 0x07;
-  uint16_t x       = eoc * 2 + (pix / 4);
-  uint16_t y       = (sp * 4 + (pix % 4));
-  uint16_t idx     = y * 256 + x;
+  uint8_t  mode_mask = (data[0] & 0xF0) >> 4;
+  uint16_t address   = (data[0] & 0x0F) << 12 | (data[1] << 4) | ((data[2] >> 4) & 0x0F);
+  uint16_t value3    = ((data[2] & 0x0F) << 10) | (data[3] << 2) | ((data[4] >> 6) & 0x03);
+  uint16_t value2    = ((data[4] & 0x3F) << 4) | ((data[5] >> 4) & 0x0F);
+  uint16_t value1    = (data[5] & 0x0F);
+  uint16_t eoc       = (address >> 9) & 0x7F;
+  uint16_t sp        = (address >> 3) & 0x3F;
+  uint16_t pix       = address & 0x07;
+  uint16_t x         = eoc * 2 + (pix / 4);
+  uint16_t y         = (sp * 4 + (pix % 4));
+  uint16_t idx       = y * 256 + x;
 
-  if (itot) {
+  switch (mode_mask) {
 
-    if (toa >= 1 && toa < MAX_LUT_ITOT) {
-      toa = LUT_ITOT[toa];
-    } else {
-      toa = WRONG_LUT_ITOT;
+    // TODO what is this mask for the real Timepix?
+    case 1: {
+
+      LLCP_PixelDataToAToT_t* packet = (LLCP_PixelDataToAToT_t*)data;
+
+      packet->ftoa = (value1 - LUT_COLSHIFTS[col_shift_num * 256 + x]);
+      packet->tot  = LUT_TOT[value2];
+      packet->toa  = LUT_TOA[value3];
+
+      break;
     }
 
-    if (ftoa >= 1 && ftoa < MAX_LUT_EVENT) {
-      ftoa = LUT_EVENT[ftoa];
-    } else {
-      ftoa = WRONG_LUT_EVENT;
+    // TODO what is this mask for the real Timepix?
+    case 2: {
+
+      LLCP_PixelDataToA_t* packet = (LLCP_PixelDataToA_t*)data;
+
+      packet->ftoa  = (value1 - LUT_COLSHIFTS[col_shift_num * 256 + x]);
+      packet->dummy = 0;
+      packet->toa   = LUT_TOA[value3];
+
+      break;
     }
 
-  } else {
+    // TODO what is this mask for the real Timepix?
+    case 3: {
 
-    if (toa < MAX_LUT_TOA) {
-      toa = LUT_TOA[toa];
-    } else {
-      toa = WRONG_LUT_TOA;
+      LLCP_PixelDataMpxiToT_t* packet = (LLCP_PixelDataMpxiToT_t*)data;
+
+      packet->dummy         = 0;
+      packet->event_counter = LUT_EVENT[value2];
+      packet->itot          = LUT_ITOT[value3];
+
+      break;
     }
-
-    ftoa = (ftoa + LUT_COLSHIFTS[col_shift_num * 256 + x]);
   }
 
-  if (tot >= 1 && tot < MAX_LUT_TOT) {
-    tot = LUT_TOT[tot];
-  } else {
-    tot = WRONG_LUT_TOT;
-  }
-
-  ((LLCP_PixelDataToAToT_t*)data)->toa     = toa;
-  ((LLCP_PixelDataToAToT_t*)data)->tot     = tot;
-  ((LLCP_PixelDataToAToT_t*)data)->ftoa    = ftoa;
-  ((LLCP_PixelDataToAToT_t*)data)->address = idx;
-}
-
-void decodePixelData2(uint8_t* data, const uint8_t col_shift_num, const bool itot) {
-
-  uint16_t address = (data[0] & 0x0F) << 12 | (data[1] << 4) | ((data[2] >> 4) & 0x0F);
-  uint16_t toa     = ((data[2] & 0x0F) << 10) | (data[3] << 2) | ((data[4] >> 6) & 0x03);
-  uint16_t tot     = ((data[4] & 0x3F) << 4) | ((data[5] >> 4) & 0x0F);
-  uint16_t ftoa    = (data[5] & 0x0F);
-  uint16_t eoc     = (address >> 9) & 0x7F;
-  uint16_t sp      = (address >> 3) & 0x3F;
-  uint16_t pix     = address & 0x07;
-  uint16_t x       = eoc * 2 + (pix / 4);
-  uint16_t y       = (sp * 4 + (pix % 4));
-  uint16_t idx     = y * 256 + x;
-
-  if (itot) {
-
-    if (toa >= 1 && toa < MAX_LUT_ITOT) {
-      toa = LUT_ITOT[toa];
-    } else {
-      toa = WRONG_LUT_ITOT;
-    }
-
-    if (ftoa >= 1 && ftoa < MAX_LUT_EVENT) {
-      ftoa = LUT_EVENT[ftoa];
-    } else {
-      ftoa = WRONG_LUT_EVENT;
-    }
-
-  } else {
-
-    if (toa < MAX_LUT_TOA) {
-      toa = LUT_TOA[toa];
-    } else {
-      toa = WRONG_LUT_TOA;
-    }
-
-    ftoa = (ftoa + LUT_COLSHIFTS[col_shift_num * 256 + x]);
-  }
-
-  if (tot >= 1 && tot < MAX_LUT_TOT) {
-    tot = LUT_TOT[tot];
-  } else {
-    tot = WRONG_LUT_TOT;
-  }
-
-  ((LLCP_PixelDataToAToT_t*)data)->toa     = toa;
-  ((LLCP_PixelDataToAToT_t*)data)->tot     = tot;
-  ((LLCP_PixelDataToAToT_t*)data)->ftoa    = ftoa;
   ((LLCP_PixelDataToAToT_t*)data)->address = idx;
 }

@@ -19,8 +19,7 @@ extern "C" {
 #define WRONG_LUT_ITOT 16383
 #define WRONG_LUT_TOA 16383
 
-void decodePixelData(uint8_t* data, const uint8_t col_shift_num, const bool itot);
-void decodePixelData2(uint8_t* data, const uint8_t col_shift_num, const bool itot);
+void decodePixelData(uint8_t* data, const uint8_t col_shift_num);
 
 extern const int16_t LUT_EVENT[16];
 
