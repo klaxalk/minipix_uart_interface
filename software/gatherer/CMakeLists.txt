@@ -5,23 +5,51 @@ set(CMAKE_CXX_STANDARD 20)
 set(CMAKE_CXX_STANDARD_REQUIRED ON)
 set(CMAKE_EXPORT_COMPILE_COMMANDS ON)
 
+# UNSET this to compile without OpenCV GUI
+set(GUI 1)
+
+if(${GUI})
+  MESSAGE(WARNING "[Gatherer]: Compiling with GUI")
+else()
+  MESSAGE(WARNING "[Gatherer]: Compiling without GUI")
+endif()
+
 add_definitions(-DLLCP_LITTLE_ENDIAN)
 
 add_definitions(-Wall)
 add_definitions(-Wextra)
 add_definitions(-Wpedantic)
 
-find_package(OpenCV REQUIRED)
 find_package(Threads REQUIRED) # only for linux
 
-include_directories(
+set(INCLUDE_DIRS
   include
   include/llcp
+  )
+
+set(LINK_LIBS
+  Threads::Threads # only for linux
+  )
+
+## | ------------------ add OpenCV GUI stuff ------------------ |
+if(${GUI})
+
+find_package(OpenCV REQUIRED)
+
+set(INCLUDE_DIRS
+  ${INCLUDE_DIRS}
   ${OpenCV_INCLUDE_DIRS}
 )
 
-add_executable(gatherer
+set(LINK_LIBS
+  ${LINK_LIBS}
+  ${OpenCV_LIBS}
+)
 
+endif()
+## | ----------------------------  ---------------------------- |
+
+add_executable(gatherer
   src/main.cpp
   src/gatherer.cpp
   src/pixel_decoder.c
@@ -32,7 +60,14 @@ add_executable(gatherer
   src/llcp/llcp_minipix_messages.c
 )
 
-target_link_libraries(gatherer
-  ${OpenCV_LIBS}
-  Threads::Threads # only for linux
+include_directories(
+  ${INCLUDE_DIRS}
 )
+
+target_link_libraries(gatherer
+  ${LINK_LIBS}
+)
+
+if(${GUI})
+target_compile_definitions(gatherer PRIVATE GUI=1)
+endif()

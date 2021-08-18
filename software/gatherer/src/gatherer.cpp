@@ -9,19 +9,23 @@ Gatherer::Gatherer(const std::string data_path) {
   llcp_initialize(&llcp_receiver);
 
   // | ----------- prepare OpenCV windows for plotting ---------- |
-
+#if GUI == 1
   /* int flags = cv::WINDOW_NORMAL | cv::WINDOW_FREERATIO | cv::WINDOW_GUI_EXPANDED; */
   int flags = cv::WINDOW_NORMAL;
-  cv::namedWindow("frame", flags);
+  cv::namedWindow("gatherer_gui", flags);
 
   frame_top_left  = cv::Mat(256, 256, CV_32FC3);
   frame_top_right = cv::Mat(256, 256, CV_32FC3);
   frame_bot_left  = cv::Mat(256, 256, CV_32FC3);
   frame_bot_right = cv::Mat(256, 256, CV_32FC3);
+#endif
 
   // | ---------------------- start threads --------------------- |
 
+#if GUI == 1
   thread_plot_ = std::thread(&Gatherer::threadPlot, this);
+#endif
+
   thread_main_ = std::thread(&Gatherer::threadMain, this);
 
   // | ------------ open the file for saving the data ----------- |
@@ -163,6 +167,7 @@ void Gatherer::threadMain(void) {
 
 //}
 
+#if GUI == 1
 /* threadPlot() //{ */
 
 void Gatherer::threadPlot(void) {
@@ -199,13 +204,14 @@ void Gatherer::threadPlot(void) {
     images.push_back(frame_bot_left_plot);
     images.push_back(frame_bot_right_plot);
 
-    showManyImages<CV_32FC3>("frame", images);
+    showManyImages<CV_32FC3>("gatherer_gui", images);
 
     cv::waitKey(30);
   }
 }
 
 //}
+#endif
 
 /* saveFrameDataToFile() //{ */
 
@@ -246,6 +252,7 @@ void Gatherer::callbackFrameData(const LLCP_Message_t* message_in) {
 
   uint8_t n_pixels = image->n_pixels;
 
+#if GUI == 1
   {  // FOR PLOTTING
     // clear the old images
     if (image->packet_id == 0) {
@@ -262,6 +269,7 @@ void Gatherer::callbackFrameData(const LLCP_Message_t* message_in) {
       }
     }
   }
+#endif
 
   std::string mode_str;
   switch (image->mode) {
@@ -294,20 +302,21 @@ void Gatherer::callbackFrameData(const LLCP_Message_t* message_in) {
 
   printf("received frame data, id %d, packet %d, n_pixels %d\n", image->frame_id, image->packet_id, n_pixels);
 
+#if GUI == 1
+  /* Plotting //{ */
+
   // for all the pixels in the packet
   for (int pix = 0; pix < n_pixels; pix++) {
 
     // derandomize and deserialize the pixel data
     decodePixelData((uint8_t*)&image->pixel_data[pix], 4);
 
-    std::scoped_lock lock(mutex_cv_frames_);
-
     uint8_t  x, y;
     uint16_t tot, toa, ftoa, mpx, itot;
 
-    // FOR PLOTTING
     uint16_t value1, value2, value3;
 
+    // decode the pixel values based on the measurement mode
     switch (image->mode) {
 
       case LLCP_TPX3_PXL_MODE_TOA_TOT: {
@@ -377,7 +386,7 @@ void Gatherer::callbackFrameData(const LLCP_Message_t* message_in) {
       }
     }
 
-    // FOR PLOTTING
+    // put the pixel values into the OpenCV images
     {
       cv::Vec3f value1_color(0, 0, 0);  // BGR
       if (value1 > 0) {
@@ -394,11 +403,18 @@ void Gatherer::callbackFrameData(const LLCP_Message_t* message_in) {
         value3_color.val[0] = log2(value3);
       }
 
-      frame_top_left.at<cv::Vec3f>(cv::Point(x, y))  = value1_color;
-      frame_top_right.at<cv::Vec3f>(cv::Point(x, y)) = value2_color;
-      frame_bot_left.at<cv::Vec3f>(cv::Point(x, y))  = value3_color;
+      {
+        std::scoped_lock lock(mutex_cv_frames_);
+
+        frame_top_left.at<cv::Vec3f>(cv::Point(x, y))  = value1_color;
+        frame_top_right.at<cv::Vec3f>(cv::Point(x, y)) = value2_color;
+        frame_bot_left.at<cv::Vec3f>(cv::Point(x, y))  = value3_color;
+      }
     }
   }
+
+  //}
+#endif
 }
 
 //}

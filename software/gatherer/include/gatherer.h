@@ -13,12 +13,14 @@
 #include <llcp.h>
 #include <llcp_minipix_messages.h>
 
+#if GUI == 1
 #include <opencv2/opencv.hpp>
 #include <opencv2/core/core.hpp>
 #include <opencv2/imgproc/imgproc.hpp>
 #include <opencv2/highgui/highgui.hpp>
 #include <opencv2/imgproc.hpp>
 #include <opencv_helpers.hpp>
+#endif
 
 #include <mutex>
 #include <chrono>
@@ -59,22 +61,17 @@ public:
   bool waiting_for_status_ = false;
 
 private:
+
   SerialPort serial_port_;
   std::mutex mutex_serial_port_;
+  uint8_t tx_buffer[SERIAL_BUFFER_SIZE];
 
   LLCP_Receiver_t llcp_receiver;
-
-  uint8_t tx_buffer[SERIAL_BUFFER_SIZE];
 
   std::thread thread_main_;
   void        threadMain(void);
 
-  std::thread thread_plot_;
-  void        threadPlot(void);
-
   std::atomic<bool> initialized_ = false;
-
-  void saveFrameDataToFile(const LLCP_FrameDataMsg_t &msg);
 
   // | ------------------------ callbacks ----------------------- |
 
@@ -87,13 +84,19 @@ private:
 
   // | --------------------- helper routines -------------------- |
 
+  void saveFrameDataToFile(const LLCP_FrameDataMsg_t& msg);
   void bin2hex(const uint8_t x, uint8_t* buffer);
 
   // | ------------ saving measured frames to a file ------------ |
 
   FILE* measured_data_file_;
 
+#if GUI == 1
   // | ------------------------ plotting ------------------------ |
+
+  std::thread thread_plot_;
+  void        threadPlot(void);
+
 
   cv::Mat frame_top_left;
   cv::Mat frame_top_right;
@@ -101,6 +104,8 @@ private:
   cv::Mat frame_bot_right;
 
   std::mutex mutex_cv_frames_;
+
+#endif
 };
 
 #endif  // GATHERER_H
