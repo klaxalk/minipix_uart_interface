@@ -1,7 +1,7 @@
 name: minipix_virtual
 root: ./
 startup_window: main
-# pre_window: 
+# pre_window:
 windows:
   - serials:
       layout: tiled
@@ -14,4 +14,4 @@ windows:
       panes:
         - sleep 0.5; ./minipix_dummy /tmp/ttyS0 115200 1 `pwd`/dummy_data
         - sleep 0.5; ./example_interface /tmp/ttyS1 115200 1 /tmp/ttyS2 115200 1
-        - sleep 1.0; ./gatherer /tmp/ttyS3 115200 1
+        - sleep 1.0; ./gatherer /tmp/ttyS3 115200 1 `pwd`/received_data/data.txt

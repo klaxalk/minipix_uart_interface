@@ -4,6 +4,10 @@
 #define LLCP_DEBUG_PRINT 0
 #define SERIAL_BUFFER_SIZE 2048
 
+#ifndef GUI
+#define GUI 0
+#endif
+
 /* includes //{ */
 
 #include <llcp.h>
@@ -31,7 +35,7 @@
 class Gatherer {
 
 public:
-  Gatherer();
+  Gatherer(const std::string data_path);
 
   void connect(const std::string& serial_port, const int& baud_rate, const bool& virtual_port);
 
@@ -70,6 +74,8 @@ private:
 
   std::atomic<bool> initialized_ = false;
 
+  void saveFrameDataToFile(const LLCP_FrameDataMsg_t &msg);
+
   // | ------------------------ callbacks ----------------------- |
 
   void callbackFrameData(const LLCP_Message_t* message_in);
@@ -78,6 +84,14 @@ private:
   void callbackFrameTerminator(const LLCP_Message_t* message_in);
   void callbackAck(const LLCP_Message_t* message_in);
   void callbackError(const LLCP_Message_t* message_in);
+
+  // | --------------------- helper routines -------------------- |
+
+  void bin2hex(const uint8_t x, uint8_t* buffer);
+
+  // | ------------ saving measured frames to a file ------------ |
+
+  FILE* measured_data_file_;
 
   // | ------------------------ plotting ------------------------ |
 

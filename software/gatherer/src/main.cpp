@@ -13,22 +13,30 @@ int main(int argc, char* argv[]) {
   std::string serial_port_file;
   int         baud_rate;
   bool        serial_port_virtual;
+  std::string data_path;
 
-  if (argc == 4) {
+  if (argc == 5) {
 
     serial_port_file    = argv[1];
     baud_rate           = atoi(argv[2]);
     serial_port_virtual = atoi(argv[3]);
+    data_path           = argv[4];
 
-    printf("loaded params: %s, %d, %s\n", serial_port_file.c_str(), baud_rate, serial_port_virtual ? "VIRTUAL" : "REAL");
+    printf("loaded params: \n \
+serial port: '%s'\n \
+baud rate: '%d'\n \
+serial port is: '%s'\n \
+output data path: '%s'", serial_port_file.c_str(), baud_rate, serial_port_virtual ? "virtual" : "real", data_path.c_str());
   } else {
     printf("params not supplied!\n");
-    printf("required: ./gatherer <serial port file> <baud rate> <serial port virtual ? true : false>\n");
+    printf("required: ./gatherer <serial port file> <baud rate> <serial port virtual ? true : false> <output data path>\n");
     return 0;
   }
 
-  Gatherer gatherer;
+  // initialize the gatherer
+  Gatherer gatherer(data_path);
 
+  // open the serial line
   gatherer.connect(serial_port_file, baud_rate, serial_port_virtual);
 
   sleep(0.1);
@@ -57,7 +65,7 @@ int main(int argc, char* argv[]) {
   gatherer.getTemperature();
   sleep(0.1);
 
-  for (int i = 0; i < 100; i++) {
+  for (int i = 0; i < 10; i++) {
 
     gatherer.measureFrame(100);
     sleep(0.1);

@@ -2,9 +2,13 @@
 
 /* constructor Gatherer() //{ */
 
-Gatherer::Gatherer() {
+Gatherer::Gatherer(const std::string data_path) {
+
+  // | --------------- initialize the LLCP handler -------------- |
 
   llcp_initialize(&llcp_receiver);
+
+  // | ----------- prepare OpenCV windows for plotting ---------- |
 
   /* int flags = cv::WINDOW_NORMAL | cv::WINDOW_FREERATIO | cv::WINDOW_GUI_EXPANDED; */
   int flags = cv::WINDOW_NORMAL;
@@ -15,8 +19,20 @@ Gatherer::Gatherer() {
   frame_bot_left  = cv::Mat(256, 256, CV_32FC3);
   frame_bot_right = cv::Mat(256, 256, CV_32FC3);
 
+  // | ---------------------- start threads --------------------- |
+
   thread_plot_ = std::thread(&Gatherer::threadPlot, this);
   thread_main_ = std::thread(&Gatherer::threadMain, this);
+
+  // | ------------ open the file for saving the data ----------- |
+
+  measured_data_file_ = fopen(data_path.c_str(), "w");
+
+  if (measured_data_file_ == NULL) {
+    printf("Error: cannot open the data output file '%s' for writing!\n", data_path.c_str());
+  }
+
+  // | ---------------- finish the initialization --------------- |
 
   initialized_ = true;
 }
@@ -191,6 +207,30 @@ void Gatherer::threadPlot(void) {
 
 //}
 
+/* saveFrameDataToFile() //{ */
+
+void Gatherer::saveFrameDataToFile(const LLCP_FrameDataMsg_t& msg) {
+
+  // max llcp message size * 2
+  uint8_t out_buffer[3];
+  memset(out_buffer, 0, 3);
+
+  // fill in the out buffer with the message in HEX form
+  for (size_t i = 0; i < sizeof(LLCP_FrameDataMsg_t); i++) {
+
+    bin2hex(*(((uint8_t*)&msg) + i), out_buffer);
+
+    fprintf(measured_data_file_, "%s", out_buffer);
+  }
+
+  fprintf(measured_data_file_, "\n");
+
+  // probably not neccessary, but to be sure...
+  fflush(measured_data_file_);
+}
+
+//}
+
 // | ------- Callbacks for processing data from MiniPIX ------- |
 
 /* callbackFrameData() //{ */
@@ -199,6 +239,8 @@ void Gatherer::callbackFrameData(const LLCP_Message_t* message_in) {
 
   LLCP_FrameDataMsg_t* msg = (LLCP_FrameDataMsg_t*)message_in;
   ntoh_LLCP_FrameDataMsg_t(msg);
+
+  saveFrameDataToFile(*msg);
 
   LLCP_FrameData_t* image = (LLCP_FrameData_t*)&msg->payload;
 
@@ -669,6 +711,23 @@ void Gatherer::setConfigurationPreset(const uint16_t& preset) {
     std::scoped_lock lock(mutex_serial_port_);
 
     serial_port_.sendCharArray(tx_buffer, n_bytes);
+  }
+}
+
+//}
+
+// | --------------------- Helper routines -------------------- |
+
+/* bin2hex() //{ */
+
+void Gatherer::bin2hex(const uint8_t x, uint8_t* buffer) {
+
+  if (x >= 16) {
+    *buffer       = "0123456789ABCDEF"[x / 16];
+    *(buffer + 1) = "0123456789ABCDEF"[x & 15];
+  } else {
+    *buffer       = '0';
+    *(buffer + 1) = "0123456789ABCDEF"[x];
   }
 }
 
