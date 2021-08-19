@@ -180,6 +180,8 @@ void MinipixDummyLinux::simulateFrameAcquisition(const uint16_t& acquisition_tim
 
   printf("simulating acquisition, time %f s\n", double(acquisition_time) / 1000);
 
+  frame_id_++;
+
   sleep(acquisition_time);
 
   // simulate error
@@ -229,7 +231,7 @@ void MinipixDummyLinux::getFrameData(void) {
 
   // | ------------------- fill in the payload ------------------ |
 
-  image_data.payload.frame_id  = frame_id_++;
+  image_data.payload.frame_id  = frame_id_;
   image_data.payload.mode      = LLCP_TPX3_PXL_MODE_TOA_TOT;
   image_data.payload.n_pixels  = 0;
   image_data.payload.packet_id = 0;

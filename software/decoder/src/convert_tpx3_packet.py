@@ -1,67 +1,56 @@
 #!/usr/bin/python3
 
-import sys
 from src.tpx3luts import *
+from src.structures import *
 
-class PixelDataToAToT:
-
-    def __init__(self):
-
-        self.ftoa = 0
-        self.toa = 0
-        self.tot = 0
-        self.x = 0
-        self.y = 0
-        self.mode_mask = 0
-
-class PixelDataToA:
-
-    def __init__(self):
-
-        self.ftoa = 0
-        self.toa = 0
-        self.x = 0
-        self.y = 0
-        self.mode_mask = 0
-
-class PixelDataMpxiToT:
-
-    def __init__(self):
-
-        self.event_counter = 0
-        self.itot = 0
-        self.x = 0
-        self.y = 0
-        self.mode_mask = 0
-
-def convert_packet(data, colShiftNum, itot):
+def convert_packet(data, colShiftNum):
 
     colshifttbl = LUT_COLSHIFTS[colShiftNum]
-    address = (data[0] & 0x0F) << 12 | (data[1] << 4) | ((data[2] >> 4) & 0x0F)
-    toa = ((data[2] & 0x0F) << 10) | (data[3] << 2) | ((data[4] >> 6) & 0x03)
-    tot = ((data[4] & 0x3F) << 4) | ((data[5] >> 4) & 0x0F)
-    ftoa = (data[5] & 0x0F)
-    eoc = (address >> 9) & 0x7F
-    sp = (address >> 3) & 0x3F
-    pix = address & 0x07
-    x = eoc * 2 + (pix // 4)
-    y = (sp * 4 + (pix % 4))
-    idx = y * 256 + x
+    mode_mask   = (data[0] & 0xF0) >> 4
+    address     = (data[0] & 0x0F) << 12 | (data[1] << 4) | ((data[2] >> 4) & 0x0F)
+    value3      = ((data[2] & 0x0F) << 10) | (data[3] << 2) | ((data[4] >> 6) & 0x03)
+    value2      = ((data[4] & 0x3F) << 4) | ((data[5] >> 4) & 0x0F)
+    value1      = (data[5] & 0x0F)
+    eoc         = (address >> 9) & 0x7F
+    sp          = (address >> 3) & 0x3F
+    pix         = address & 0x07
+    x           = eoc * 2 + (pix // 4)
+    y           = (sp * 4 + (pix % 4))
+    idx         = y * 256 + x
 
-    if itot:
-        toa = LUT_ITOT[toa] if toa >= 1 and toa < MAX_LUT_ITOT else WRONG_LUT_ITOT
-        ftoa = LUT_EVENT[ftoa] if ftoa >= 1 and ftoa < MAX_LUT_EVENT else WRONG_LUT_EVENT
-    else:
-        toa = LUT_TOA[toa] if toa >= 0 and toa < MAX_LUT_TOA else WRONG_LUT_TOA
-        ftoa = (ftoa + colshifttbl[x])
+    if mode_mask == MODE_TOA_TOT:
 
-    tot = LUT_TOT[tot] if tot >= 1 and tot < MAX_LUT_TOT else WRONG_LUT_TOT
+        ftoa = (value1 + colshifttbl[x])
+        tot = LUT_TOT[value2] if value2 >= 1 and value2 < MAX_LUT_TOT else WRONG_LUT_TOT
+        toa = LUT_TOA[value3] if value3 >= 1 and value3 < MAX_LUT_TOA else WRONG_LUT_TOA
 
-    data = PixelDataToAToT()
-    data.x = x
-    data.y = y
-    data.toa = toa
-    data.tot = tot
-    data.ftoa = ftoa
+        data      = PixelDataToAToT()
+        data.x    = x
+        data.y    = y
+        data.toa  = toa
+        data.tot  = tot
+        data.ftoa = ftoa
+
+    elif mode_mask == MODE_TOA:
+
+        ftoa = (value1 + colshifttbl[x])
+        toa = LUT_TOA[value3] if value3 >= 0 and value3 < MAX_LUT_TOA else WRONG_LUT_TOA
+
+        data      = PixelDataToA()
+        data.x    = x
+        data.y    = y
+        data.toa  = toa
+        data.ftoa = ftoa
+
+    elif mode_mask == MODE_MPX_ITOT:
+
+        mpx = LUT_EVENT[value2] if value2 >= 1 and value2 < MAX_LUT_EVENT else WRONG_LUT_EVENT
+        itot = LUT_ITOT[value3] if value3 >= 1 and value3 < MAX_LUT_ITOT else WRONG_LUT_ITOT
+
+        data      = PixelDataMpxiToT()
+        data.x    = x
+        data.y    = y
+        data.itot = itot
+        data.mpx  = mpx
 
     return data

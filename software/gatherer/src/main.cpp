@@ -65,10 +65,10 @@ output data path: '%s'", serial_port_file.c_str(), baud_rate, serial_port_virtua
   gatherer.getTemperature();
   sleep(0.1);
 
-  for (int i = 0; i < 10; i++) {
+  for (int i = 0; i < 100; i++) {
 
-    gatherer.measureFrame(100);
-    sleep(0.1);
+    gatherer.measureFrame(1);
+    sleep(0.01);
   }
 
   printf("powering off\n");

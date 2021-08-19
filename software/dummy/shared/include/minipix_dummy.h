@@ -28,7 +28,7 @@ protected:
   LLCP_Receiver_t llcp_receiver_;
 
   uint16_t boot_count_ = 0;
-  uint16_t frame_id_   = 0;
+  uint16_t frame_id_   = 41;
 
   void update(void);
 

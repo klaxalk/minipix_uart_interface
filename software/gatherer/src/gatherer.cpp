@@ -611,7 +611,7 @@ void Gatherer::measureFrame(const uint16_t& acquisition_time_ms) {
   while (bool(measuring_frame_)) {
 
     printf("data readout in progress: %d\n", bool(measuring_frame_));
-    std::this_thread::sleep_for(std::chrono::milliseconds(1000));
+    std::this_thread::sleep_for(std::chrono::milliseconds(10));
   }
 }
 
