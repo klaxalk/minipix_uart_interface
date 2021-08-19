@@ -5,7 +5,7 @@ set(CMAKE_CXX_STANDARD 20)
 set(CMAKE_CXX_STANDARD_REQUIRED ON)
 set(CMAKE_EXPORT_COMPILE_COMMANDS ON)
 
-# UNSET this to compile without OpenCV GUI
+#UNSET this to compile without OpenCV GUI
 set(GUI 1)
 
 if(${GUI})
@@ -31,7 +31,7 @@ set(LINK_LIBS
   Threads::Threads # only for linux
   )
 
-## | ------------------ add OpenCV GUI stuff ------------------ |
+## | ------------ add OpenCV GUI >>>>>>>>>>>>>>>>> ------------ |
 if(${GUI})
 
 find_package(OpenCV REQUIRED)
@@ -47,7 +47,7 @@ set(LINK_LIBS
 )
 
 endif()
-## | ----------------------------  ---------------------------- |
+## | ------------ add OpenCV GUI <<<<<<<<<<<<<<<<< ------------ |
 
 add_executable(gatherer
   src/main.cpp

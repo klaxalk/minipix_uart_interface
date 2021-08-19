@@ -250,27 +250,6 @@ void Gatherer::callbackFrameData(const LLCP_Message_t* message_in) {
 
   LLCP_FrameData_t* image = (LLCP_FrameData_t*)&msg->payload;
 
-  uint8_t n_pixels = image->n_pixels;
-
-#if GUI == 1
-  {  // FOR PLOTTING
-    // clear the old images
-    if (image->packet_id == 0) {
-
-      std::scoped_lock lock(mutex_cv_frames_);
-
-      for (int i = 0; i < 256; i++) {
-        for (int j = 0; j < 256; j++) {
-          frame_top_left.at<cv::Vec3f>(cv::Point(i, j))  = 0;
-          frame_top_right.at<cv::Vec3f>(cv::Point(i, j)) = 0;
-          frame_bot_left.at<cv::Vec3f>(cv::Point(i, j))  = 0;
-          frame_bot_right.at<cv::Vec3f>(cv::Point(i, j)) = 0;
-        }
-      }
-    }
-  }
-#endif
-
   std::string mode_str;
   switch (image->mode) {
 
@@ -300,13 +279,28 @@ void Gatherer::callbackFrameData(const LLCP_Message_t* message_in) {
     }
   }
 
-  printf("received frame data, id %d, packet %d, n_pixels %d\n", image->frame_id, image->packet_id, n_pixels);
+  printf("received frame data, id %d, packet %d, n_pixels %d\n", image->frame_id, image->packet_id, image->n_pixels);
 
 #if GUI == 1
   /* Plotting //{ */
 
+  // we received the first packet in an image, so clear the old image data
+  if (image->packet_id == 0) {
+
+    std::scoped_lock lock(mutex_cv_frames_);
+
+    for (int i = 0; i < 256; i++) {
+      for (int j = 0; j < 256; j++) {
+        frame_top_left.at<cv::Vec3f>(cv::Point(i, j))  = 0;
+        frame_top_right.at<cv::Vec3f>(cv::Point(i, j)) = 0;
+        frame_bot_left.at<cv::Vec3f>(cv::Point(i, j))  = 0;
+        frame_bot_right.at<cv::Vec3f>(cv::Point(i, j)) = 0;
+      }
+    }
+  }
+
   // for all the pixels in the packet
-  for (int pix = 0; pix < n_pixels; pix++) {
+  for (int pix = 0; pix < image->n_pixels; pix++) {
 
     // derandomize and deserialize the pixel data
     decodePixelData((uint8_t*)&image->pixel_data[pix], 4);

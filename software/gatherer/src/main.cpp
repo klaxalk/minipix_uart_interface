@@ -75,5 +75,7 @@ output data path: '%s'", serial_port_file.c_str(), baud_rate, serial_port_virtua
   gatherer.pwr(false);
   sleep(1.0);
 
+  printf("finished\n");
+
   return 0;
 }

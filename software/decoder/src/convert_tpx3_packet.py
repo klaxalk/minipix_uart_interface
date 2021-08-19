@@ -1,12 +1,42 @@
 #!/usr/bin/python3
 
 import sys
-from tpx3luts import *
+from src.tpx3luts import *
+
+class PixelDataToAToT:
+
+    def __init__(self):
+
+        self.ftoa = 0
+        self.toa = 0
+        self.tot = 0
+        self.x = 0
+        self.y = 0
+        self.mode_mask = 0
+
+class PixelDataToA:
+
+    def __init__(self):
+
+        self.ftoa = 0
+        self.toa = 0
+        self.x = 0
+        self.y = 0
+        self.mode_mask = 0
+
+class PixelDataMpxiToT:
+
+    def __init__(self):
+
+        self.event_counter = 0
+        self.itot = 0
+        self.x = 0
+        self.y = 0
+        self.mode_mask = 0
 
 def convert_packet(data, colShiftNum, itot):
 
     colshifttbl = LUT_COLSHIFTS[colShiftNum]
-    # print(" ".join("%02X" % x for x in data), cnt)
     address = (data[0] & 0x0F) << 12 | (data[1] << 4) | ((data[2] >> 4) & 0x0F)
     toa = ((data[2] & 0x0F) << 10) | (data[3] << 2) | ((data[4] >> 6) & 0x03)
     tot = ((data[4] & 0x3F) << 4) | ((data[5] >> 4) & 0x0F)
@@ -27,25 +57,11 @@ def convert_packet(data, colShiftNum, itot):
 
     tot = LUT_TOT[tot] if tot >= 1 and tot < MAX_LUT_TOT else WRONG_LUT_TOT
 
-    print("x: {}".format(x))
-    print("y: {}".format(y))
-    print("toa: {}".format(toa))
-    print("tot: {}".format(tot))
-    print("ftoa: {}".format(ftoa))
+    data = PixelDataToAToT()
+    data.x = x
+    data.y = y
+    data.toa = toa
+    data.tot = tot
+    data.ftoa = ftoa
 
-
-print("len(LUT_EVENT): {}".format(len(LUT_EVENT)))
-print("len(LUT_ITOT): {}".format(len(LUT_ITOT)))
-print("len(LUT_TOA): {}".format(len(LUT_TOA)))
-print("len(LUT_TOT): {}".format(len(LUT_TOT)))
-print("len(LUT_COLSHIFT16): {}".format(len(LUT_COLSHIFT16)))
-print("len(LUT_COLSHIFT8): {}".format(len(LUT_COLSHIFT8)))
-print("len(LUT_COLSHIFT4): {}".format(len(LUT_COLSHIFT4)))
-
-# INSERT DATA - 6 bytes of payload
-data = []
-for i in range(0, 6):
-  data.append(0)
-
-# get data from the payload
-convert_packet(data, 4, False)
+    return data
