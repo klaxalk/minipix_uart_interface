@@ -17,9 +17,9 @@ from src.parse_file import *
 
 # #} end of imports
 
-# #{ open the input file => "frame_data"
-
 file_path = "data/data.txt"
+
+# #{ open the input file => list of "frame_data"
 
 try:
     infile = open(file_path, "r", encoding="ascii")
