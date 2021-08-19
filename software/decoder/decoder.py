@@ -34,7 +34,7 @@ frame_data = parseFile(infile)
 # #{ frame_data => list of numpy images
 
 images_data = {}
-first_image_id = 0
+id_list = []
 
 for idx,frame in enumerate(frame_data):
 
@@ -42,8 +42,7 @@ for idx,frame in enumerate(frame_data):
 
     if images_data.get(frame.frame_id) == None:
 
-        if idx == 0:
-            first_image_id = frame.frame_id 
+        id_list.append(frame.frame_id)
 
         if measurement_mode == MODE_TOA_TOT:
             images_data[frame.frame_id] = ImageToAToT()
@@ -168,16 +167,16 @@ def listBoxOnSelect(evt):
         return
 
     # extract the index of the selected item
-    index = int(w.curselection()[0])
+    listbox_idx = int(w.curselection()[0])
 
-    loadImage(index)
+    loadImage(id_list[listbox_idx])
 
 listbox.bind('<<ListboxSelect>>', listBoxOnSelect)
 
 # #} end of listBoxOnSelect()
 
 # load the first image
-loadImage(first_image_id)
+loadImage(id_list[0])
 
 # #{ window loop and deletion
 
