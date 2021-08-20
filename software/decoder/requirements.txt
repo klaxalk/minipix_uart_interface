@@ -1,2 +1,4 @@
-numpy==1.17.4
-matplotlib==3.4.2
+numpy
+matplotlib
+math
+tkinter

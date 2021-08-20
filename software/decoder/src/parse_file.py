@@ -1,8 +1,10 @@
-# for convertin hexadecimal to binary
+#!/usr/bin/python3
+
+# for converting hexadecimal to binary
 import binascii
 
 from src.structures import *
-from src.convert_tpx3_packet import *
+from src.pixel_decoder import *
 
 def bytesToInt16(byte1, byte2):
 

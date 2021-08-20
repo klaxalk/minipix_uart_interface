@@ -1,6 +1,6 @@
 #!/usr/bin/python3
 
-from src.tpx3luts import *
+from src.tpx3_luts import *
 from src.structures import *
 
 def convert_packet(data, colShiftNum, tpx_mode):

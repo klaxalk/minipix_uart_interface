@@ -1,4 +1,4 @@
-#!/usr/bin/python
+#!/usr/bin/python3
 
 # #{ imports
 
@@ -31,6 +31,8 @@ except:
     print("[Error]: can not open input file!")
     exit()
 
+# parse the input file, dehexify the data and decode the pixel values
+# frame_data = list of all decoded messages from the MUI
 frame_data = parseFile(infile, tpx_mode)
 
 # #} open the input file
@@ -41,8 +43,6 @@ images_data = {}
 id_list = []
 
 for idx,frame in enumerate(frame_data):
-
-    measurement_mode = frame.mode
 
     if images_data.get(frame.frame_id) == None:
 

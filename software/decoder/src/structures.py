@@ -1,3 +1,5 @@
+#!/usr/bin/python3
+
 import numpy
 
 MODE_TOA_TOT  = "toa_tot"
