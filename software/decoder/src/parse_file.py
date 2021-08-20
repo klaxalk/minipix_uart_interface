@@ -53,7 +53,8 @@ def parseFile(infile):
                 # deserialize and derandomize the pixel data
                 pixel_data = convert_packet(pixel_data, 4)
 
-                frame_data.pixel_data.append(pixel_data)
+                if pixel_data:
+                    frame_data.pixel_data.append(pixel_data)
 
             data_out.append(frame_data)
 

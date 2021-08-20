@@ -65,9 +65,9 @@ output data path: '%s'", serial_port_file.c_str(), baud_rate, serial_port_virtua
   gatherer.getTemperature();
   sleep(0.1);
 
-  for (int i = 0; i < 10; i++) {
+  for (int i = 0; i < 1e6; i++) {
 
-    gatherer.measureFrame(100);
+    gatherer.measureFrame(1000);
     sleep(0.01);
   }
 

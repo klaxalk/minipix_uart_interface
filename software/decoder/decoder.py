@@ -4,6 +4,7 @@
 
 # math, arrays, etc.
 import numpy
+import math
 
 # gui creator
 import tkinter
@@ -40,31 +41,43 @@ for idx,frame in enumerate(frame_data):
 
     measurement_mode = frame.mode
 
+    # TODO this should not be needed
+    if measurement_mode == 0:
+        measurement_mode = MODE_TOA_TOT
+
     if images_data.get(frame.frame_id) == None:
 
         id_list.append(frame.frame_id)
 
         if measurement_mode == MODE_TOA_TOT:
             images_data[frame.frame_id] = ImageToAToT()
-        elif measurement_mode == MODE_TOT:
+        elif measurement_mode == MODE_TOA:
             images_data[frame.frame_id] = ImageToT()
-        elif measurement_mode == MODE_TOT:
+        elif measurement_mode == MODE_MPX_ITOT:
             images_data[frame.frame_id] = ImageMpxiToT()
 
         print("instancing image id {} mode {}".format(frame.frame_id, measurement_mode))
 
     for idx,pixel in enumerate(frame.pixel_data):
 
-        if measurement_mode == MODE_TOA_TOT:
-            images_data[frame.frame_id].tot[pixel.x, pixel.y]  = pixel.tot
-            images_data[frame.frame_id].toa[pixel.x, pixel.y]  = pixel.toa
-            images_data[frame.frame_id].ftoa[pixel.x, pixel.y] = pixel.ftoa
-        elif measurement_mode == MODE_TOA:
-            images_data[frame.frame_id].toa[pixel.x, pixel.y]  = pixel.toa
-            images_data[frame.frame_id].ftoa[pixel.x, pixel.y] = pixel.ftoa
-        elif measurement_mode == MODE_MPX_ITOT:
-            images_data[frame.frame_id].mpx[pixel.x, pixel.y]  = pixel.mpx
-            images_data[frame.frame_id].itot[pixel.x, pixel.y] = pixel.itot
+        if pixel.mode_mask == MODE_TOA_TOT:
+
+            if isinstance(images_data[frame.frame_id], ImageToAToT):
+                images_data[frame.frame_id].tot[pixel.x, pixel.y]  = math.log(pixel.tot) if pixel.tot > 0 else 0
+                images_data[frame.frame_id].toa[pixel.x, pixel.y]  = pixel.toa
+                images_data[frame.frame_id].ftoa[pixel.x, pixel.y] = pixel.ftoa
+
+        elif pixel.mode_mask == MODE_TOA:
+
+            if isinstance(images_data[frame.frame_id], ImageToA):
+                images_data[frame.frame_id].toa[pixel.x, pixel.y]  = pixel.toa
+                images_data[frame.frame_id].ftoa[pixel.x, pixel.y] = pixel.ftoa
+
+        elif pixel.mode_mask == MODE_MPX_ITOT:
+              
+            if isinstance(images_data[frame.frame_id], ImageMpxiToT):
+                images_data[frame.frame_id].mpx[pixel.x, pixel.y]  = pixel.mpx
+                images_data[frame.frame_id].itot[pixel.x, pixel.y] = pixel.itot
 
 # #} end of frame_data => list of numpy images
 

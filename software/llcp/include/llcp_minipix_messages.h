@@ -164,9 +164,9 @@ void init_LLCP_PixelData_t(LLCP_PixelData_t* data);
 #define LLCP_FRAME_DATA_N_PIXELS 41
 
 #define LLCP_TPX3_PXL_MODE_UNSET 0
-#define LLCP_TPX3_PXL_MODE_TOA_TOT 1
-#define LLCP_TPX3_PXL_MODE_TOA 2
-#define LLCP_TPX3_PXL_MODE_MPX_ITOT 3
+#define LLCP_TPX3_PXL_MODE_TOA_TOT 10
+#define LLCP_TPX3_PXL_MODE_TOA 3 // TODO
+#define LLCP_TPX3_PXL_MODE_MPX_ITOT 4 // TODO
 
 /**
  * @brief Message data for LLCP_FrameDataMsg_t

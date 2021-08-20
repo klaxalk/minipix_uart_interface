@@ -1,9 +1,9 @@
 import numpy
 
 # TODO update this according to real Timepix
-MODE_TOA_TOT  = 1
-MODE_TOA      = 2
-MODE_MPX_ITOT = 3
+MODE_TOA_TOT  = 10
+MODE_TOA      = 7
+MODE_MPX_ITOT = 4
 
 # #{ class PixelDataToAToT
 

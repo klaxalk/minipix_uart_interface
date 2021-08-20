@@ -250,7 +250,7 @@ void MinipixDummyLinux::getFrameData(void) {
         pixel->tot                    = uint8_t(pixel_value);
         pixel->toa                    = 500 - uint8_t(pixel_value) >= 0 ? 500 - uint8_t(pixel_value) : 0;
 
-        pixel->mode_mask = 1;
+        pixel->mode_mask = 10;
 
         encodePixelData((uint8_t*)pixel, 4);
       }

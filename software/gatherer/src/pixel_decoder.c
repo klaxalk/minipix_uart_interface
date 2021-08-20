@@ -1630,4 +1630,5 @@ void decodePixelData(uint8_t* data, const uint8_t col_shift_num) {
   }
 
   ((LLCP_PixelDataToAToT_t*)data)->address = idx;
+  ((LLCP_PixelDataToAToT_t*)data)->mode_mask = mode_mask;
 }
