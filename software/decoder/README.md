@@ -1,3 +1,5 @@
 # Data decoder and visualizer
 
-TODO
+![](./fig/decoder.png)
+
+[TODO](TODO)
