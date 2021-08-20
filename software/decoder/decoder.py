@@ -20,6 +20,9 @@ from src.parse_file import *
 
 file_path = "data/data.txt"
 
+ # Timepix3 mode {"toa_tot", "toa", "mpx_itot"}
+tpx_mode = MODE_TOA_TOT
+
 # #{ open the input file => list of "frame_data"
 
 try:
@@ -28,7 +31,7 @@ except:
     print("[Error]: can not open input file!")
     exit()
 
-frame_data = parseFile(infile)
+frame_data = parseFile(infile, tpx_mode)
 
 # #} open the input file
 
@@ -41,40 +44,34 @@ for idx,frame in enumerate(frame_data):
 
     measurement_mode = frame.mode
 
-    # TODO this should not be needed
-    if measurement_mode == 0:
-        measurement_mode = MODE_TOA_TOT
-
     if images_data.get(frame.frame_id) == None:
 
         id_list.append(frame.frame_id)
 
-        if measurement_mode == MODE_TOA_TOT:
+        if tpx_mode == MODE_TOA_TOT:
             images_data[frame.frame_id] = ImageToAToT()
-        elif measurement_mode == MODE_TOA:
-            images_data[frame.frame_id] = ImageToT()
-        elif measurement_mode == MODE_MPX_ITOT:
+        elif tpx_mode == MODE_TOA:
+            images_data[frame.frame_id] = ImageToA()
+        elif tpx_mode == MODE_MPX_ITOT:
             images_data[frame.frame_id] = ImageMpxiToT()
-
-        print("instancing image id {} mode {}".format(frame.frame_id, measurement_mode))
 
     for idx,pixel in enumerate(frame.pixel_data):
 
-        if pixel.mode_mask == MODE_TOA_TOT:
+        if tpx_mode == MODE_TOA_TOT:
 
             if isinstance(images_data[frame.frame_id], ImageToAToT):
                 images_data[frame.frame_id].tot[pixel.x, pixel.y]  = math.log(pixel.tot) if pixel.tot > 0 else 0
                 images_data[frame.frame_id].toa[pixel.x, pixel.y]  = pixel.toa
                 images_data[frame.frame_id].ftoa[pixel.x, pixel.y] = pixel.ftoa
 
-        elif pixel.mode_mask == MODE_TOA:
+        elif tpx_mode == MODE_TOA:
 
             if isinstance(images_data[frame.frame_id], ImageToA):
                 images_data[frame.frame_id].toa[pixel.x, pixel.y]  = pixel.toa
                 images_data[frame.frame_id].ftoa[pixel.x, pixel.y] = pixel.ftoa
 
-        elif pixel.mode_mask == MODE_MPX_ITOT:
-              
+        elif tpx_mode == MODE_MPX_ITOT:
+
             if isinstance(images_data[frame.frame_id], ImageMpxiToT):
                 images_data[frame.frame_id].mpx[pixel.x, pixel.y]  = pixel.mpx
                 images_data[frame.frame_id].itot[pixel.x, pixel.y] = pixel.itot
@@ -113,7 +110,9 @@ figure_canvas._tkcanvas.pack(side=tkinter.TOP)
 
 subplot1 = my_figure.add_subplot(221)
 subplot2 = my_figure.add_subplot(222)
-subplot3 = my_figure.add_subplot(223)
+
+if tpx_mode == MODE_TOA_TOT:
+    subplot3 = my_figure.add_subplot(223)
 
 # #} end of create figure
 

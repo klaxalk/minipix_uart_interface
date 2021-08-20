@@ -12,7 +12,7 @@ def bytesToInt32(byte1, byte2, byte3, byte4):
 
     return byte1<<24 | byte2<<16 | byte3<<8 | byte4
 
-def parseFile(infile):
+def parseFile(infile, tpx_mode):
 
     data_out = []
 
@@ -51,7 +51,7 @@ def parseFile(infile):
                     pixel_data.append(data[8 + i*6 + j])
 
                 # deserialize and derandomize the pixel data
-                pixel_data = convert_packet(pixel_data, 4)
+                pixel_data = convert_packet(pixel_data, 4, tpx_mode)
 
                 if pixel_data:
                     frame_data.pixel_data.append(pixel_data)

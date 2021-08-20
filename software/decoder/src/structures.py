@@ -1,9 +1,8 @@
 import numpy
 
-# TODO update this according to real Timepix
-MODE_TOA_TOT  = 10
-MODE_TOA      = 7
-MODE_MPX_ITOT = 4
+MODE_TOA_TOT  = "toa_tot"
+MODE_TOA      = "toa"
+MODE_MPX_ITOT = "mpx_itot"
 
 # #{ class PixelDataToAToT
 
@@ -16,7 +15,6 @@ class PixelDataToAToT:
         self.tot       = 0
         self.x         = 0
         self.y         = 0
-        self.mode_mask = 0
 
 # #} end of classPixelDataToAToT
 
@@ -30,7 +28,6 @@ class PixelDataToA:
         self.toa       = 0
         self.x         = 0
         self.y         = 0
-        self.mode_mask = 0
 
 # #} end of class PixelDataToA
 
@@ -44,7 +41,6 @@ class PixelDataMpxiToT:
         self.itot          = 0
         self.x             = 0
         self.y             = 0
-        self.mode_mask     = 0
 
 # #} end of class PixelDataMpxiToT
 
@@ -77,8 +73,8 @@ class ImageMpxiToT:
 
     def __init__(self):
 
-        self.event_counter = numpy.zeros(shape=[256, 256])
-        self.itot          = numpy.zeros(shape=[256, 256])
+        self.mpx  = numpy.zeros(shape=[256, 256])
+        self.itot = numpy.zeros(shape=[256, 256])
 
 # #} end of class Image
 

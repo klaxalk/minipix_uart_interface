@@ -3,11 +3,10 @@
 from src.tpx3luts import *
 from src.structures import *
 
-def convert_packet(data, colShiftNum):
+def convert_packet(data, colShiftNum, tpx_mode):
 
     colshifttbl = LUT_COLSHIFTS[colShiftNum]
 
-    mode_mask   = (data[0] & 0xF0) >> 4
     address     = (data[0] & 0x0F) << 12 | (data[1] << 4) | ((data[2] >> 4) & 0x0F)
     value3      = ((data[2] & 0x0F) << 10) | (data[3] << 2) | ((data[4] >> 6) & 0x03)
     value2      = ((data[4] & 0x3F) << 4) | ((data[5] >> 4) & 0x0F)
@@ -19,9 +18,7 @@ def convert_packet(data, colShiftNum):
     y           = (sp * 4 + (pix % 4))
     idx         = y * 256 + x
 
-    # mode_mask = MODE_TOA_TOT
-
-    if mode_mask == MODE_TOA_TOT:
+    if tpx_mode == MODE_TOA_TOT:
 
         ftoa = (value1 + colshifttbl[x])
         tot = LUT_TOT[value2] if value2 >= 1 and value2 < MAX_LUT_TOT else WRONG_LUT_TOT
@@ -33,9 +30,8 @@ def convert_packet(data, colShiftNum):
         data.toa       = toa
         data.tot       = tot
         data.ftoa      = ftoa
-        data.mode_mask = mode_mask
 
-    elif mode_mask == MODE_TOA:
+    elif tpx_mode == MODE_TOA:
 
         ftoa = (value1 + colshifttbl[x])
         toa = LUT_TOA[value3] if value3 >= 0 and value3 < MAX_LUT_TOA else WRONG_LUT_TOA
@@ -45,9 +41,8 @@ def convert_packet(data, colShiftNum):
         data.y         = y
         data.toa       = toa
         data.ftoa      = ftoa
-        data.mode_mask = mode_mask
 
-    elif mode_mask == MODE_MPX_ITOT:
+    elif tpx_mode == MODE_MPX_ITOT:
 
         mpx = LUT_EVENT[value2] if value2 >= 1 and value2 < MAX_LUT_EVENT else WRONG_LUT_EVENT
         itot = LUT_ITOT[value3] if value3 >= 1 and value3 < MAX_LUT_ITOT else WRONG_LUT_ITOT
@@ -57,10 +52,9 @@ def convert_packet(data, colShiftNum):
         data.y         = y
         data.itot      = itot
         data.mpx       = mpx
-        data.mode_mask = mode_mask
 
     else:
-        print("wring mode detecting while reconstructing a pixel [{}, {}]: {}".format(x, y, mode_mask))
+        print("Error: wrong Timepix3 mode specified, need {'toa_tot', 'toa', 'mpx_itot'}")
         return False
 
     return data
