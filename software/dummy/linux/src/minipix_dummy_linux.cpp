@@ -249,10 +249,9 @@ void MinipixDummyLinux::getFrameData(void) {
         pixel->ftoa                   = pixel_value > 0 ? 1 : 0;
         pixel->tot                    = uint8_t(pixel_value);
         pixel->toa                    = 500 - uint8_t(pixel_value) >= 0 ? 500 - uint8_t(pixel_value) : 0;
+        pixel->header                 = 10;
 
-        pixel->mode_mask = 10;
-
-        encodePixelData((uint8_t*)pixel, 4);
+        encodePixelData((uint8_t*)pixel, 4, TPX3_TOA_TOT);
       }
 
       // send the packet when it is full

@@ -19,7 +19,13 @@ extern "C" {
 #define WRONG_LUT_ITOT 16383
 #define WRONG_LUT_TOA 16383
 
-void decodePixelData(uint8_t* data, const uint8_t col_shift_num);
+typedef enum {
+  TPX3_TOA_TOT,
+  TPX3_TOA,
+  TPX3_MPX_ITOT,
+} TPX3PixelMode_t;
+
+void decodePixelData(uint8_t* data, const uint8_t col_shift_num, const TPX3PixelMode_t pixel_mode);
 
 extern const int16_t LUT_EVENT[16];
 

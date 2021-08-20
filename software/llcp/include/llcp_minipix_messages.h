@@ -80,7 +80,7 @@ typedef struct __attribute__((packed))
   uint16_t value2 : 10;
   uint16_t value3 : 14;
   uint16_t address : 16;
-  uint16_t mode_mask : 4;
+  uint16_t header : 4;
 } LLCP_PixelDataCommon_t;
 
 /**
@@ -93,7 +93,7 @@ typedef struct __attribute__((packed))
   uint16_t tot : 10;
   uint16_t toa : 14;
   uint16_t address : 16;
-  uint16_t mode_mask : 4;
+  uint16_t header : 4;
 } LLCP_PixelDataToAToT_t;
 
 /**
@@ -106,7 +106,7 @@ typedef struct __attribute__((packed))
   uint16_t dummy : 10;
   uint16_t toa : 14;
   uint16_t address : 16;
-  uint16_t mode_mask : 4;
+  uint16_t header : 4;
 } LLCP_PixelDataToA_t;
 
 /**
@@ -119,7 +119,7 @@ typedef struct __attribute__((packed))
   uint16_t event_counter : 10;
   uint16_t itot : 14;
   uint16_t address : 16;
-  uint16_t mode_mask : 4;
+  uint16_t header : 4;
 } LLCP_PixelDataMpxiToT_t;
 
 /**
@@ -165,8 +165,8 @@ void init_LLCP_PixelData_t(LLCP_PixelData_t* data);
 
 #define LLCP_TPX3_PXL_MODE_UNSET 0
 #define LLCP_TPX3_PXL_MODE_TOA_TOT 10
-#define LLCP_TPX3_PXL_MODE_TOA 3 // TODO
-#define LLCP_TPX3_PXL_MODE_MPX_ITOT 4 // TODO
+#define LLCP_TPX3_PXL_MODE_TOA 3       // TODO
+#define LLCP_TPX3_PXL_MODE_MPX_ITOT 4  // TODO
 
 /**
  * @brief Message data for LLCP_FrameDataMsg_t

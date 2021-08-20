@@ -303,7 +303,7 @@ void Gatherer::callbackFrameData(const LLCP_Message_t* message_in) {
   for (int pix = 0; pix < image->n_pixels; pix++) {
 
     // derandomize and deserialize the pixel data
-    decodePixelData((uint8_t*)&image->pixel_data[pix], 4);
+    decodePixelData((uint8_t*)&image->pixel_data[pix], 4, TPX3_TOA_TOT);
 
     uint8_t  x, y;
     uint16_t tot, toa, ftoa, mpx, itot;

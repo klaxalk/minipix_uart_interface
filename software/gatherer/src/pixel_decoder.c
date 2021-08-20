@@ -1576,9 +1576,8 @@ const uint8_t LUT_COLSHIFTS[1280] = {
  * @param data pointer to 6 x uint8_t of data
  * @param col_shift_num = 4
  */
-void decodePixelData(uint8_t* data, const uint8_t col_shift_num) {
+void decodePixelData(uint8_t* data, const uint8_t col_shift_num, const TPX3PixelMode_t pixel_mode) {
 
-  uint8_t  mode_mask = (data[0] & 0xF0) >> 4;
   uint16_t address   = (data[0] & 0x0F) << 12 | (data[1] << 4) | ((data[2] >> 4) & 0x0F);
   uint16_t value3    = ((data[2] & 0x0F) << 10) | (data[3] << 2) | ((data[4] >> 6) & 0x03);
   uint16_t value2    = ((data[4] & 0x3F) << 4) | ((data[5] >> 4) & 0x0F);
@@ -1590,10 +1589,9 @@ void decodePixelData(uint8_t* data, const uint8_t col_shift_num) {
   uint16_t y         = (sp * 4 + (pix % 4));
   uint16_t idx       = y * 256 + x;
 
-  switch (mode_mask) {
+  switch (pixel_mode) {
 
-    // TODO what is this mask for the real Timepix?
-    case 1: {
+    case TPX3_TOA_TOT: {
 
       LLCP_PixelDataToAToT_t* packet = (LLCP_PixelDataToAToT_t*)data;
 
@@ -1604,8 +1602,7 @@ void decodePixelData(uint8_t* data, const uint8_t col_shift_num) {
       break;
     }
 
-    // TODO what is this mask for the real Timepix?
-    case 2: {
+    case TPX3_TOA: {
 
       LLCP_PixelDataToA_t* packet = (LLCP_PixelDataToA_t*)data;
 
@@ -1616,8 +1613,7 @@ void decodePixelData(uint8_t* data, const uint8_t col_shift_num) {
       break;
     }
 
-    // TODO what is this mask for the real Timepix?
-    case 3: {
+    case TPX3_MPX_ITOT: {
 
       LLCP_PixelDataMpxiToT_t* packet = (LLCP_PixelDataMpxiToT_t*)data;
 
@@ -1630,5 +1626,4 @@ void decodePixelData(uint8_t* data, const uint8_t col_shift_num) {
   }
 
   ((LLCP_PixelDataToAToT_t*)data)->address = idx;
-  ((LLCP_PixelDataToAToT_t*)data)->mode_mask = mode_mask;
 }

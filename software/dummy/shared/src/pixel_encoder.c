@@ -1599,18 +1599,16 @@ const uint16_t LUT_COLSHIFTS[1280] = {
  * @param col_shift_num = 4
  * @param itot = false
  */
-void encodePixelData(uint8_t* data, const uint8_t col_shift_num) {
+void encodePixelData(uint8_t* data, const uint8_t col_shift_num, const TPX3PixelMode_t pixel_mode) {
 
   LLCP_PixelDataCommon_t* data_common = (LLCP_PixelDataCommon_t*)data;
 
-  uint8_t  mode_mask = data_common->mode_mask;
-  uint16_t x         = data_common->address % 256;
-  uint16_t y         = data_common->address / 256;
+  uint16_t x = data_common->address % 256;
+  uint16_t y = data_common->address / 256;
 
-  switch (mode_mask) {
+  switch (pixel_mode) {
 
-    // TODO what is this mask for the real Timepix?
-    case 1: {
+    case TPX3_TOA_TOT: {
 
       LLCP_PixelDataToAToT_t* packet = (LLCP_PixelDataToAToT_t*)data;
 
@@ -1621,8 +1619,7 @@ void encodePixelData(uint8_t* data, const uint8_t col_shift_num) {
       break;
     }
 
-    // TODO what is this mask for the real Timepix?
-    case 2: {
+    case TPX3_TOA: {
 
       LLCP_PixelDataToA_t* packet = (LLCP_PixelDataToA_t*)data;
 
@@ -1633,8 +1630,7 @@ void encodePixelData(uint8_t* data, const uint8_t col_shift_num) {
       break;
     }
 
-    // TODO what is this mask for the real Timepix?
-    case 3: {
+    case TPX3_MPX_ITOT: {
 
       LLCP_PixelDataMpxiToT_t* packet = (LLCP_PixelDataMpxiToT_t*)data;
 
@@ -1656,6 +1652,8 @@ void encodePixelData(uint8_t* data, const uint8_t col_shift_num) {
   uint16_t eoc = (x) / 2;
   uint16_t sp  = (y) / 4;
 
+  uint8_t header = 10;
+
   uint16_t pix = pix_x | pix_y;
 
   uint16_t address = 0;
@@ -1668,7 +1666,7 @@ void encodePixelData(uint8_t* data, const uint8_t col_shift_num) {
 
   data_out[0] = 0;
   // 0000 0000 0000 XXXX -> 0000 0000 XXXX 0000
-  data_out[0] = data_out[0] | (mode_mask << 4);
+  data_out[0] = data_out[0] | (header << 4);
   // XXXX 0000 0000 0000 -> 0000 0000 0000 XXXX
   data_out[0] = data_out[0] | ((address & 0xF000) >> 12);
 

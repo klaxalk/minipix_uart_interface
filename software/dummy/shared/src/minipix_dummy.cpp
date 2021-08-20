@@ -97,9 +97,9 @@ void MinipixDummy::testStripe() {
       pixel->tot                    = i;
       pixel->toa                    = j * 41 + i;
       pixel->ftoa                   = 0;
-      pixel->mode_mask              = 1;
+      pixel->header                 = 10;
 
-      encodePixelData((uint8_t *)pixel, 4);
+      encodePixelData((uint8_t *)pixel, 4, TPX3_TOA_TOT);
     }
 
     // convert to network endian
