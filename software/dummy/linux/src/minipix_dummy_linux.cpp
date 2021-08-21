@@ -37,7 +37,7 @@ void MinipixDummyLinux::sendByte(const uint8_t& byte_out) {
 
 //}
 
-/* sendByte() //{ */
+/* sleep() //{ */
 
 void MinipixDummyLinux::sleep(const uint16_t& milliseconds) {
 
@@ -101,7 +101,7 @@ void MinipixDummyLinux::threadSerialPort(void) {
 
 //}
 
-/* update() //{ */
+/* update_linux() //{ */
 
 void MinipixDummyLinux::update_linux(void) {
   this->update();
@@ -150,7 +150,7 @@ int MinipixDummyLinux::randi(const int& from, const int& to) {
 
   double zero_to_one = double((float)rand()) / double(RAND_MAX);
 
-  return floor(to - from) * zero_to_one + from;
+  return int(floor(to - from) * zero_to_one + from);
 }
 
 //}

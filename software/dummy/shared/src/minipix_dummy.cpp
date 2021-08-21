@@ -9,67 +9,11 @@ MinipixDummy::MinipixDummy() {
 
 //}
 
-/* sendMessage() //{ */
+// | ------- the default implementation of a frame acq. ------- |
 
-void MinipixDummy::sendMessage([[maybe_unused]] const uint8_t *bytes_out, [[maybe_unused]] const uint16_t &len) {
+/* simulatedTestStripeAcquisition() //{ */
 
-  while (!clear_to_send_) {
-    sleep(1);
-  }
-
-  sendString(bytes_out, len);
-
-  clear_to_send_ = false;
-}
-
-//}
-
-/* sendMessageNoAck() //{ */
-
-void MinipixDummy::sendMessageNoAck([[maybe_unused]] const uint8_t *bytes_out, [[maybe_unused]] const uint16_t &len) {
-
-  sendString(bytes_out, len);
-
-  clear_to_send_ = true;
-}
-
-//}
-
-/* sendAck() //{ */
-
-void MinipixDummy::sendAck(void) {
-
-  LLCP_AckMsg_t ack_msg;
-  init_LLCP_AckMsg_t(&ack_msg);
-
-  hton_LLCP_AckMsg_t(&ack_msg);
-
-  uint16_t n_bytes = llcp_prepareMessage((uint8_t *)&ack_msg, sizeof(ack_msg), tx_buffer_);
-  sendMessageNoAck(tx_buffer_, n_bytes);
-}
-
-//}
-
-/* sendError() //{ */
-
-void MinipixDummy::sendError(const uint8_t &id) {
-
-  LLCP_MinipixErrorMsg_t msg;
-  init_LLCP_MinipixErrorMsg_t(&msg);
-
-  msg.payload.error_id = id;
-
-  hton_LLCP_MinipixErrorMsg_t(&msg);
-
-  uint16_t n_bytes = llcp_prepareMessage((uint8_t *)&msg, sizeof(msg), tx_buffer_);
-  sendMessageNoAck(tx_buffer_, n_bytes);
-}
-
-//}
-
-/* testStripe() //{ */
-
-void MinipixDummy::testStripe() {
+void MinipixDummy::simulatedTestStripeAcquisition() {
 
   const int n_packets = 100;
 
@@ -128,6 +72,8 @@ void MinipixDummy::testStripe() {
 
 //}
 
+// | ---------- asynchronous update for data handling --------- |
+
 /* update() //{ */
 
 void MinipixDummy::update(void) {
@@ -157,7 +103,7 @@ void MinipixDummy::update(void) {
 
           if (powered_) {
             simulateFrameAcquisition(req->acquisition_time_ms);
-            /* testStripe(); */
+            /* simulatedTestStripeAcquisition(); */
           } else {
             printf("cannot do frame measurement, not powered!\n");
           }
@@ -185,6 +131,8 @@ void MinipixDummy::update(void) {
 }
 
 //}
+
+// | ------------ getting data from the serial line ----------- |
 
 /* serialDataCallback() //{ */
 
@@ -346,6 +294,66 @@ void MinipixDummy::serialDataCallback(const uint8_t *bytes_in, const uint16_t &l
       }
     }
   }
+}
+
+//}
+
+// | ------------ sending data over the serial line ----------- |
+
+/* sendMessage() //{ */
+
+void MinipixDummy::sendMessage([[maybe_unused]] const uint8_t *bytes_out, [[maybe_unused]] const uint16_t &len) {
+
+  while (!clear_to_send_) {
+    sleep(1);
+  }
+
+  sendString(bytes_out, len);
+
+  clear_to_send_ = false;
+}
+
+//}
+
+/* sendMessageNoAck() //{ */
+
+void MinipixDummy::sendMessageNoAck([[maybe_unused]] const uint8_t *bytes_out, [[maybe_unused]] const uint16_t &len) {
+
+  sendString(bytes_out, len);
+
+  clear_to_send_ = true;
+}
+
+//}
+
+/* sendAck() //{ */
+
+void MinipixDummy::sendAck(void) {
+
+  LLCP_AckMsg_t ack_msg;
+  init_LLCP_AckMsg_t(&ack_msg);
+
+  hton_LLCP_AckMsg_t(&ack_msg);
+
+  uint16_t n_bytes = llcp_prepareMessage((uint8_t *)&ack_msg, sizeof(ack_msg), tx_buffer_);
+  sendMessageNoAck(tx_buffer_, n_bytes);
+}
+
+//}
+
+/* sendError() //{ */
+
+void MinipixDummy::sendError(const uint8_t &id) {
+
+  LLCP_MinipixErrorMsg_t msg;
+  init_LLCP_MinipixErrorMsg_t(&msg);
+
+  msg.payload.error_id = id;
+
+  hton_LLCP_MinipixErrorMsg_t(&msg);
+
+  uint16_t n_bytes = llcp_prepareMessage((uint8_t *)&msg, sizeof(msg), tx_buffer_);
+  sendMessageNoAck(tx_buffer_, n_bytes);
 }
 
 //}

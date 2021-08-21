@@ -28,7 +28,7 @@ protected:
   LLCP_Receiver_t llcp_receiver_;
 
   uint16_t boot_count_ = 0;
-  uint16_t frame_id_   = 41;
+  uint16_t frame_id_   = 41; // it has to start somewhere, let it be 41
 
   void update(void);
 
@@ -41,7 +41,7 @@ protected:
 
 private:
   // send an image with a diagonal test stripe
-  void testStripe();
+  void simulatedTestStripeAcquisition();
 
   void              clearToSend(void);
   std::atomic<bool> clear_to_send_ = true;
