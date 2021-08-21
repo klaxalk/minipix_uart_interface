@@ -6,7 +6,7 @@ set(CMAKE_CXX_STANDARD_REQUIRED ON)
 set(CMAKE_EXPORT_COMPILE_COMMANDS ON)
 
 #UNSET this to compile without OpenCV GUI
-set(GUI 1)
+set(GUI 0)
 
 if(${GUI})
   MESSAGE(WARNING "[Gatherer]: Compiling with GUI")
@@ -68,6 +68,4 @@ target_link_libraries(gatherer
   ${LINK_LIBS}
 )
 
-if(${GUI})
-target_compile_definitions(gatherer PRIVATE GUI=1)
-endif()
+target_compile_definitions(gatherer PRIVATE GUI=${GUI})
