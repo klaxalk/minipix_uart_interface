@@ -2,15 +2,6 @@
 
 [![](../fig/diagram.png)](../fig/diagram.pdf)
 
-## LLCP - Low-level Communication Protocol
-
-* **C99 library**
-* UART link layer between the MiniPIX and the MUI
-* capable of sending messages with up to 255 bytes of payload
-* can send data in binary or hexadecimal form
-* RAM-efficient: uses a single buffer to store received data and to present them to the user after decoding
-* **No need to implement this directly, it is already used by the MUI**
-
 ## MUI - MiniPIX UART Interface
 
 * **C99 library**
@@ -19,6 +10,15 @@
 * provides routines for controling the MiniPIX
 * calls user callbacks when new data arrive
 
+## LLCP - Low-level Communication Protocol
+
+* **C99 library**
+* UART link layer between the MiniPIX and the MUI
+* capable of sending messages with up to 255 bytes of payload
+* can send data in binary or hexadecimal form
+* RAM-efficient: uses a single buffer to store received data and to present them to the user after decoding
+* **No need to implement this directly, it is already used by the MUI**
+* 
 ## Example interface
 
 * Example usecase of MUI integration is provided for
@@ -27,10 +27,10 @@
 
 ## Dummy - the MiniPIX emulator
 
-* responds identically as the MiniPIX over the UART
+* responds identically as the MiniPIX over UART
 * generic C++ implementation with virtual methods for particular platform
 * Linux Implementation:
-  * Loads real Timepix [data from a database](https://github.com/vzlusat/vzlusat1-timepix-data)
+  * passes real Timepix [data from a database](https://github.com/vzlusat/vzlusat1-timepix-data)
 * HW implementation **TODO**
   * **TODO** Possibly STM32F411RE Nucleo or Blue Pill
   * **TODO** Could store a few real images
@@ -39,7 +39,7 @@
 ## Gatherer - PC data receiver from the Example interface over FTDI
 
 * optionally, can be compiled with OpenCV GUI: shows incoming images
-* saves incoming packeted data into a [file](./gatherer/data/hw_data.txt), to be later processed by the **Decoder**.
+* saves incoming packeted data into a file ([example](./gatherer/data/hw_data.txt)), to be later processed by the **Decoder**.
 
 Install [OpenCV](https://opencv.org/) for the GUI:
 ```bash
@@ -52,7 +52,7 @@ set(GUI 1)
 
 ## Decoder - PC data decoder
 
-* stitches packeted data from a file and shows them in a minimalistic GUI.
+* stitches packeted data from a file ([example](./gatherer/data/hw_data.txt)), and shows the resulting images in a minimalistic GUI
 * consumes HEXadecimalized frame data (_LLCP_FrameDataMsg_t_) that can be obtained from the MUI
 
 ![](./decoder/fig/data.png)
@@ -97,7 +97,7 @@ sudo apt-get -y install tmux tmuxinator
 sudo apt-get -y install socat
 ```
 
-5. Run `./start.sh` in the appropriate `tmux/{all_virtual, interface_hw}` sessions.
+5. Run `./start.sh` in the appropriate `tmux/{all_virtual, hw_mui, hw_minipix}` sessions.
 
 **Screenshot of the Dummy, Linux MUI Example and the Gatherer running on a Linux PC:**
 ![](./.fig/tmux.png)
