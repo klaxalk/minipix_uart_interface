@@ -39,11 +39,15 @@ frame_data = parseFile(infile, tpx_mode)
 
 # #{ frame_data => list of numpy images
 
+# image data map: image id => numpy image
 images_data = {}
+
+# list of image IDs (= list of keys for the image_data map)
 id_list = []
 
 for idx,frame in enumerate(frame_data):
 
+    # if this is the first occurance of this frame_id, initialize new image for it
     if images_data.get(frame.frame_id) == None:
 
         id_list.append(frame.frame_id)
@@ -55,6 +59,7 @@ for idx,frame in enumerate(frame_data):
         elif tpx_mode == MODE_MPX_ITOT:
             images_data[frame.frame_id] = ImageMpxiToT()
 
+    # iterate over all the pixels within the frame and copy the pixel values to the numpy image
     for idx,pixel in enumerate(frame.pixel_data):
 
         if tpx_mode == MODE_TOA_TOT:
@@ -88,11 +93,11 @@ root = tkinter.Tk()
 frame_main = tkinter.Frame(root);
 frame_main.pack(side=tkinter.TOP, fill=tkinter.BOTH, expand=1)
 
-# create the left subframe for the list
+# create the left subframe for the image list
 frame_left = tkinter.Frame(frame_main, bd=1);
 frame_left.pack(side=tkinter.LEFT, fill=tkinter.Y, expand=0, padx=5, pady=5)
 
-# create the right subframe for the figure and its control panel
+# create the right subframe for the figure
 frame_right = tkinter.Frame(frame_main);
 frame_right.pack(side=tkinter.RIGHT, fill=tkinter.BOTH, expand=1, padx=5, pady=5)
 
@@ -111,6 +116,7 @@ figure_canvas._tkcanvas.pack(side=tkinter.TOP)
 subplot1 = my_figure.add_subplot(221)
 subplot2 = my_figure.add_subplot(222)
 
+# the TOA TOT mode has 3 plots
 if tpx_mode == MODE_TOA_TOT:
     subplot3 = my_figure.add_subplot(223)
 
@@ -124,10 +130,11 @@ listbox.pack(side=tkinter.LEFT, fill=tkinter.Y, expand=0)
 scrollbar.config(command=listbox.yview)
 scrollbar.pack(side=tkinter.LEFT, fill=tkinter.Y, expand=0)
 
-# fill the listbox
+# fill the listbox items with the image IDs (keys for the image map)
 for key in images_data.keys():
     listbox.insert(tkinter.END, key)
 
+# select the first item on the list
 listbox.selection_set(0)
 
 # #} end of create listbox
@@ -175,14 +182,17 @@ def listBoxOnSelect(evt):
 
     w = evt.widget
 
+    # clicked but not selected
     if len(w.curselection()) == 0:
         return
 
     # extract the index of the selected item
     listbox_idx = int(w.curselection()[0])
 
+    # load the image with the ID under the listbox idx
     loadImage(id_list[listbox_idx])
 
+# bind the ListBoxOnSelect() method to the listbox selection event
 listbox.bind('<<ListboxSelect>>', listBoxOnSelect)
 
 # #} end of listBoxOnSelect()

@@ -25,3 +25,11 @@ Serial ports appear:
 /dev/pts/5
 /dev/pts/8
 ```
+
+## example of UDEV rules for FTDI
+
+* the `$USER` should be in the **dialout** group (`sudo usermod -a -G dialout $USER`)
+
+```
+SUBSYSTEM=="tty", ATTRS{idVendor}=="0403", ATTRS{idProduct}=="6001", ATTRS{serial}=="A50285BI", SYMLINK+="minipix", GROUP="dialout", MODE="0666"
+```
