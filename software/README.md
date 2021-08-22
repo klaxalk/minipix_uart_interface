@@ -18,7 +18,7 @@
 * can send data in binary or hexadecimal form
 * RAM-efficient: uses a single buffer to store received data and to present them to the user after decoding
 * **No need to implement this directly, it is already used by the MUI**
-* 
+
 ## Example interface
 
 * Example usecase of MUI integration is provided for
@@ -56,7 +56,7 @@ set(GUI 1)
 * consumes HEXadecimalized frame data (_LLCP_FrameDataMsg_t_) that can be obtained from the MUI
 
 ![](./decoder/fig/data.png)
- 
+
 * minimalistic Python implementation
 * contains code for pixel data [deserialization](deserialization) and derandomization
 
