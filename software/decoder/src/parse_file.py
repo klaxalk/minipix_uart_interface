@@ -10,10 +10,6 @@ def bytesToInt16(byte1, byte2):
 
     return byte1<<8 | byte2
 
-def bytesToInt32(byte1, byte2, byte3, byte4):
-
-    return byte1<<24 | byte2<<16 | byte3<<8 | byte4
-
 def parseFile(infile, tpx_mode):
 
     data_out = []
@@ -36,23 +32,31 @@ def parseFile(infile, tpx_mode):
             frame_data = FrameDataMsg()
 
             # extract the bytes
+            # the following ones are not encoded and can be just coppied
             frame_data.frame_id         = bytesToInt16(data[2], data[1])
             frame_data.packet_id        = bytesToInt16(data[4], data[3])
             frame_data.mode             = data[5]
             frame_data.n_pixels         = data[6]
             frame_data.checksum_matched = data[7]
 
+            # the following pixel data are encoded and need to be
+            # deserialized and derandomized
             # for each pixel in the packet
             for i in range(0, frame_data.n_pixels):
 
+                # list of 6 bytes
                 pixel_data = []
 
-                # for each byt coding the pixel data
+                # for each one of the 6 bytes encoding the pixel data
                 for j in range(0, 6):
 
                     pixel_data.append(data[8 + i*6 + j])
 
                 # deserialize and derandomize the pixel data
+                # pixel_data should be one of 3 classes
+                # * PixelDataToAToT()
+                # * PixelDataToA()
+                # * PixelDataMpxiToT()
                 pixel_data = convert_packet(pixel_data, 4, tpx_mode)
 
                 if pixel_data:

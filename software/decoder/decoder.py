@@ -18,9 +18,11 @@ from src.parse_file import *
 
 # #} end of imports
 
+# the file should containt 1 packet of FrameDataMsg_t() per line in HEXadecimal form
 file_path = "data/data.txt"
 
- # Timepix3 mode {"toa_tot", "toa", "mpx_itot"}
+# Timepix3 mode {"toa_tot", "toa", "mpx_itot"}
+# most probably MODE_TOA_TOT
 tpx_mode = MODE_TOA_TOT
 
 # #{ open the input file => list of "frame_data"
@@ -45,13 +47,15 @@ images_data = {}
 # list of image IDs (= list of keys for the image_data map)
 id_list = []
 
+# enumerate the frame_data (decoded packets) and stitch them together
 for idx,frame in enumerate(frame_data):
 
-    # if this is the first occurance of this frame_id, initialize new image for it
+    # if this is the first occurance of this frame_id, initialize new numpy image for it
     if images_data.get(frame.frame_id) == None:
 
         id_list.append(frame.frame_id)
 
+        # initialize the right type of image
         if tpx_mode == MODE_TOA_TOT:
             images_data[frame.frame_id] = ImageToAToT()
         elif tpx_mode == MODE_TOA:
@@ -65,7 +69,12 @@ for idx,frame in enumerate(frame_data):
         if tpx_mode == MODE_TOA_TOT:
 
             if isinstance(images_data[frame.frame_id], ImageToAToT):
+
+                # TOA is the prettiest part and it shows nicely in log()
+                # this is not, ofcourse, an official transformation, please DO NOT USE it if you are going to process the data
                 images_data[frame.frame_id].tot[pixel.x, pixel.y]  = math.log(pixel.tot) if pixel.tot > 0 else 0
+                # images_data[frame.frame_id].tot[pixel.x, pixel.y]  pixel.tot
+
                 images_data[frame.frame_id].toa[pixel.x, pixel.y]  = pixel.toa
                 images_data[frame.frame_id].ftoa[pixel.x, pixel.y] = pixel.ftoa
 
@@ -82,6 +91,10 @@ for idx,frame in enumerate(frame_data):
                 images_data[frame.frame_id].itot[pixel.x, pixel.y] = pixel.itot
 
 # #} end of frame_data => list of numpy images
+
+# --------------------------------------------------------------
+# |       now the data is ready, we just need to show it       |
+# --------------------------------------------------------------
 
 ## | --------------------------- gui -------------------------- |
 
@@ -103,7 +116,7 @@ frame_right.pack(side=tkinter.RIGHT, fill=tkinter.BOTH, expand=1, padx=5, pady=5
 
 # #} end of initialize the window
 
-# #{ create the figure
+# #{ create the figure canvas
 
 my_figure = Figure(facecolor='none', figsize=(8.2, 6.8), dpi=120)
 
@@ -113,10 +126,11 @@ figure_canvas.draw()
 figure_canvas.get_tk_widget().pack(side=tkinter.TOP)
 figure_canvas._tkcanvas.pack(side=tkinter.TOP)
 
+# two subplots will be needed for sure
 subplot1 = my_figure.add_subplot(221)
 subplot2 = my_figure.add_subplot(222)
 
-# the TOA TOT mode has 3 plots
+# the TOA_TOT mode has 3 plots
 if tpx_mode == MODE_TOA_TOT:
     subplot3 = my_figure.add_subplot(223)
 
@@ -124,9 +138,14 @@ if tpx_mode == MODE_TOA_TOT:
 
 # #{ create the listbox with a scrollbar
 
+# first, create the scrollbar (will be needed when initializing the listbox)
 scrollbar = tkinter.Scrollbar(master=frame_left, orient=tkinter.VERTICAL)
+
+# initialized and pack the listbox
 listbox = tkinter.Listbox(master=frame_left, yscrollcommand=scrollbar.set, selectmode=tkinter.SINGLE)
 listbox.pack(side=tkinter.LEFT, fill=tkinter.Y, expand=0)
+
+# initialized and pack the scrollbar
 scrollbar.config(command=listbox.yview)
 scrollbar.pack(side=tkinter.LEFT, fill=tkinter.Y, expand=0)
 
@@ -143,6 +162,12 @@ listbox.selection_set(0)
 
 # #{ def loadImage()
 
+##
+# @brief show the image in the GUI
+#
+# @param key image ID (key in the image map)
+#
+# @return nothing
 def loadImage(key):
 
     if isinstance(images_data[key], ImageToAToT):
@@ -178,6 +203,12 @@ def loadImage(key):
 
 # #{ def listBoxOnSelect()
 
+##
+# @brief callback for clicking on the listbox
+#
+# @param evt
+#
+# @return nothing
 def listBoxOnSelect(evt):
 
     w = evt.widget
