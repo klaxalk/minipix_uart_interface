@@ -1,9 +1,10 @@
 #!/bin/bash
+
 set -e
 
-sudo apt-get -y install cmake build-essential gcc g++
+sudo apt-get -y update
 
-sudo apt-get -y install cmake libopencv-dev
+sudo apt-get -y install cmake build-essential gcc g++ libopencv-dev
 
 cd software
 
