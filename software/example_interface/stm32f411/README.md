@@ -1,5 +1,7 @@
 # MUI -  STM32F411RE Nucleo implementation
 
+STM32F411RE Nucleo implementation of an example use case of the MUI.
+
 ## Setting up the resources for STM32F411RE Nucleo
 
 1. download [STM32CubeMX](https://www.st.com/en/development-tools/stm32cubemx.html)
@@ -36,13 +38,13 @@ YouCompleteMe has a problem with stdlib in C. Install this:
 sudo apt-get -y install gcc-multilib
 ```
 
-## Compile
+## Compiling
 
 ```bash
 ./compile.sh
 ```
 
-## Flash
+## Flashing
 
 Flash using the STLink:
 

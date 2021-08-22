@@ -1,3 +1,4 @@
 # MiniPIX dummy - STM implementation
 
-TODO
+This is a dummy program that emulates MiniPIX.
+More info and context in the general [README](../README.md).

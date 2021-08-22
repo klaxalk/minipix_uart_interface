@@ -1,5 +1,6 @@
 # Data decoder and visualizer
 
-![](./fig/decoder.png)
+This is a small Python example of a decoder and a visualizer of recorded data.
+More info and context in the general [README](../README.md).
 
-[TODO](TODO)
+![](./fig/decoder.png)
