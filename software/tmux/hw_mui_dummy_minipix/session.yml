@@ -4,7 +4,6 @@ startup_window: main
 windows:
   - main:
       layout: even-vertical
-      pre_window: echo pes
       panes:
         - ./minipix_dummy /dev/ttyUSB1 115200 0 `pwd`/dummy_data
         - sleep 1; ./gatherer /dev/ttyUSB0 115200 0 `pwd`/received_data/data.txt

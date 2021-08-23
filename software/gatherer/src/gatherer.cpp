@@ -485,19 +485,80 @@ void Gatherer::callbackError(const LLCP_Message_t* message_in) {
 
     case LLCP_MINIPIX_ERROR_MEASUREMENT_FAILED: {
 
-      printf("error measuring frame\n");
+      printf("Error: '%s'\n", LLCP_MinipixErrors[LLCP_MINIPIX_ERROR_MEASUREMENT_FAILED]);
 
       measuring_frame_ = false;
 
       break;
     }
 
+    case LLCP_MINIPIX_ERROR_POWERUP_FAILED: {
+
+      printf("Error: '%s'\n", LLCP_MinipixErrors[LLCP_MINIPIX_ERROR_POWERUP_FAILED]);
+
+      break;
+    }
+
+    case LLCP_MINIPIX_ERROR_POWERUP_TPX3_RESET_SYNC: {
+
+      printf("Error: '%s'\n", LLCP_MinipixErrors[LLCP_MINIPIX_ERROR_POWERUP_TPX3_RESET_SYNC]);
+
+      break;
+    }
+
+    case LLCP_MINIPIX_ERROR_POWERUP_TPX3_RESET_RECVDATA: {
+
+      printf("Error: '%s'\n", LLCP_MinipixErrors[LLCP_MINIPIX_ERROR_POWERUP_TPX3_RESET_RECVDATA]);
+
+      break;
+    }
+
+    case LLCP_MINIPIX_ERROR_POWERUP_TPX3_INIT_RESETS: {
+
+      printf("Error: '%s'\n", LLCP_MinipixErrors[LLCP_MINIPIX_ERROR_POWERUP_TPX3_INIT_RESETS]);
+
+      break;
+    }
+
+    case LLCP_MINIPIX_ERROR_POWERUP_TPX3_INIT_CHIPID: {
+
+      printf("Error: '%s'\n", LLCP_MinipixErrors[LLCP_MINIPIX_ERROR_POWERUP_TPX3_INIT_CHIPID]);
+
+      break;
+    }
+
+    case LLCP_MINIPIX_ERROR_POWERUP_TPX3_INIT_DACS: {
+
+      printf("Error: '%s'\n", LLCP_MinipixErrors[LLCP_MINIPIX_ERROR_POWERUP_TPX3_INIT_DACS]);
+
+      break;
+    }
+
+    case LLCP_MINIPIX_ERROR_POWERUP_TPX3_INIT_PIXCFG: {
+
+      printf("Error: '%s'\n", LLCP_MinipixErrors[LLCP_MINIPIX_ERROR_POWERUP_TPX3_INIT_PIXCFG]);
+
+      break;
+    }
+
+    case LLCP_MINIPIX_ERROR_POWERUP_TPX3_INIT_MATRIX: {
+
+      printf("Error: '%s'\n", LLCP_MinipixErrors[LLCP_MINIPIX_ERROR_POWERUP_TPX3_INIT_MATRIX]);
+
+      break;
+    }
+
+    case LLCP_MINIPIX_ERROR_INVALID_PRESET: {
+
+      printf("Error: '%s'\n", LLCP_MinipixErrors[LLCP_MINIPIX_ERROR_INVALID_PRESET]);
+
+      break;
+    }
+
     default: {
-      printf("received unhandled error message, id %d\n", error->error_id);
+      printf("Error: received unhandled error message, id %d\n", error->error_id);
     }
   }
-
-  printf("received MiniPIX error %d: %s\n", error->error_id, LLCP_MinipixErrors[error->error_id]);
 }
 
 //}

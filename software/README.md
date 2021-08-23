@@ -97,7 +97,7 @@ sudo apt-get -y install tmux tmuxinator
 sudo apt-get -y install socat
 ```
 
-5. Run `./start.sh` in the appropriate `tmux/{all_virtual, hw_mui, hw_minipix}` sessions.
+5. Run `./start.sh` in the appropriate `tmux/{all_linux, hw_mui_dummy_virtual, hw_mui_hw_minipix, linux_mui_hw_minipix}` sessions.
 
 **Screenshot of the Dummy, Linux MUI Example and the Gatherer running on a Linux PC:**
 ![](./.fig/tmux.png)
