@@ -23,6 +23,12 @@ HW diagram of the Linux Dummy<->STM32F4 example<->Gatherer.
 
 ![](fig/hw_diagram_labels.png)
 
+HW diagram of the MiniPIX TPX3<->Gatherer.
+
+![](fig/uart_minipix_pinout.jpg)
+
+### Supported operations
+
 | "command"                      | description                                | parameters             | output form                                    |
 |--------------------------------|--------------------------------------------|------------------------|------------------------------------------------|
 | `mui_pwr()`                    | turns on/off the TPX3 detector             | 0/1                    | ack                                            |
