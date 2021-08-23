@@ -6,6 +6,7 @@ More info and context in the general [README](../README.md).
 
 **[Data](../gatherer/data/hw_data.txt) stored in the HEXadecimal form.**
 ![](./fig/data.png)
+
 **Minimalistic GUI showing the recorded images.**
 ![](./fig/decoder.png)
 
