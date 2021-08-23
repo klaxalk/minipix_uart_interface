@@ -152,13 +152,13 @@ int main(void) {
 
   // | --------------------- start the UARTs -------------------- |
 
-  // start UART DMA for the MiniPIX
+  // start UART DMA for the PC-side, the Gatherer
   HAL_UART_Receive_DMA(&huart1, (uint8_t *)usart1_rx_buffer, LLCP_RX_TX_BUFFER_SIZE);
 
   // UART not currently in use
   /* HAL_UART_Receive_DMA(&huart2, (uint8_t *)usart2_rx_buffer, LLCP_RX_TX_BUFFER_SIZE); */
 
-  // start UART DMA for the PC-side, the Gatherer
+  // start UART DMA for the MiniPIX
   HAL_UART_Receive_DMA(&huart6, (uint8_t *)usart6_rx_buffer, LLCP_RX_TX_BUFFER_SIZE);
 
   /* USER CODE END 2 */
@@ -274,8 +274,9 @@ static void MX_USART1_UART_Init(void) {
   /* USER CODE BEGIN USART1_Init 1 */
 
   /* USER CODE END USART1_Init 1 */
-  huart1.Instance      = USART1;
-  /* huart1.Init.BaudRate = 921600; */
+  // Gatherer UART
+  huart1.Instance          = USART1;
+  /* huart1.Init.BaudRate     = 921600; */
   huart1.Init.BaudRate     = 115200;
   huart1.Init.WordLength   = UART_WORDLENGTH_8B;
   huart1.Init.StopBits     = UART_STOPBITS_1;
@@ -345,8 +346,9 @@ static void MX_USART6_UART_Init(void) {
   /* USER CODE BEGIN USART6_Init 1 */
 
   /* USER CODE END USART6_Init 1 */
-  huart6.Instance      = USART6;
-  /* huart6.Init.BaudRate = 921600; */
+  // MiniPIX UART
+  huart6.Instance          = USART6;
+  /* huart6.Init.BaudRate     = 921600; */
   huart6.Init.BaudRate     = 115200;
   huart6.Init.WordLength   = UART_WORDLENGTH_8B;
   huart6.Init.StopBits     = UART_STOPBITS_1;
