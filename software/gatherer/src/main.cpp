@@ -26,7 +26,7 @@ int main(int argc, char* argv[]) {
 serial port: '%s'\n \
 baud rate: '%d'\n \
 serial port is: '%s'\n \
-output data path: '%s'", serial_port_file.c_str(), baud_rate, serial_port_virtual ? "virtual" : "real", data_path.c_str());
+output data path: '%s'\n", serial_port_file.c_str(), baud_rate, serial_port_virtual ? "virtual" : "real", data_path.c_str());
   } else {
     printf("params not supplied!\n");
     printf("required: ./gatherer <serial port file> <baud rate> <serial port virtual ? true : false> <output data path>\n");
