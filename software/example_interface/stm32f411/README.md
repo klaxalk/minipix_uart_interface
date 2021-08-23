@@ -60,7 +60,7 @@ Flash using the STLink:
 * RX = PA10
 * TX = PA9
 
-## To gatherer
+## To MiniPIX
 
 * UART6
 * RX = PC7
