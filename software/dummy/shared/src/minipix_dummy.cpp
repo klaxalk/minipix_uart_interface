@@ -245,6 +245,7 @@ void MinipixDummy::serialDataCallback(const uint8_t *bytes_in, const uint16_t &l
           hton_LLCP_StatusMsg_t(&status_msg);
 
           uint16_t n_bytes = llcp_prepareMessage((uint8_t *)&status_msg, sizeof(status_msg), tx_buffer_);
+
           sendMessageNoAck(tx_buffer_, n_bytes);  // TODO: should be with ack
 
           break;
@@ -266,9 +267,7 @@ void MinipixDummy::serialDataCallback(const uint8_t *bytes_in, const uint16_t &l
 
           uint16_t n_bytes = llcp_prepareMessage((uint8_t *)&temperature_msg, sizeof(temperature_msg), tx_buffer_);
 
-          printf("pes 1\n");
           sendMessageNoAck(tx_buffer_, n_bytes);  // TODO: should be with ack
-          printf("pes 2\n");
 
           break;
         };
