@@ -51,3 +51,17 @@ Flash using the STLink:
 ```bash
 ./flash.sh
 ```
+
+## Pins
+
+## To gatherer
+
+* UART1
+* RX = PA10
+* TX = PA9
+
+## To gatherer
+
+* UART6
+* RX = PC7
+* TX = PC6
