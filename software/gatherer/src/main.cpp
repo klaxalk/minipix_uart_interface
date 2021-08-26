@@ -39,42 +39,32 @@ output data path: '%s'\n", serial_port_file.c_str(), baud_rate, serial_port_virt
   // open the serial line
   gatherer.connect(serial_port_file, baud_rate, serial_port_virtual);
 
-  sleep(0.1);
-
   printf("getting status\n");
   gatherer.getStatus();
-  sleep(0.1);
 
   printf("powering on\n");
   gatherer.pwr(true);
-  sleep(0.1);
 
   /* printf("masking pixel\n"); */
   /* gatherer.maskPixel(10, 20); */
-  /* sleep(0.1); */
 
   /* printf("setting threshold"); */
   /* gatherer.setThreshold(333, 555); */
-  /* sleep(0.1); */
 
   /* printf("setting configuration preset"); */
   /* gatherer.setConfigurationPreset(2); */
-  /* sleep(0.1); */
-
-  printf("getting temperature\n");
-  gatherer.getTemperature();
-  sleep(0.1);
 
   for (int i = 0; i < 1e6; i++) {
 
+    printf("getting temperature\n");
+    gatherer.getTemperature();
+
     printf("measuring frame\n");
     gatherer.measureFrame(1000);
-    sleep(0.01);
   }
 
   printf("powering off\n");
   gatherer.pwr(false);
-  sleep(1.0);
 
   printf("finished\n");
 

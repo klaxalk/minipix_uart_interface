@@ -1,6 +1,6 @@
 #include <minipix_interface_stm.h>
 
-#define USART_TIMEOUT 10  // # [ms]
+#define USART_TIMEOUT 100  // # [ms]
 
 // | --------------------- initialization --------------------- |
 

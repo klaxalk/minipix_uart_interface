@@ -298,6 +298,8 @@ void mui_receiveCharCallback(MUI_Handler_t* mui_handler, const uint8_t byte_in) 
 
 void mui_update(MUI_Handler_t* mui_handler) {
 
+  // this might later contain some asynchronous code if needed
+
   mui_ledToggle(mui_handler);
   mui_handler->fcns.sleepHW((uint16_t)100);
 }
