@@ -51,7 +51,7 @@ void MinipixDummy::simulatedTestStripeAcquisition() {
 
     uint16_t n_bytes = llcp_prepareMessage((uint8_t *)&image_data, sizeof(image_data), tx_buffer_);
 
-    sendMessageNoAck(tx_buffer_, n_bytes);  // TODO: should be with ack
+    sendMessage(tx_buffer_, n_bytes);  // TODO: should be with ack
   }
 
   // | ---------------- send FrameDataTerminator ---------------- |
@@ -67,7 +67,7 @@ void MinipixDummy::simulatedTestStripeAcquisition() {
 
   uint16_t n_bytes = llcp_prepareMessage((uint8_t *)&terminator, sizeof(terminator), tx_buffer_);
 
-  sendMessageNoAck(tx_buffer_, n_bytes);  // TODO: should be with ack
+  sendMessage(tx_buffer_, n_bytes);  // TODO: should be with ack
 }
 
 //}
@@ -152,9 +152,11 @@ void MinipixDummy::serialDataCallback(const uint8_t *bytes_in, const uint16_t &l
 
           printf("received frame measurement request\n");
 
-          std::scoped_lock lock(mutex_message_buffer_);
+          {
+            std::scoped_lock lock(mutex_message_buffer_);
 
-          message_buffer_.push_back(*message_in);
+            message_buffer_.push_back(*message_in);
+          }
 
           break;
         };
@@ -163,9 +165,13 @@ void MinipixDummy::serialDataCallback(const uint8_t *bytes_in, const uint16_t &l
 
           printf("received frame data request\n");
 
-          std::scoped_lock lock(mutex_message_buffer_);
+          sendAck();
 
-          message_buffer_.push_back(*message_in);
+          {
+            std::scoped_lock lock(mutex_message_buffer_);
+
+            message_buffer_.push_back(*message_in);
+          }
 
           break;
         };
@@ -246,7 +252,7 @@ void MinipixDummy::serialDataCallback(const uint8_t *bytes_in, const uint16_t &l
 
           uint16_t n_bytes = llcp_prepareMessage((uint8_t *)&status_msg, sizeof(status_msg), tx_buffer_);
 
-          sendMessageNoAck(tx_buffer_, n_bytes);  // TODO: should be with ack
+          sendMessage(tx_buffer_, n_bytes);  // TODO: should be with ack
 
           break;
         };
@@ -267,7 +273,7 @@ void MinipixDummy::serialDataCallback(const uint8_t *bytes_in, const uint16_t &l
 
           uint16_t n_bytes = llcp_prepareMessage((uint8_t *)&temperature_msg, sizeof(temperature_msg), tx_buffer_);
 
-          sendMessageNoAck(tx_buffer_, n_bytes);  // TODO: should be with ack
+          sendMessage(tx_buffer_, n_bytes);  // TODO: should be with ack
 
           break;
         };

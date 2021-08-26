@@ -6,4 +6,4 @@ windows:
       layout: even-vertical
       panes:
         - ./minipix_dummy /dev/ttyUSB1 115200 0 `pwd`/dummy_data
-        - sleep 1; ./gatherer /dev/ttyUSB0 115200 0 `pwd`/received_data/data.txt
+        - sleep 1; ./gatherer /dev/ttyUSB0 921600 0 `pwd`/received_data/data.txt

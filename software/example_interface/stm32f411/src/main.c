@@ -54,9 +54,15 @@ DMA_HandleTypeDef  hdma_usart6_rx;
 
 /* USER CODE BEGIN PV */
 
-uint8_t usart1_rx_buffer[LLCP_RX_TX_BUFFER_SIZE];
-uint8_t usart2_rx_buffer[LLCP_RX_TX_BUFFER_SIZE];
-uint8_t usart6_rx_buffer[LLCP_RX_TX_BUFFER_SIZE];
+// the USART buffer should be larger than the LLCP buffer
+// two messages might come in succession, e.g., two errors,
+// and they should both fit into the USART buffer until
+// they are fed into the smaller LLCP buffer one by one
+#define USART_DMA_BUFFER_SIZE (4 * LLCP_RX_TX_BUFFER_SIZE)
+
+uint8_t usart1_rx_buffer[USART_DMA_BUFFER_SIZE];
+uint8_t usart2_rx_buffer[USART_DMA_BUFFER_SIZE];
+uint8_t usart6_rx_buffer[USART_DMA_BUFFER_SIZE];
 
 // contains the LLCP receiver, which has the RX buffer inside
 // so this can be as large as 520-ish bytes (when using the LLCP in hexadecimal)
@@ -121,16 +127,17 @@ int main(void) {
 
   // pass the pointers to the STM-specific implementations, so the
   // MUI can call them.
-  mui_handler_.fcns.ledSetHW                   = &mui_stm_ledSetHW;
-  mui_handler_.fcns.sleepHW                    = &mui_stm_sleepHW;
-  mui_handler_.fcns.processFrameData           = &mui_stm_processFrameData;
-  mui_handler_.fcns.processFrameDataTerminator = &mui_stm_processFrameDataTerminator;
-  mui_handler_.fcns.processStatus              = &mui_stm_processStatus;
-  mui_handler_.fcns.processTemperature         = &mui_stm_processTemperature;
-  mui_handler_.fcns.processAck                 = &mui_stm_processAck;
-  mui_handler_.fcns.processMinipixError        = &mui_stm_processMinipixError;
-  mui_handler_.fcns.sendChar                   = &mui_stm_sendChar;
-  mui_handler_.fcns.sendString                 = &mui_stm_sendString;
+  mui_handler_.fcns.ledSetHW                        = &mui_stm_ledSetHW;
+  mui_handler_.fcns.sleepHW                         = &mui_stm_sleepHW;
+  mui_handler_.fcns.processFrameData                = &mui_stm_processFrameData;
+  mui_handler_.fcns.processFrameDataTerminator      = &mui_stm_processFrameDataTerminator;
+  mui_handler_.fcns.processStatus                   = &mui_stm_processStatus;
+  mui_handler_.fcns.processTemperature              = &mui_stm_processTemperature;
+  mui_handler_.fcns.processAck                      = &mui_stm_processAck;
+  mui_handler_.fcns.processMinipixError             = &mui_stm_processMinipixError;
+  mui_handler_.fcns.processFrameMeasurementFinished = &mui_stm_processFrameMeasurementFinished;
+  mui_handler_.fcns.sendChar                        = &mui_stm_sendChar;
+  mui_handler_.fcns.sendString                      = &mui_stm_sendString;
 
   // this initializes the LLCP inside
   mui_initialize(&mui_handler_);
@@ -153,13 +160,13 @@ int main(void) {
   // | --------------------- start the UARTs -------------------- |
 
   // start UART DMA for the PC-side, the Gatherer
-  HAL_UART_Receive_DMA(&huart1, (uint8_t *)usart1_rx_buffer, LLCP_RX_TX_BUFFER_SIZE);
+  HAL_UART_Receive_DMA(&huart1, (uint8_t *)usart1_rx_buffer, USART_DMA_BUFFER_SIZE);
 
   // UART not currently in use
   /* HAL_UART_Receive_DMA(&huart2, (uint8_t *)usart2_rx_buffer, LLCP_RX_TX_BUFFER_SIZE); */
 
   // start UART DMA for the MiniPIX
-  HAL_UART_Receive_DMA(&huart6, (uint8_t *)usart6_rx_buffer, LLCP_RX_TX_BUFFER_SIZE);
+  HAL_UART_Receive_DMA(&huart6, (uint8_t *)usart6_rx_buffer, USART_DMA_BUFFER_SIZE);
 
   /* USER CODE END 2 */
 
@@ -186,7 +193,7 @@ void USART_IDLECallback(UART_HandleTypeDef *huart) {
     HAL_UART_DMAStop(&huart6);
 
     // Calculate the length of the received data
-    uint16_t received_bytes = LLCP_RX_TX_BUFFER_SIZE - __HAL_DMA_GET_COUNTER(&hdma_usart6_rx);
+    uint16_t received_bytes = USART_DMA_BUFFER_SIZE - __HAL_DMA_GET_COUNTER(&hdma_usart6_rx);
 
     for (uint16_t i = 0; i < received_bytes; i++) {
 
@@ -197,7 +204,7 @@ void USART_IDLECallback(UART_HandleTypeDef *huart) {
     memset(usart6_rx_buffer, 0, received_bytes);
 
     // Restart to start DMA USART RX
-    HAL_UART_Receive_DMA(&huart6, (uint8_t *)usart6_rx_buffer, LLCP_RX_TX_BUFFER_SIZE);
+    HAL_UART_Receive_DMA(&huart6, (uint8_t *)usart6_rx_buffer, USART_DMA_BUFFER_SIZE);
 
   } else if (huart == &huart1) {  // from Gatherer
 
@@ -205,7 +212,7 @@ void USART_IDLECallback(UART_HandleTypeDef *huart) {
     HAL_UART_DMAStop(&huart1);
 
     // Calculate the length of the received data
-    uint16_t received_bytes = LLCP_RX_TX_BUFFER_SIZE - __HAL_DMA_GET_COUNTER(&hdma_usart1_rx);
+    uint16_t received_bytes = USART_DMA_BUFFER_SIZE - __HAL_DMA_GET_COUNTER(&hdma_usart1_rx);
 
     for (uint16_t i = 0; i < received_bytes; i++) {
 
@@ -216,7 +223,7 @@ void USART_IDLECallback(UART_HandleTypeDef *huart) {
     memset(usart1_rx_buffer, 0, received_bytes);
 
     // Restart to start DMA USART RX
-    HAL_UART_Receive_DMA(&huart1, (uint8_t *)usart1_rx_buffer, LLCP_RX_TX_BUFFER_SIZE);
+    HAL_UART_Receive_DMA(&huart1, (uint8_t *)usart1_rx_buffer, USART_DMA_BUFFER_SIZE);
   }
 }
 
@@ -275,9 +282,10 @@ static void MX_USART1_UART_Init(void) {
 
   /* USER CODE END USART1_Init 1 */
   // Gatherer UART
-  huart1.Instance          = USART1;
-  /* huart1.Init.BaudRate     = 921600; */
-  huart1.Init.BaudRate     = 115200;
+  huart1.Instance      = USART1;
+  huart1.Init.BaudRate = 921600;
+  /* huart1.Init.BaudRate     = 115200; */
+  /* huart1.Init.BaudRate     = 9600; */
   huart1.Init.WordLength   = UART_WORDLENGTH_8B;
   huart1.Init.StopBits     = UART_STOPBITS_1;
   huart1.Init.Parity       = UART_PARITY_NONE;
@@ -347,7 +355,7 @@ static void MX_USART6_UART_Init(void) {
 
   /* USER CODE END USART6_Init 1 */
   // MiniPIX UART
-  huart6.Instance          = USART6;
+  huart6.Instance = USART6;
   /* huart6.Init.BaudRate     = 921600; */
   huart6.Init.BaudRate     = 115200;
   huart6.Init.WordLength   = UART_WORDLENGTH_8B;

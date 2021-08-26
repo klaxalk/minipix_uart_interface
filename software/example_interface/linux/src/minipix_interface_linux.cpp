@@ -92,6 +92,15 @@ void mui_linux_processMinipixError(const LLCP_MinipixError_t *data) {
 
 //}
 
+/* mui_linux_processMeasurementFinished() //{ */
+
+void mui_linux_processMeasurementFinished() {
+
+  gatherer_processFrameMeasurementFinished(&gatherer_handler_);
+}
+
+//}
+
 /* mui_linux_ledSetHW() //{ */
 
 void mui_linux_ledSetHW([[maybe_unused]] bool state) {

@@ -102,8 +102,9 @@ void Gatherer::threadMain(void) {
 
               callbackFrameData(message_in);
 
-              // TODO: now brakes MiniPIX
-              /* sendAck(true); */
+#if MUI_USER_HANDSHAKES == 1
+              sendAck(true);
+#endif
 
               break;
             };
@@ -112,8 +113,9 @@ void Gatherer::threadMain(void) {
 
               callbackStatus(message_in);
 
-              // TODO: brakes MiniPIX
-              /* sendAck(true); */
+#if MUI_USER_HANDSHAKES == 1
+              sendAck(true);
+#endif
 
               break;
             };
@@ -122,8 +124,9 @@ void Gatherer::threadMain(void) {
 
               callbackTemperature(message_in);
 
-              // TODO: brakes MiniPIX
-              /* sendAck(true); */
+#if MUI_USER_HANDSHAKES == 1
+              sendAck(true);
+#endif
 
               break;
             };
@@ -132,8 +135,9 @@ void Gatherer::threadMain(void) {
 
               callbackFrameTerminator(message_in);
 
-              // TODO: brakes MiniPIX
-              /* sendAck(true); */
+#if MUI_USER_HANDSHAKES == 1
+              sendAck(true);
+#endif
 
               break;
             };
@@ -141,6 +145,13 @@ void Gatherer::threadMain(void) {
             case LLCP_ACK_MSG_ID: {
 
               callbackAck(message_in);
+
+              break;
+            };
+
+            case LLCP_FRAME_MEASUREMENT_FINISHED_MSG_ID: {
+
+              callbackFrameMeasurementFinished(message_in);
 
               break;
             };
@@ -384,17 +395,17 @@ void Gatherer::callbackFrameData(const LLCP_Message_t* message_in) {
     {
       cv::Vec3f value1_color(0, 0, 0);  // BGR
       if (value1 > 0) {
-        value1_color.val[2] = log2(value1);
+        value1_color.val[2] = value1;
       }
 
       cv::Vec3f value2_color(0, 0, 0);  // BGR
       if (value2 > 0) {
-        value2_color.val[1] = log2(value2);
+        value2_color.val[1] = value2;
       }
 
       cv::Vec3f value3_color(0, 0, 0);  // BGR
       if (value3 > 0) {
-        value3_color.val[0] = log2(value3);
+        value3_color.val[0] = value3;
       }
 
       {
@@ -469,6 +480,17 @@ void Gatherer::callbackAck(const LLCP_Message_t* message_in) {
   printf("received ack: %s\n", ack->success ? "true" : "false");
 
   waiting_for_ack_ = false;
+}
+
+//}
+
+/* callbackFrameMeasurementFinished() //{ */
+
+void Gatherer::callbackFrameMeasurementFinished([[maybe_unused]] const LLCP_Message_t* message_in) {
+
+  printf("frame measurement finished\n");
+
+  getFrameData();
 }
 
 //}
@@ -564,6 +586,28 @@ void Gatherer::callbackError(const LLCP_Message_t* message_in) {
 //}
 
 // | ----------------- MiniPIX control methods ---------------- |
+
+/* getFrameData() //{ */
+
+void Gatherer::getFrameData(void) {
+
+  // create the message
+  LLCP_GetFrameDataReqMsg_t msg;
+  init_LLCP_GetFrameDataReqMsg_t(&msg);
+
+  // convert to network endian
+  hton_LLCP_GetFrameDataReqMsg_t(&msg);
+
+  uint16_t n_bytes = llcp_prepareMessage((uint8_t*)&msg, sizeof(msg), tx_buffer);
+
+  {
+    std::scoped_lock lock(mutex_serial_port_);
+
+    serial_port_.sendCharArray(tx_buffer, n_bytes);
+  }
+}
+
+//}
 
 /* sendAck() //{ */
 

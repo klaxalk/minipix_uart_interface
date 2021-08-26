@@ -3,6 +3,7 @@
 
 #define LLCP_DEBUG_PRINT 0
 #define SERIAL_BUFFER_SIZE 2048
+#define MUI_USER_HANDSHAKES 0
 
 #ifndef GUI
 #define GUI 0
@@ -53,6 +54,7 @@ public:
   void setThreshold(const uint16_t& coarse, const uint16_t& fine);
   void setConfigurationPreset(const uint16_t& preset);
   void sendAck(bool ack);
+  void getFrameData(void);
 
 public:
   bool measuring_frame_    = false;
@@ -80,6 +82,7 @@ private:
   void callbackTemperature(const LLCP_Message_t* message_in);
   void callbackFrameTerminator(const LLCP_Message_t* message_in);
   void callbackAck(const LLCP_Message_t* message_in);
+  void callbackFrameMeasurementFinished(const LLCP_Message_t* message_in);
   void callbackError(const LLCP_Message_t* message_in);
 
   // | --------------------- helper routines -------------------- |

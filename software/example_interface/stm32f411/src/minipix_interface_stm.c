@@ -1,6 +1,6 @@
 #include <minipix_interface_stm.h>
 
-#define USART_TIMEOUT 100  // # [ms]
+#define USART_TIMEOUT 10  // # [ms]
 
 // | --------------------- initialization --------------------- |
 
@@ -103,6 +103,15 @@ void mui_stm_processAck(const LLCP_Ack_t *data) {
 void mui_stm_processMinipixError(const LLCP_MinipixError_t *data) {
 
   gatherer_processMinipixError((Gatherer_Handler_t *)gatherer_handler_ptr_, data);
+}
+
+//}
+
+/* mui_stm_processFrameMeasurementFinished() //{ */
+
+void mui_stm_processFrameMeasurementFinished() {
+
+  gatherer_processFrameMeasurementFinished((Gatherer_Handler_t *)gatherer_handler_ptr_);
 }
 
 //}

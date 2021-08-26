@@ -36,16 +36,17 @@ int main(int argc, char *argv[]) {
 
   MUI_Handler_t mui_handler;
 
-  mui_handler.fcns.ledSetHW                   = &mui_linux_ledSetHW;
-  mui_handler.fcns.sleepHW                    = &mui_linux_sleepHW;
-  mui_handler.fcns.processFrameData           = &mui_linux_processFrameData;
-  mui_handler.fcns.processFrameDataTerminator = &mui_linux_processFrameDataTerminator;
-  mui_handler.fcns.processStatus              = &mui_linux_processStatus;
-  mui_handler.fcns.processTemperature         = &mui_linux_processTemperature;
-  mui_handler.fcns.processAck                 = &mui_linux_processAck;
-  mui_handler.fcns.processMinipixError        = &mui_linux_processMinipixError;
-  mui_handler.fcns.sendChar                   = &mui_linux_sendChar;
-  mui_handler.fcns.sendString                 = &mui_linux_sendString;
+  mui_handler.fcns.ledSetHW                        = &mui_linux_ledSetHW;
+  mui_handler.fcns.sleepHW                         = &mui_linux_sleepHW;
+  mui_handler.fcns.processFrameData                = &mui_linux_processFrameData;
+  mui_handler.fcns.processFrameDataTerminator      = &mui_linux_processFrameDataTerminator;
+  mui_handler.fcns.processStatus                   = &mui_linux_processStatus;
+  mui_handler.fcns.processTemperature              = &mui_linux_processTemperature;
+  mui_handler.fcns.processAck                      = &mui_linux_processAck;
+  mui_handler.fcns.processMinipixError             = &mui_linux_processMinipixError;
+  mui_handler.fcns.processFrameMeasurementFinished = &mui_linux_processMeasurementFinished;
+  mui_handler.fcns.sendChar                        = &mui_linux_sendChar;
+  mui_handler.fcns.sendString                      = &mui_linux_sendString;
 
   mui_initialize(&mui_handler);
 

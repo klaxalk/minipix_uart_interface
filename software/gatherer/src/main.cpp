@@ -67,6 +67,7 @@ output data path: '%s'\n", serial_port_file.c_str(), baud_rate, serial_port_virt
 
   for (int i = 0; i < 1e6; i++) {
 
+    printf("measuring frame\n");
     gatherer.measureFrame(1000);
     sleep(0.01);
   }

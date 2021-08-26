@@ -186,12 +186,25 @@ void mui_receiveCharCallback(MUI_Handler_t* mui_handler, const uint8_t byte_in) 
         // call the user's callback
         mui_handler->fcns.processFrameData(&(msg->payload));
 
+#if MUI_USER_HANDSHAKES == 0
+        mui_sendAck(mui_handler, true);
+#endif
+
         break;
       };
 
       case LLCP_FRAME_MEASUREMENT_FINISHED_MSG_ID: {
 
+#if MUI_USER_HANDSHAKES == 0
         mui_getFrameData(mui_handler);
+#else
+        // load up the message and convert it to our endian
+        LLCP_FrameMeasurementFinishedMsg_t* msg = (LLCP_FrameMeasurementFinishedMsg_t*)message_in;
+        ntoh_LLCP_FrameMeasurementFinishedMsg_t(msg);
+
+        // call the user's callback
+        mui_handler->fcns.processFrameMeasurementFinished();
+#endif
 
         break;
       };
@@ -205,6 +218,10 @@ void mui_receiveCharCallback(MUI_Handler_t* mui_handler, const uint8_t byte_in) 
         // call the user's callback
         mui_handler->fcns.processFrameDataTerminator(&(msg->payload));
 
+#if MUI_USER_HANDSHAKES == 0
+        mui_sendAck(mui_handler, true);
+#endif
+
         break;
       };
 
@@ -217,6 +234,10 @@ void mui_receiveCharCallback(MUI_Handler_t* mui_handler, const uint8_t byte_in) 
         // call the user's callback
         mui_handler->fcns.processStatus(&(msg->payload));
 
+#if MUI_USER_HANDSHAKES == 0
+        mui_sendAck(mui_handler, true);
+#endif
+
         break;
       };
 
@@ -228,6 +249,10 @@ void mui_receiveCharCallback(MUI_Handler_t* mui_handler, const uint8_t byte_in) 
 
         // call the user's callback
         mui_handler->fcns.processTemperature(&(msg->payload));
+
+#if MUI_USER_HANDSHAKES == 0
+        mui_sendAck(mui_handler, true);
+#endif
 
         break;
       };
@@ -299,7 +324,7 @@ void mui_sendAck(MUI_Handler_t* mui_handler, const bool success) {
 
   mui_handler->fcns.sendString(mui_handler->tx_buffer, n_bytes);
 
-  mui_ledSet(mui_handler, false);
+  /* mui_ledSet(mui_handler, false); */
 }
 
 //}

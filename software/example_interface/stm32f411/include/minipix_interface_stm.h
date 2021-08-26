@@ -27,5 +27,6 @@ void mui_stm_processStatus(const LLCP_Status_t *data);
 void mui_stm_processTemperature(const LLCP_Temperature_t *data);
 void mui_stm_processAck(const LLCP_Ack_t *data);
 void mui_stm_processMinipixError(const LLCP_MinipixError_t *data);
+void mui_stm_processFrameMeasurementFinished();
 
 #endif  // EXAMPLE_INTERFACE_STM_H

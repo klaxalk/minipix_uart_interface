@@ -29,6 +29,13 @@ void gatherer_receiveCharCallback(Gatherer_Handler_t *gatherer_handler, const ui
         break;
       };
 
+      case LLCP_GET_FRAME_DATA_REQ_MSG_ID: {
+
+        mui_getFrameData(gatherer_handler->mui_handler_ptr_);
+
+        break;
+      };
+
       case LLCP_GET_TEMPERATURE_REQ_MSG_ID: {
 
         mui_getTemperature(gatherer_handler->mui_handler_ptr_);
@@ -233,6 +240,23 @@ void gatherer_processMinipixError(Gatherer_Handler_t *gatherer_handler, const LL
 
   // convert it to the network endian
   hton_LLCP_MinipixErrorMsg_t(&msg);
+
+  uint16_t n_bytes = llcp_prepareMessage((uint8_t *)&msg, sizeof(msg), gatherer_handler->tx_buffer);
+  gatherer_handler->fcns.sendString(gatherer_handler->tx_buffer, n_bytes);
+}
+
+//}
+
+/* gatherer_processFrameMeasurementFinished() //{ */
+
+void gatherer_processFrameMeasurementFinished(Gatherer_Handler_t *gatherer_handler) {
+
+  // create the message
+  LLCP_FrameMeasurementFinishedMsg_t msg;
+  init_LLCP_FrameMeasurementFinishedMsg_t(&msg);
+
+  // convert it to the network endian
+  hton_LLCP_FrameMeasurementFinishedMsg_t(&msg);
 
   uint16_t n_bytes = llcp_prepareMessage((uint8_t *)&msg, sizeof(msg), gatherer_handler->tx_buffer);
   gatherer_handler->fcns.sendString(gatherer_handler->tx_buffer, n_bytes);

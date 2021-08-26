@@ -23,5 +23,6 @@ void mui_linux_processStatus(const LLCP_Status_t *data);
 void mui_linux_processTemperature(const LLCP_Temperature_t *data);
 void mui_linux_processAck(const LLCP_Ack_t *data);
 void mui_linux_processMinipixError(const LLCP_MinipixError_t *data);
+void mui_linux_processMeasurementFinished();
 
 #endif  // MINIPIX_INTERFACE_LINUX_H

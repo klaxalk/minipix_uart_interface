@@ -63,6 +63,7 @@ void gatherer_processStatus(Gatherer_Handler_t *gatherer_handler, const LLCP_Sta
 void gatherer_processTemperature(Gatherer_Handler_t *gatherer_handler, const LLCP_Temperature_t *data);
 void gatherer_processAck(Gatherer_Handler_t *gatherer_handler, const LLCP_Ack_t *data);
 void gatherer_processMinipixError(Gatherer_Handler_t *gatherer_handler, const LLCP_MinipixError_t *data);
+void gatherer_processFrameMeasurementFinished(Gatherer_Handler_t *gatherer_handler);
 
 #ifdef __cplusplus
 }

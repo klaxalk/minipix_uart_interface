@@ -12,6 +12,13 @@ extern "C" {
 #include <stdint.h>
 #include <stdbool.h>
 
+// gives user more control over protocol handshakes, namely:
+// * user needs to call mui_getFrameData() after he receives the mui_processFrameMeasurementFinished_t() callback. Otherwise, this callback is not called and the handshake happens automatically.
+// * user needs to call mui_sendAck() after receiving FrameData, FrameDataTerminator, Temperature, and Status callbacks.
+#ifndef MUI_USER_HANDSHAKES
+#define MUI_USER_HANDSHAKES 0
+#endif
+
 // | ---------- function pointers to user's callbacks --------- |
 
 /**
@@ -45,6 +52,12 @@ typedef void (*mui_sendString_t)(const uint8_t *str_out, const uint16_t len);
  * @param pointer to the structure with the data
  */
 typedef void (*mui_processFrameData_t)(const LLCP_FrameData_t *image_data);
+
+/**
+ * @brief Function pointer to user implementation of callback to process
+ * message regarding that a measurement was finished.
+ */
+typedef void (*mui_processFrameMeasurementFinished_t)(void);
 
 /**
  * @brief Function pointer to user implementation of callback to process
@@ -100,16 +113,17 @@ typedef void (*mui_sleepHW_t)(const uint16_t duration);
  */
 typedef struct
 {
-  mui_ledSetHW_t                   ledSetHW;
-  mui_sendChar_t                   sendChar;
-  mui_sendString_t                 sendString;
-  mui_processFrameData_t           processFrameData;
-  mui_processFrameDataTerminator_t processFrameDataTerminator;
-  mui_processStatus_t              processStatus;
-  mui_processTemperature_t         processTemperature;
-  mui_processAck_t                 processAck;
-  mui_processMinipixError_t        processMinipixError;
-  mui_sleepHW_t                    sleepHW;
+  mui_ledSetHW_t                        ledSetHW;
+  mui_sendChar_t                        sendChar;
+  mui_sendString_t                      sendString;
+  mui_processFrameData_t                processFrameData;
+  mui_processFrameDataTerminator_t      processFrameDataTerminator;
+  mui_processStatus_t                   processStatus;
+  mui_processTemperature_t              processTemperature;
+  mui_processAck_t                      processAck;
+  mui_processMinipixError_t             processMinipixError;
+  mui_processFrameMeasurementFinished_t processFrameMeasurementFinished;
+  mui_sleepHW_t                         sleepHW;
 } MUI_FcnPrototypes_t;
 
 typedef struct

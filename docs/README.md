@@ -18,8 +18,8 @@ Or you can use the ST-Link Utility and program the bin file to the flash.
 **Tomas**: I used the st-flash as follows:
 ```bash
 # main.elf -> main.bin
-arm-none-eabi-objcopy -O binary main.elf main.bin
+arm-none-eabi-objcopy -O binary minipix.elf minipix.bin
 
 # flash the firmware
-st-flash write main.bin 0x08000000
+st-flash write minipix.bin 0x08000000
 ```
