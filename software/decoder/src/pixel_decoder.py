@@ -18,7 +18,7 @@ def convert_packet(data, colShiftNum, tpx_mode):
     y           = (sp * 4 + (pix % 4))
     idx         = y * 256 + x
 
-    if tpx_mode == MODE_TOA_TOT:
+    if tpx_mode == LLCP_TPX3_PXL_MODE_TOA_TOT:
 
         ftoa = (value1 + colshifttbl[x])
         tot = LUT_TOT[value2] if value2 >= 1 and value2 < MAX_LUT_TOT else WRONG_LUT_TOT
@@ -31,7 +31,7 @@ def convert_packet(data, colShiftNum, tpx_mode):
         data.tot       = tot
         data.ftoa      = ftoa
 
-    elif tpx_mode == MODE_TOA:
+    elif tpx_mode == LLCP_TPX3_PXL_MODE_TOA:
 
         ftoa = (value1 + colshifttbl[x])
         toa = LUT_TOA[value3] if value3 >= 0 and value3 < MAX_LUT_TOA else WRONG_LUT_TOA
@@ -42,7 +42,7 @@ def convert_packet(data, colShiftNum, tpx_mode):
         data.toa       = toa
         data.ftoa      = ftoa
 
-    elif tpx_mode == MODE_MPX_ITOT:
+    elif tpx_mode == LLCP_TPX3_PXL_MODE_MPX_ITOT:
 
         mpx = LUT_EVENT[value2] if value2 >= 1 and value2 < MAX_LUT_EVENT else WRONG_LUT_EVENT
         itot = LUT_ITOT[value3] if value3 >= 1 and value3 < MAX_LUT_ITOT else WRONG_LUT_ITOT
@@ -54,7 +54,7 @@ def convert_packet(data, colShiftNum, tpx_mode):
         data.mpx       = mpx
 
     else:
-        print("Error: wrong Timepix3 mode specified, need {'toa_tot', 'toa', 'mpx_itot'}")
+        print("Error: wrong Timepix3 mode specified, need {0, 1, 2}")
         return False
 
     return data

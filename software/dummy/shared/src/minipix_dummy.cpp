@@ -30,7 +30,7 @@ void MinipixDummy::simulatedTestStripeAcquisition() {
     // | ------------------- fill in the payload ------------------ |
 
     image_data.payload.frame_id  = frame_id_;
-    image_data.payload.mode      = LLCP_TPX3_PXL_MODE_TOA_TOT;
+    image_data.payload.mode      = mode_;
     image_data.payload.n_pixels  = n_pixels;
     image_data.payload.packet_id = packet_id++;
 
@@ -51,7 +51,7 @@ void MinipixDummy::simulatedTestStripeAcquisition() {
 
     uint16_t n_bytes = llcp_prepareMessage((uint8_t *)&image_data, sizeof(image_data), tx_buffer_);
 
-    sendMessage(tx_buffer_, n_bytes);  // TODO: should be with ack
+    sendMessage(tx_buffer_, n_bytes);
   }
 
   // | ---------------- send FrameDataTerminator ---------------- |
@@ -67,7 +67,7 @@ void MinipixDummy::simulatedTestStripeAcquisition() {
 
   uint16_t n_bytes = llcp_prepareMessage((uint8_t *)&terminator, sizeof(terminator), tx_buffer_);
 
-  sendMessage(tx_buffer_, n_bytes);  // TODO: should be with ack
+  sendMessage(tx_buffer_, n_bytes);
 }
 
 //}
@@ -100,6 +100,12 @@ void MinipixDummy::update(void) {
           ntoh_LLCP_MeasureFrameReqMsg_t(msg);
 
           LLCP_MeasureFrameReq_t *req = (LLCP_MeasureFrameReq_t *)(&msg->payload);
+
+          if (req->mode <= 2) {
+            mode_ = req->mode;
+          } else {
+            printf("Error: cannot set mode to %d\n", req->mode);
+          }
 
           if (powered_) {
             simulateFrameAcquisition(req->acquisition_time_ms);
@@ -201,6 +207,8 @@ void MinipixDummy::serialDataCallback(const uint8_t *bytes_in, const uint16_t &l
 
           printf("received pixel mask update, x = %d, y = %d, masked = %s\n", req->x_coordinate, req->y_coordinate, req->masked ? "MASK" : "UNMASK");
 
+          // TODO
+
           sendAck();
 
           break;
@@ -229,6 +237,8 @@ void MinipixDummy::serialDataCallback(const uint8_t *bytes_in, const uint16_t &l
 
           printf("setting configuration preset to %d\n", req->preset);
 
+          // TODO
+
           sendAck();
 
           break;
@@ -252,7 +262,7 @@ void MinipixDummy::serialDataCallback(const uint8_t *bytes_in, const uint16_t &l
 
           uint16_t n_bytes = llcp_prepareMessage((uint8_t *)&status_msg, sizeof(status_msg), tx_buffer_);
 
-          sendMessage(tx_buffer_, n_bytes);  // TODO: should be with ack
+          sendMessage(tx_buffer_, n_bytes);
 
           break;
         };
@@ -273,7 +283,7 @@ void MinipixDummy::serialDataCallback(const uint8_t *bytes_in, const uint16_t &l
 
           uint16_t n_bytes = llcp_prepareMessage((uint8_t *)&temperature_msg, sizeof(temperature_msg), tx_buffer_);
 
-          sendMessage(tx_buffer_, n_bytes);  // TODO: should be with ack
+          sendMessage(tx_buffer_, n_bytes);
 
           break;
         };

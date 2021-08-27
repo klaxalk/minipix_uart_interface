@@ -165,9 +165,10 @@ void mui_pwr(MUI_Handler_t *mui_handler, const bool state);
  * function will be called.
  *
  * @param mui_handler
- * @param acquisition_time
+ * @param acquisition_time Acquisition time in milliseconds
+ * @param mode pixel measurement mode: LLCP_TPX3_PXL_MODE_{TOA_TOT,TOA,MPX_ITOT}
  */
-void mui_measureFrame(MUI_Handler_t *mui_handler, const uint16_t acquisition_time);
+void mui_measureFrame(MUI_Handler_t *mui_handler, const uint16_t acquisition_time, const uint8_t mode);
 
 /**
  * @brief Command to set energy threshold

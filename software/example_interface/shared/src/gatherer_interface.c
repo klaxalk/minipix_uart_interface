@@ -62,7 +62,7 @@ void gatherer_receiveCharCallback(Gatherer_Handler_t *gatherer_handler, const ui
 
         LLCP_MeasureFrameReq_t *req = (LLCP_MeasureFrameReq_t *)(&msg->payload);
 
-        mui_measureFrame(gatherer_handler->mui_handler_ptr_, req->acquisition_time_ms);
+        mui_measureFrame(gatherer_handler->mui_handler_ptr_, req->acquisition_time_ms, req->mode);
 
         break;
       };

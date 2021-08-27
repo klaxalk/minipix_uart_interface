@@ -41,7 +41,7 @@ void mui_pwr(MUI_Handler_t* mui_handler, const bool state) {
 
 /* mui_measureFrame() //{ */
 
-void mui_measureFrame(MUI_Handler_t* mui_handler, const uint16_t acquisition_time) {
+void mui_measureFrame(MUI_Handler_t* mui_handler, const uint16_t acquisition_time, const uint8_t mode) {
 
   // create the message
   LLCP_MeasureFrameReqMsg_t msg;
@@ -49,11 +49,17 @@ void mui_measureFrame(MUI_Handler_t* mui_handler, const uint16_t acquisition_tim
 
   // fill in the payload
   msg.payload.acquisition_time_ms = acquisition_time;
+  msg.payload.mode                = mode;
 
   // convert to network endian
   hton_LLCP_MeasureFrameReqMsg_t(&msg);
 
   uint16_t n_bytes = llcp_prepareMessage((uint8_t*)&msg, sizeof(msg), mui_handler->tx_buffer);
+
+  // we should wait at least 10 ms before we start the measurement
+  // it might happend that the MiniPIX won't be ready for it after the last command
+  // and the measurement won't be conducted
+  mui_handler->fcns.sleepHW((uint16_t)10);
 
   mui_handler->fcns.sendString(mui_handler->tx_buffer, n_bytes);
 }

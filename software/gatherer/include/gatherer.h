@@ -48,7 +48,7 @@ public:
 
   void getStatus(void);
   void getTemperature(void);
-  void measureFrame(const uint16_t& acquisition_time_ms);
+  void measureFrame(const uint16_t& acquisition_time_ms, const uint8_t &mode);
   void pwr(const bool& state);
   void maskPixel(const uint8_t& x, const uint8_t& y);
   void setThreshold(const uint16_t& coarse, const uint16_t& fine);

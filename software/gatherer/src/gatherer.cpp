@@ -281,10 +281,7 @@ void Gatherer::callbackFrameData(const LLCP_Message_t* message_in) {
 
     default: {
       mode_str = "UNKNOWN";
-      printf("pixel mode mode undefined, %d!\n", image->mode);
-
-      // TODO: this is here because MiniPIX does not fill this properly
-      image->mode = LLCP_TPX3_PXL_MODE_TOA_TOT;
+      printf("pixel mode mode is wrong, %d!\n", image->mode);
 
       break;
     }
@@ -691,7 +688,7 @@ void Gatherer::getTemperature(void) {
 
 /* measureFrame() //{ */
 
-void Gatherer::measureFrame(const uint16_t& acquisition_time_ms) {
+void Gatherer::measureFrame(const uint16_t& acquisition_time_ms, const uint8_t& mode) {
 
   // create the message
   LLCP_MeasureFrameReqMsg_t msg;
@@ -699,6 +696,7 @@ void Gatherer::measureFrame(const uint16_t& acquisition_time_ms) {
 
   // fill in the payload
   msg.payload.acquisition_time_ms = acquisition_time_ms;
+  msg.payload.mode                = mode;
 
   // convert to network endian
   hton_LLCP_MeasureFrameReqMsg_t(&msg);
@@ -776,6 +774,12 @@ void Gatherer::maskPixel(const uint8_t& x, const uint8_t& y) {
 
     serial_port_.sendCharArray(tx_buffer, n_bytes);
   }
+
+  waiting_for_ack_ = true;
+
+  while (waiting_for_ack_) {
+    std::this_thread::sleep_for(std::chrono::milliseconds(10));
+  }
 }
 
 //}
@@ -802,6 +806,12 @@ void Gatherer::setThreshold(const uint16_t& coarse, const uint16_t& fine) {
 
     serial_port_.sendCharArray(tx_buffer, n_bytes);
   }
+
+  waiting_for_ack_ = true;
+
+  while (waiting_for_ack_) {
+    std::this_thread::sleep_for(std::chrono::milliseconds(10));
+  }
 }
 
 //}
@@ -826,6 +836,12 @@ void Gatherer::setConfigurationPreset(const uint16_t& preset) {
     std::scoped_lock lock(mutex_serial_port_);
 
     serial_port_.sendCharArray(tx_buffer, n_bytes);
+  }
+
+  waiting_for_ack_ = true;
+
+  while (waiting_for_ack_) {
+    std::this_thread::sleep_for(std::chrono::milliseconds(10));
   }
 }
 

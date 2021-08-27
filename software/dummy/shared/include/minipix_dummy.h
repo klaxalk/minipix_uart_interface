@@ -28,7 +28,8 @@ protected:
   LLCP_Receiver_t llcp_receiver_;
 
   uint16_t boot_count_ = 0;
-  uint16_t frame_id_   = 41; // it has to start somewhere, let it be 41
+  uint16_t frame_id_   = 41;  // it has to start somewhere, let it be 41
+  uint8_t  mode_       = 0; // current pixel mode, LLCP_TPX3_PXL_MODE_{TOA_TOT,TOA,MPX_ITOT}
 
   void update(void);
 

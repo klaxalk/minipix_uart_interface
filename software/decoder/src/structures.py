@@ -2,9 +2,9 @@
 
 import numpy
 
-MODE_TOA_TOT  = "toa_tot"
-MODE_TOA      = "toa"
-MODE_MPX_ITOT = "mpx_itot"
+LLCP_TPX3_PXL_MODE_TOA_TOT = 0
+LLCP_TPX3_PXL_MODE_TOA = 1
+LLCP_TPX3_PXL_MODE_MPX_ITOT = 2
 
 # #{ class PixelDataToAToT
 
