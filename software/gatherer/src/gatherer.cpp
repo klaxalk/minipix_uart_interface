@@ -774,6 +774,12 @@ void Gatherer::maskPixel(const uint8_t& x, const uint8_t& y) {
 
     serial_port_.sendCharArray(tx_buffer, n_bytes);
   }
+
+  waiting_for_ack_ = true;
+
+  while (waiting_for_ack_) {
+    std::this_thread::sleep_for(std::chrono::milliseconds(10));
+  }
 }
 
 //}
@@ -800,6 +806,12 @@ void Gatherer::setThreshold(const uint16_t& coarse, const uint16_t& fine) {
 
     serial_port_.sendCharArray(tx_buffer, n_bytes);
   }
+
+  waiting_for_ack_ = true;
+
+  while (waiting_for_ack_) {
+    std::this_thread::sleep_for(std::chrono::milliseconds(10));
+  }
 }
 
 //}
@@ -824,6 +836,12 @@ void Gatherer::setConfigurationPreset(const uint16_t& preset) {
     std::scoped_lock lock(mutex_serial_port_);
 
     serial_port_.sendCharArray(tx_buffer, n_bytes);
+  }
+
+  waiting_for_ack_ = true;
+
+  while (waiting_for_ack_) {
+    std::this_thread::sleep_for(std::chrono::milliseconds(10));
   }
 }
 

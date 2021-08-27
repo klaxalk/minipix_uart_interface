@@ -51,8 +51,13 @@ output data path: '%s'\n", serial_port_file.c_str(), baud_rate, serial_port_virt
   /* printf("setting threshold"); */
   /* gatherer.setThreshold(333, 555); */
 
-  /* printf("setting configuration preset"); */
-  /* gatherer.setConfigurationPreset(2); */
+  printf("setting configuration preset 0\n");
+  gatherer.setConfigurationPreset(0);
+
+  printf("setting configuration preset 1\n");
+  gatherer.setConfigurationPreset(1);
+
+  sleep(2.0);
 
   printf("getting temperature\n");
   gatherer.getTemperature();
