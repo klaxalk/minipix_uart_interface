@@ -60,19 +60,22 @@ output data path: '%s'\n", serial_port_file.c_str(), baud_rate, serial_port_virt
   for (int i = 0; i < 10; i++) {
 
     printf("measuring frame in TOA TOT\n");
-    gatherer.measureFrame(1000, LLCP_TPX3_PXL_MODE_TOA_TOT);
+    gatherer.measureFrame(100, LLCP_TPX3_PXL_MODE_TOA_TOT);
+    /* sleep(0.01); */
   }
 
   for (int i = 0; i < 10; i++) {
 
     printf("measuring frame in TOA\n");
-    gatherer.measureFrame(1000, LLCP_TPX3_PXL_MODE_TOA);
+    gatherer.measureFrame(100, LLCP_TPX3_PXL_MODE_TOA);
+    /* sleep(0.01); */
   }
 
   for (int i = 0; i < 10; i++) {
 
     printf("measuring frame in MPX ITOT\n");
-    gatherer.measureFrame(1000, LLCP_TPX3_PXL_MODE_MPX_ITOT);
+    gatherer.measureFrame(100, LLCP_TPX3_PXL_MODE_MPX_ITOT);
+    /* sleep(0.01); */
   }
 
   printf("powering off\n");
