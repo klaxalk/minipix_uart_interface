@@ -10,7 +10,7 @@ def bytesToInt16(byte1, byte2):
 
     return byte1<<8 | byte2
 
-def parseFile(infile, tpx_mode):
+def parseFile(infile):
 
     data_out = []
 
@@ -57,7 +57,7 @@ def parseFile(infile, tpx_mode):
                 # * PixelDataToAToT()
                 # * PixelDataToA()
                 # * PixelDataMpxiToT()
-                pixel_data = convert_packet(pixel_data, 4, tpx_mode)
+                pixel_data = convert_packet(pixel_data, 4, frame_data.mode)
 
                 if pixel_data:
                     frame_data.pixel_data.append(pixel_data)

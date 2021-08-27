@@ -19,11 +19,7 @@ from src.parse_file import *
 # #} end of imports
 
 # the file should containt 1 packet of FrameDataMsg_t() per line in HEXadecimal form
-file_path = "data/hw_data.txt"
-
-# Timepix3 mode {"toa_tot", "toa", "mpx_itot"}
-# most probably MODE_TOA_TOT
-tpx_mode = MODE_TOA_TOT
+file_path = "data/data.txt"
 
 # #{ open the input file => list of "frame_data"
 
@@ -35,7 +31,7 @@ except:
 
 # parse the input file, dehexify the data and decode the pixel values
 # frame_data = list of all decoded messages from the MUI
-frame_data = parseFile(infile, tpx_mode)
+frame_data = parseFile(infile)
 
 # #} open the input file
 
@@ -56,17 +52,17 @@ for idx,frame in enumerate(frame_data):
         id_list.append(frame.frame_id)
 
         # initialize the right type of image
-        if tpx_mode == MODE_TOA_TOT:
+        if frame.mode == LLCP_TPX3_PXL_MODE_TOA_TOT:
             images_data[frame.frame_id] = ImageToAToT()
-        elif tpx_mode == MODE_TOA:
+        elif frame.mode == LLCP_TPX3_PXL_MODE_TOA:
             images_data[frame.frame_id] = ImageToA()
-        elif tpx_mode == MODE_MPX_ITOT:
+        elif frame.mode == LLCP_TPX3_PXL_MODE_MPX_ITOT:
             images_data[frame.frame_id] = ImageMpxiToT()
 
     # iterate over all the pixels within the frame and copy the pixel values to the numpy image
     for idx,pixel in enumerate(frame.pixel_data):
 
-        if tpx_mode == MODE_TOA_TOT:
+        if frame.mode == LLCP_TPX3_PXL_MODE_TOA_TOT:
 
             if isinstance(images_data[frame.frame_id], ImageToAToT):
 
@@ -78,13 +74,13 @@ for idx,frame in enumerate(frame_data):
                 images_data[frame.frame_id].toa[pixel.x, pixel.y]  = pixel.toa
                 images_data[frame.frame_id].ftoa[pixel.x, pixel.y] = pixel.ftoa
 
-        elif tpx_mode == MODE_TOA:
+        elif frame.mode == LLCP_TPX3_PXL_MODE_TOA:
 
             if isinstance(images_data[frame.frame_id], ImageToA):
                 images_data[frame.frame_id].toa[pixel.x, pixel.y]  = pixel.toa
                 images_data[frame.frame_id].ftoa[pixel.x, pixel.y] = pixel.ftoa
 
-        elif tpx_mode == MODE_MPX_ITOT:
+        elif frame.mode == LLCP_TPX3_PXL_MODE_MPX_ITOT:
 
             if isinstance(images_data[frame.frame_id], ImageMpxiToT):
                 images_data[frame.frame_id].mpx[pixel.x, pixel.y]  = pixel.mpx
@@ -129,10 +125,7 @@ figure_canvas._tkcanvas.pack(side=tkinter.TOP)
 # two subplots will be needed for sure
 subplot1 = my_figure.add_subplot(221)
 subplot2 = my_figure.add_subplot(222)
-
-# the TOA_TOT mode has 3 plots
-if tpx_mode == MODE_TOA_TOT:
-    subplot3 = my_figure.add_subplot(223)
+subplot3 = my_figure.add_subplot(223)
 
 # #} end of create figure
 
@@ -169,6 +162,19 @@ listbox.selection_set(0)
 #
 # @return nothing
 def loadImage(key):
+
+    # clear the old images
+
+    subplot1.cla()
+    subplot1.axis('off')
+
+    subplot2.cla()
+    subplot2.axis('off')
+
+    subplot3.cla()
+    subplot3.axis('off')
+
+    # show the values based on the image type
 
     if isinstance(images_data[key], ImageToAToT):
 
@@ -231,7 +237,7 @@ listbox.bind('<<ListboxSelect>>', listBoxOnSelect)
 # load the first image
 loadImage(id_list[0])
 
-# #{ window loop and deletion
+# #{ window lifecycle
 
 def win_deleted():
     root.withdraw()

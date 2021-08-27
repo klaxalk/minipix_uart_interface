@@ -232,7 +232,7 @@ void MinipixDummyLinux::getFrameData(void) {
   // | ------------------- fill in the payload ------------------ |
 
   image_data.payload.frame_id  = frame_id_;
-  image_data.payload.mode      = LLCP_TPX3_PXL_MODE_TOA_TOT;
+  image_data.payload.mode      = mode_;
   image_data.payload.n_pixels  = 0;
   image_data.payload.packet_id = 0;
 
@@ -268,7 +268,7 @@ void MinipixDummyLinux::getFrameData(void) {
         // convert it back, since we are gonna use the structure again
         ntoh_LLCP_FrameDataMsg_t(&image_data);
 
-        sendMessageNoAck(tx_buffer_, n_bytes);  // TODO: should be with ack
+        sendMessage(tx_buffer_, n_bytes);
 
         printf("packet %d full, sending\n", image_data.payload.packet_id);
 
@@ -291,7 +291,7 @@ void MinipixDummyLinux::getFrameData(void) {
     // convert it back, since we are gonna use the structure again
     ntoh_LLCP_FrameDataMsg_t(&image_data);
 
-    sendMessageNoAck(tx_buffer_, n_bytes);  // TODO: should be with ack
+    sendMessage(tx_buffer_, n_bytes);
 
     printf("sent the last packet (%d)\n", packet_id_counter);
 

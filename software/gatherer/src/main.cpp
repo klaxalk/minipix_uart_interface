@@ -54,13 +54,25 @@ output data path: '%s'\n", serial_port_file.c_str(), baud_rate, serial_port_virt
   /* printf("setting configuration preset"); */
   /* gatherer.setConfigurationPreset(2); */
 
-  for (int i = 0; i < 1e6; i++) {
+  printf("getting temperature\n");
+  gatherer.getTemperature();
 
-    printf("getting temperature\n");
-    gatherer.getTemperature();
+  for (int i = 0; i < 10; i++) {
 
-    printf("measuring frame\n");
-    gatherer.measureFrame(1000);
+    printf("measuring frame in TOA TOT\n");
+    gatherer.measureFrame(1000, LLCP_TPX3_PXL_MODE_TOA_TOT);
+  }
+
+  for (int i = 0; i < 10; i++) {
+
+    printf("measuring frame in TOA\n");
+    gatherer.measureFrame(1000, LLCP_TPX3_PXL_MODE_TOA);
+  }
+
+  for (int i = 0; i < 10; i++) {
+
+    printf("measuring frame in MPX ITOT\n");
+    gatherer.measureFrame(1000, LLCP_TPX3_PXL_MODE_MPX_ITOT);
   }
 
   printf("powering off\n");
