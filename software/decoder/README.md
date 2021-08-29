@@ -7,7 +7,7 @@ More info and context in the general [README](../README.md).
 **[Data](../gatherer/data/hw_data.txt) stored in the HEXadecimal form.**
 ![](./fig/data.png)
 
-**Minimalistic GUI showing the recorded images.**
+**Minimalistic GUI for visualization of the recorded images.**
 ![](./fig/decoder.png)
 
 ## Dependencies
@@ -20,4 +20,11 @@ The script
 will prepare an isolated virtual environment, that can be used to run the _decoder.py_ by issuing
 ```bash
 ./run_in_env.sh
+```
+
+## Input file
+
+Please, edit the `decoder.py` and set the relative path to the input file in the variable
+```python
+file_path = "data/hw_data.txt"
 ```

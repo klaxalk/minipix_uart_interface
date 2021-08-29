@@ -244,14 +244,53 @@ void MinipixDummyLinux::getFrameData(void) {
 
       if (pixel_value > 0) {
 
-        LLCP_PixelDataToAToT_t* pixel = (LLCP_PixelDataToAToT_t*)&image_data.payload.pixel_data[n_pixels_counter++];
-        pixel->address                = i + j * 256;
-        pixel->ftoa                   = pixel_value > 0 ? 1 : 0;
-        pixel->tot                    = uint8_t(pixel_value);
-        pixel->toa                    = 500 - uint8_t(pixel_value) >= 0 ? 500 - uint8_t(pixel_value) : 0;
-        pixel->header                 = 10;
+        LLCP_PixelDataCommon_t* pixel_common = (LLCP_PixelDataCommon_t*)&image_data.payload.pixel_data[n_pixels_counter];
+        pixel_common->address                = i + j * 256;
 
-        encodePixelData((uint8_t*)pixel, 4, TPX3_TOA_TOT);
+        TPX3PixelMode_t pixel_mode;
+
+        switch (mode_) {
+
+          case LLCP_TPX3_PXL_MODE_TOA_TOT: {
+
+            LLCP_PixelDataToAToT_t* pixel = (LLCP_PixelDataToAToT_t*)(&image_data.payload.pixel_data[n_pixels_counter]);
+            pixel->ftoa                   = pixel_value > 0 ? 1 : 0;
+            pixel->tot                    = uint8_t(pixel_value);
+            pixel->toa                    = 500 - uint8_t(pixel_value) >= 0 ? 500 - uint8_t(pixel_value) : 0;
+
+            pixel_mode = TPX3_TOA_TOT;
+
+            break;
+          }
+
+          case LLCP_TPX3_PXL_MODE_TOA: {
+
+            LLCP_PixelDataToA_t* pixel = (LLCP_PixelDataToA_t*)&image_data.payload.pixel_data[n_pixels_counter];
+            pixel->ftoa                = pixel_value > 0 ? 1 : 0;
+            pixel->toa                 = 500 - uint8_t(pixel_value) >= 0 ? 500 - uint8_t(pixel_value) : 0;
+
+            pixel_mode = TPX3_TOA;
+
+            break;
+          }
+
+          case LLCP_TPX3_PXL_MODE_MPX_ITOT: {
+
+            LLCP_PixelDataMpxiToT_t* pixel = (LLCP_PixelDataMpxiToT_t*)&image_data.payload.pixel_data[n_pixels_counter];
+            pixel->event_counter           = uint8_t(pixel_value);
+            pixel->itot                    = 500 - uint8_t(pixel_value) >= 0 ? 500 - uint8_t(pixel_value) : 0;
+
+            pixel_mode = TPX3_MPX_ITOT;
+
+            break;
+          }
+        }
+
+        pixel_common->header = 10;
+
+        encodePixelData((uint8_t*)pixel_common, 4, pixel_mode);
+
+        n_pixels_counter++;
       }
 
       // send the packet when it is full
