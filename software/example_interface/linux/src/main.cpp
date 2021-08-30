@@ -45,17 +45,27 @@ int main(int argc, char *argv[]) {
   mui_handler.fcns.processAck                      = &mui_linux_processAck;
   mui_handler.fcns.processMinipixError             = &mui_linux_processMinipixError;
   mui_handler.fcns.processFrameMeasurementFinished = &mui_linux_processMeasurementFinished;
-  mui_handler.fcns.sendChar                        = &mui_linux_sendChar;
-  mui_handler.fcns.sendString                      = &mui_linux_sendString;
+
+  // the user can supply either sendChar or sendString method
+  // MUI needs this compiler preprocessor definition to build itself using the right one
+  // please supply the definition during compilation, e.g., in CMakeLists
+#if MUI_SEND_CHAR == 1
+  mui_handler.fcns.sendChar = &mui_linux_sendChar;
+#elif MUI_SEND_STRING == 1
+  mui_handler.fcns.sendString       = &mui_linux_sendString;
+#endif
 
   mui_initialize(&mui_handler);
 
   // | -------- initialize the interface to the Gatherer -------- |
 
-  // pass the platform-specific gatherer functions to the gatherer
+  // pass the platform-specific gatherer function to the gatherer
   // handler, so it can call them to communicate
-  gatherer_handler_.fcns.sendChar   = &gatherer_linux_sendChar;
+#if GATHERER_SEND_CHAR == 1
+  gatherer_handler_.fcns.sendChar = &gatherer_linux_sendChar;
+#elif GATHERER_SEND_STRING == 1
   gatherer_handler_.fcns.sendString = &gatherer_linux_sendString;
+#endif
 
   // gatherer wants the pointer to the mui_handler, so it can call
   // its methods, regardless of the platform.

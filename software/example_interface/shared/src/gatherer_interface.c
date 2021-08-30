@@ -142,7 +142,7 @@ void gatherer_processFrameData(Gatherer_Handler_t *gatherer_handler, const LLCP_
   hton_LLCP_FrameDataMsg_t(&msg);
 
   uint16_t n_bytes = llcp_prepareMessage((uint8_t *)&msg, sizeof(msg), gatherer_handler->tx_buffer);
-  gatherer_handler->fcns.sendString(gatherer_handler->tx_buffer, n_bytes);
+  gatherer_sendMessage(gatherer_handler, gatherer_handler->tx_buffer, n_bytes);
 }
 
 //}
@@ -162,7 +162,7 @@ void gatherer_processFrameDataTerminator(Gatherer_Handler_t *gatherer_handler, c
   hton_LLCP_FrameDataTerminatorMsg_t(&msg);
 
   uint16_t n_bytes = llcp_prepareMessage((uint8_t *)&msg, sizeof(msg), gatherer_handler->tx_buffer);
-  gatherer_handler->fcns.sendString(gatherer_handler->tx_buffer, n_bytes);
+  gatherer_sendMessage(gatherer_handler, gatherer_handler->tx_buffer, n_bytes);
 }
 
 //}
@@ -182,7 +182,7 @@ void gatherer_processStatus(Gatherer_Handler_t *gatherer_handler, const LLCP_Sta
   hton_LLCP_StatusMsg_t(&msg);
 
   uint16_t n_bytes = llcp_prepareMessage((uint8_t *)&msg, sizeof(msg), gatherer_handler->tx_buffer);
-  gatherer_handler->fcns.sendString(gatherer_handler->tx_buffer, n_bytes);
+  gatherer_sendMessage(gatherer_handler, gatherer_handler->tx_buffer, n_bytes);
 }
 
 //}
@@ -202,7 +202,7 @@ void gatherer_processTemperature(Gatherer_Handler_t *gatherer_handler, const LLC
   hton_LLCP_TemperatureMsg_t(&msg);
 
   uint16_t n_bytes = llcp_prepareMessage((uint8_t *)&msg, sizeof(msg), gatherer_handler->tx_buffer);
-  gatherer_handler->fcns.sendString(gatherer_handler->tx_buffer, n_bytes);
+  gatherer_sendMessage(gatherer_handler, gatherer_handler->tx_buffer, n_bytes);
 }
 
 //}
@@ -222,7 +222,7 @@ void gatherer_processAck(Gatherer_Handler_t *gatherer_handler, const LLCP_Ack_t 
   hton_LLCP_AckMsg_t(&msg);
 
   uint16_t n_bytes = llcp_prepareMessage((uint8_t *)&msg, sizeof(msg), gatherer_handler->tx_buffer);
-  gatherer_handler->fcns.sendString(gatherer_handler->tx_buffer, n_bytes);
+  gatherer_sendMessage(gatherer_handler, gatherer_handler->tx_buffer, n_bytes);
 }
 
 //}
@@ -242,7 +242,7 @@ void gatherer_processMinipixError(Gatherer_Handler_t *gatherer_handler, const LL
   hton_LLCP_MinipixErrorMsg_t(&msg);
 
   uint16_t n_bytes = llcp_prepareMessage((uint8_t *)&msg, sizeof(msg), gatherer_handler->tx_buffer);
-  gatherer_handler->fcns.sendString(gatherer_handler->tx_buffer, n_bytes);
+  gatherer_sendMessage(gatherer_handler, gatherer_handler->tx_buffer, n_bytes);
 }
 
 //}
@@ -259,7 +259,33 @@ void gatherer_processFrameMeasurementFinished(Gatherer_Handler_t *gatherer_handl
   hton_LLCP_FrameMeasurementFinishedMsg_t(&msg);
 
   uint16_t n_bytes = llcp_prepareMessage((uint8_t *)&msg, sizeof(msg), gatherer_handler->tx_buffer);
-  gatherer_handler->fcns.sendString(gatherer_handler->tx_buffer, n_bytes);
+  gatherer_sendMessage(gatherer_handler, gatherer_handler->tx_buffer, n_bytes);
+}
+
+//}
+
+// | ------------------------- private ------------------------ |
+
+/* gatherer_sendMessage() //{ */
+
+void gatherer_sendMessage(Gatherer_Handler_t *gatherer_handler, const uint8_t *str_out, const uint16_t len) {
+
+#if GATHERER_SEND_STRING == 1
+
+  gatherer_handler->fcns.sendString(str_out, len);
+
+#elif GATHERER_SEND_CHAR == 1
+
+  for (uint16_t i = 0; i < len; i++) {
+    gatherer_handler->fcns.sendChar(str_out[i]);
+  }
+
+#else
+#error "Gatherer interface will not work, neither GATHERER_SEND_STRING or GATHERER_SEND_CHAR needs to be 1"
+  UNUSED(gatherer_handler);
+  UNUSED(str_out);
+  UNUSED(len);
+#endif
 }
 
 //}

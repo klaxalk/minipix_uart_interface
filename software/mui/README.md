@@ -7,11 +7,38 @@ More general info and context in the general [README](../README.md).
 
 ## Pre-build requirements
 
-TODO
+The MUI should be compilable without any requirements and modifications from the integrator.
+However, several compilation directives can be used to modify the behaviour of the MUI and the underlying LLCP.
+
+### LLCP customization
+
+LLCP can operate in either binary or hexadecimal transmission mode.
+MiniPIX will most probably be set for the binary (default).
+However, if you use LLCP for a custom project, or if you have MiniPIX set explicitly for HEX, change the behavior during compilation by the following define before including `mui.h`.
+```C
+#define LLCP_COMM_HEXADECIMAL 1
+```
+
+Debug print can be enabled in LLCP by defining:
+
+```C
+#define LLCP_DEBUG_PRINT 1
+```
+
+For more niche options, see ![llcp.h](../llcp/include/llcp.h).
+
+### MUI customization
+
+MUI allows the user/integrator to handle the communication _acking_ manually by defining:
+```C
+#define MUI_USER_HANDSHAKES 1
+```
+It could be useful if the user/integrator requires more control in timings of the incomming data.
+For details, please see the communication diagrams below under the label `#define MUI_USER_HANDSHAKES 1`.
 
 ## Run-time initialization
 
-TODO
+Adapting MUI requires to pass pointers to user implementated and hardware-specific functions.
 
 ## Operating MiniPIX with the MUI
 
@@ -21,7 +48,7 @@ TODO
 
 ### mui_pwr()
 
-TODO
+![](./fig/mui_pwr.png)
 
 ### mui_getStatus()
 
@@ -37,16 +64,12 @@ TODO
 
 ### mui_setThreshold()
 
-TODO
+![](./fig/mui_set_threshold.png)
 
 ### mui_setConfigurationPreset()
 
-TODO
+![](./fig/mui_set_config.png)
 
 ### mui_updatePixelMask()
 
-TODO
-
-## User manual handling of ACK handshaking
-
-TODO
+![](./fig/mui_update_mask.png)

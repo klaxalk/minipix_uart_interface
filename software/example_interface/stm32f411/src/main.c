@@ -136,8 +136,15 @@ int main(void) {
   mui_handler_.fcns.processAck                      = &mui_stm_processAck;
   mui_handler_.fcns.processMinipixError             = &mui_stm_processMinipixError;
   mui_handler_.fcns.processFrameMeasurementFinished = &mui_stm_processFrameMeasurementFinished;
-  mui_handler_.fcns.sendChar                        = &mui_stm_sendChar;
-  mui_handler_.fcns.sendString                      = &mui_stm_sendString;
+
+  // the user can supply either sendChar or sendString method
+  // MUI needs this compiler preprocessor definition to build itself using the right one
+  // please supply the definition during compilation, e.g., in CMakeLists
+#if MUI_SEND_CHAR == 1
+  mui_handler_.fcns.sendChar = &mui_stm_sendChar;
+#elif MUI_SEND_STRING == 1
+  mui_handler_.fcns.sendString      = &mui_stm_sendString;
+#endif
 
   // this initializes the LLCP inside
   mui_initialize(&mui_handler_);
@@ -148,8 +155,11 @@ int main(void) {
   // | ------------ initialize the Gatherer interface ----------- |
 
   // hw support
-  gatherer_handler_.fcns.sendChar   = &gatherer_stm_sendChar;
+#if GATHERER_SEND_CHAR == 1
+  gatherer_handler_.fcns.sendChar = &gatherer_stm_sendChar;
+#elif GATHERER_SEND_STRING == 1
   gatherer_handler_.fcns.sendString = &gatherer_stm_sendString;
+#endif
 
   gatherer_handler_.mui_handler_ptr_ = &mui_handler_;
 

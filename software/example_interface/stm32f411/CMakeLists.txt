@@ -46,6 +46,12 @@ add_executable(main
   src/llcp/llcp_minipix_messages.c
 )
 
+target_compile_definitions(main PRIVATE MUI_SEND_STRING=1)
+# target_compile_definitions(main PRIVATE MUI_SEND_CHAR=1)
+
+target_compile_definitions(main PRIVATE GATHERER_SEND_STRING=1)
+# target_compile_definitions(main PRIVATE GATHERER_SEND_CHAR=1)
+
 target_link_libraries(main
   # STM libraries
   HAL::STM32::F4::RCC

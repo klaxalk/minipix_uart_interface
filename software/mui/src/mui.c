@@ -32,7 +32,7 @@ void mui_pwr(MUI_Handler_t* mui_handler, const bool state) {
 
   uint16_t n_bytes = llcp_prepareMessage((uint8_t*)&msg, sizeof(msg), mui_handler->tx_buffer);
 
-  mui_handler->fcns.sendString(mui_handler->tx_buffer, n_bytes);
+  mui_sendMessage(mui_handler, mui_handler->tx_buffer, n_bytes);
 }
 
 //}
@@ -56,12 +56,25 @@ void mui_measureFrame(MUI_Handler_t* mui_handler, const uint16_t acquisition_tim
 
   uint16_t n_bytes = llcp_prepareMessage((uint8_t*)&msg, sizeof(msg), mui_handler->tx_buffer);
 
-  // we should wait at least 10 ms before we start the measurement
-  // it might happend that the MiniPIX won't be ready for it after the last command
-  // and the measurement won't be conducted
-  /* mui_handler->fcns.sleepHW((uint16_t)10); */
+  mui_sendMessage(mui_handler, mui_handler->tx_buffer, n_bytes);
+}
 
-  mui_handler->fcns.sendString(mui_handler->tx_buffer, n_bytes);
+//}
+
+/* mui_getFrameData() //{ */
+
+void mui_getFrameData(MUI_Handler_t* mui_handler) {
+
+  // create the message
+  LLCP_GetFrameDataReqMsg_t msg;
+  init_LLCP_GetFrameDataReqMsg_t(&msg);
+
+  // convert to network endian
+  hton_LLCP_GetFrameDataReqMsg_t(&msg);
+
+  uint16_t n_bytes = llcp_prepareMessage((uint8_t*)&msg, sizeof(msg), mui_handler->tx_buffer);
+
+  mui_sendMessage(mui_handler, mui_handler->tx_buffer, n_bytes);
 }
 
 //}
@@ -83,7 +96,7 @@ void mui_updatePixelMask(MUI_Handler_t* mui_handler, LLCP_UpdatePixelMaskReq_t* 
 
   uint16_t n_bytes = llcp_prepareMessage((uint8_t*)&msg, sizeof(msg), mui_handler->tx_buffer);
 
-  mui_handler->fcns.sendString(mui_handler->tx_buffer, n_bytes);
+  mui_sendMessage(mui_handler, mui_handler->tx_buffer, n_bytes);
 }
 
 //}
@@ -104,7 +117,7 @@ void mui_setThreshold(MUI_Handler_t* mui_handler, const uint16_t threshold_coars
 
   uint16_t n_bytes = llcp_prepareMessage((uint8_t*)&msg, sizeof(msg), mui_handler->tx_buffer);
 
-  mui_handler->fcns.sendString(mui_handler->tx_buffer, n_bytes);
+  mui_sendMessage(mui_handler, mui_handler->tx_buffer, n_bytes);
 }
 
 //}
@@ -124,7 +137,7 @@ void mui_setConfigurationPreset(MUI_Handler_t* mui_handler, const uint8_t preset
 
   uint16_t n_bytes = llcp_prepareMessage((uint8_t*)&msg, sizeof(msg), mui_handler->tx_buffer);
 
-  mui_handler->fcns.sendString(mui_handler->tx_buffer, n_bytes);
+  mui_sendMessage(mui_handler, mui_handler->tx_buffer, n_bytes);
 }
 
 //}
@@ -144,7 +157,7 @@ void mui_getStatus(MUI_Handler_t* mui_handler) {
 
   uint16_t n_bytes = llcp_prepareMessage((uint8_t*)&msg, sizeof(msg), mui_handler->tx_buffer);
 
-  mui_handler->fcns.sendString(mui_handler->tx_buffer, n_bytes);
+  mui_sendMessage(mui_handler, mui_handler->tx_buffer, n_bytes);
 }
 
 //}
@@ -162,7 +175,7 @@ void mui_getTemperature(MUI_Handler_t* mui_handler) {
 
   uint16_t n_bytes = llcp_prepareMessage((uint8_t*)&msg, sizeof(msg), mui_handler->tx_buffer);
 
-  mui_handler->fcns.sendString(mui_handler->tx_buffer, n_bytes);
+  mui_sendMessage(mui_handler, mui_handler->tx_buffer, n_bytes);
 }
 
 //}
@@ -330,9 +343,7 @@ void mui_sendAck(MUI_Handler_t* mui_handler, const bool success) {
 
   uint16_t n_bytes = llcp_prepareMessage((uint8_t*)&msg, sizeof(msg), mui_handler->tx_buffer);
 
-  mui_handler->fcns.sendString(mui_handler->tx_buffer, n_bytes);
-
-  /* mui_ledSet(mui_handler, false); */
+  mui_sendMessage(mui_handler, mui_handler->tx_buffer, n_bytes);
 }
 
 //}
@@ -341,20 +352,26 @@ void mui_sendAck(MUI_Handler_t* mui_handler, const bool success) {
 // |                           private                          |
 // --------------------------------------------------------------
 
-/* mui_getFrameData() //{ */
+/* mui_sendMessage() //{ */
 
-void mui_getFrameData(MUI_Handler_t* mui_handler) {
+void mui_sendMessage(MUI_Handler_t* mui_handler, const uint8_t* str_out, const uint16_t len) {
 
-  // create the message
-  LLCP_GetFrameDataReqMsg_t msg;
-  init_LLCP_GetFrameDataReqMsg_t(&msg);
+#if MUI_SEND_STRING == 1
 
-  // convert to network endian
-  hton_LLCP_GetFrameDataReqMsg_t(&msg);
+  mui_handler->fcns.sendString(str_out, len);
 
-  uint16_t n_bytes = llcp_prepareMessage((uint8_t*)&msg, sizeof(msg), mui_handler->tx_buffer);
+#elif MUI_SEND_CHAR == 1
 
-  mui_handler->fcns.sendString(mui_handler->tx_buffer, n_bytes);
+  for (uint16_t i = 0; i < len; i++) {
+    mui_handler->fcns.sendChar(str_out[i]);
+  }
+
+#else
+#error "MUI will not work, neither MUI_SEND_CHAR or MUI_SEND_STRING needs to be 1"
+  UNUSED(mui_handler);
+  UNUSED(str_out);
+  UNUSED(len);
+#endif
 }
 
 //}

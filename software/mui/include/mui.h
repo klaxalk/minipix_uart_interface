@@ -13,11 +13,40 @@ extern "C" {
 #include <stdbool.h>
 
 // gives user more control over protocol handshakes, namely:
-// * user needs to call mui_getFrameData() after he receives the mui_processFrameMeasurementFinished_t() callback. Otherwise, this callback is not called and the handshake happens automatically.
+// * user needs to call mui_getFrameData() after he receives the mui_processFrameMeasurementFinished_t() callback. Otherwise, this callback is not called and
+// the handshake happens automatically.
 // * user needs to call mui_sendAck() after receiving FrameData, FrameDataTerminator, Temperature, and Status callbacks.
 #ifndef MUI_USER_HANDSHAKES
 #define MUI_USER_HANDSHAKES 0
 #endif
+
+// user can pass the mui_sendString_t to facilitate sending of data
+#ifndef MUI_SEND_STRING
+#define MUI_SEND_STRING 0
+#endif
+
+// user can pass the mui_sendChar_t to facilitate sending of data
+#ifndef MUI_SEND_CHAR
+#define MUI_SEND_CHAR 0
+#endif
+
+/* automatically-defined configs //{ */
+
+#if ((MUI_SEND_CHAR == 1) && (MUI_SEND_STRING == 1))
+#warning "MUI is compiled with both MUI_SEND_CHAR = 1 and MUI_SEND_STRING = 1, will expect pointer to mui_sendString_t during runtime"
+#elif ((MUI_SEND_CHAR == 0) && (MUI_SEND_STRING == 0))
+#error "Cannot have both MUI_SEND_CHAR and MUI_SEND_STRING set to 0. At least one data handling function needs to be used! Please, read README at https://github.com/klaxalk/minipix_uart_interface/tree/master/software/mui for more details."
+#elif ((MUI_SEND_CHAR == 1) && (MUI_SEND_STRING == 0))
+#pragma message("MUI is being compiled with MUI_SEND_CHAR = 1, it will expect pointer to the mui_sendChar_t function during runtime")
+#elif ((MUI_SEND_CHAR == 0) && (MUI_SEND_STRING == 1))
+#pragma message("MUI is being compiled with MUI_SEND_STRING = 1, it will expect pointer to the mui_sendString_t function during runtime")
+#endif
+
+#if MUI_USER_HANDSHAKES == 1
+#warning "MUI_USER_HANDSHAKES is 1, do not forget to call mui_sendAck() according to the README"
+#endif
+
+//}
 
 // | ---------- function pointers to user's callbacks --------- |
 
@@ -171,6 +200,16 @@ void mui_pwr(MUI_Handler_t *mui_handler, const bool state);
 void mui_measureFrame(MUI_Handler_t *mui_handler, const uint16_t acquisition_time, const uint8_t mode);
 
 /**
+ * @brief Command to request measured frame data.
+ * As a result, the MiniPIX will start obtaning data and will call the
+ *                        processFrameData()
+ * function will be called.
+ *
+ * @param mui_handler
+ */
+void mui_getFrameData(MUI_Handler_t *mui_handler);
+
+/**
  * @brief Command to set energy threshold
  *
  * @param mui_handler
@@ -248,14 +287,13 @@ void mui_sendAck(MUI_Handler_t *mui_handler, const bool success);
 // --------------------------------------------------------------
 
 /**
- * @brief Command to request measured frame data.
- * As a result, the MiniPIX will start obtaning data and will call the
- *                        processFrameData()
- * function will be called.
+ * @brief Abstraction above sending a message. Will use either sendString or sendChar basend on configuration.
  *
  * @param mui_handler
+ * @param message the string to send
+ * @param len how many bytes to send
  */
-void mui_getFrameData(MUI_Handler_t *mui_handler);
+void mui_sendMessage(MUI_Handler_t* mui_handler, const uint8_t* message, const uint16_t len);
 
 // | -------------------- LED signalization ------------------- |
 

@@ -22,3 +22,6 @@ add_library(mui
   src/llcp/llcp_endian.c
   src/llcp/llcp_minipix_messages.c
 )
+
+target_compile_definitions(mui PRIVATE MUI_SEND_STRING=1)
+# target_compile_definitions(mui PRIVATE MUI_SEND_CHAR=1)

@@ -22,6 +22,19 @@ extern "C" {
 #include <stdint.h>
 #include <stdbool.h>
 
+#ifndef GATHERER_SEND_STRING
+#define GATHERER_SEND_STRING 0
+#endif
+
+#ifndef GATHERER_SEND_CHAR
+#define GATHERER_SEND_CHAR 0
+#endif
+
+#if ((GATHERER_SEND_CHAR == 0) && (GATHERER_SEND_STRING == 0))
+#error \
+    "Cannot have both GATHERER_SEND_CHAR and GATHERER_SEND_STRING set to 0. At least one data handling function needs to be used! Please, read README at https://github.com/klaxalk/minipix_uart_interface/tree/master/software/gatherer for more details."
+#endif
+
 // hw support
 typedef void (*gatherer_sendChar_t)(const uint8_t char_out);
 typedef void (*gatherer_sendString_t)(const uint8_t *str_out, const uint16_t len);
@@ -64,6 +77,10 @@ void gatherer_processTemperature(Gatherer_Handler_t *gatherer_handler, const LLC
 void gatherer_processAck(Gatherer_Handler_t *gatherer_handler, const LLCP_Ack_t *data);
 void gatherer_processMinipixError(Gatherer_Handler_t *gatherer_handler, const LLCP_MinipixError_t *data);
 void gatherer_processFrameMeasurementFinished(Gatherer_Handler_t *gatherer_handler);
+
+// | ------------------------- private ------------------------ |
+
+void gatherer_sendMessage(Gatherer_Handler_t *gatherer_handler, const uint8_t *str_out, const uint16_t len);
 
 #ifdef __cplusplus
 }

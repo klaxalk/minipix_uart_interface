@@ -35,3 +35,9 @@ add_executable(example_interface
   src/llcp/llcp_endian.c
   src/llcp/llcp_minipix_messages.c
 )
+
+target_compile_definitions(example_interface PRIVATE MUI_SEND_STRING=1)
+# target_compile_definitions(example_interface PRIVATE MUI_SEND_CHAR=1)
+
+target_compile_definitions(example_interface PRIVATE GATHERER_SEND_STRING=1)
+# target_compile_definitions(example_interface PRIVATE GATHERER_SEND_CHAR=1)
