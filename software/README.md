@@ -2,13 +2,14 @@
 
 [![](../fig/diagram.png)](../fig/diagram.pdf)
 
-## MUI - MiniPIX UART Interface
+## [MUI - MiniPIX UART Interface](./mui/README.md)
 
 * **C99 library**
   * needs "virtual" methods to be implemented by the HW integrator
 * **uses LLCP** to communicate with the MiniPIX
 * provides routines for controling the MiniPIX
 * calls user callbacks when new data arrive
+* more details in [mui/README.md](./mui/README.md)
 
 ## LLCP - Low-level Communication Protocol
 
@@ -17,7 +18,7 @@
 * capable of sending messages with up to 255 bytes of payload
 * can send data in binary or hexadecimal form
 * RAM-efficient: uses a single buffer to store received data and to present them to the user after decoding
-* **No need to implement this directly, it is already used by the MUI**
+* **No need to implement this directly, it is already used within the MUI**
 
 ## Example interface
 
