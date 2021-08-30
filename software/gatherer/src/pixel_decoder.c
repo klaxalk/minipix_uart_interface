@@ -1579,16 +1579,16 @@ const uint8_t LUT_COLSHIFTS[1280] = {
  */
 void decodePixelData(uint8_t* data, const uint8_t col_shift_num, const TPX3PixelMode_t pixel_mode) {
 
-  uint16_t address   = (data[0] & 0x0F) << 12 | (data[1] << 4) | ((data[2] >> 4) & 0x0F);
-  uint16_t value3    = ((data[2] & 0x0F) << 10) | (data[3] << 2) | ((data[4] >> 6) & 0x03);
-  uint16_t value2    = ((data[4] & 0x3F) << 4) | ((data[5] >> 4) & 0x0F);
-  uint16_t value1    = (data[5] & 0x0F);
-  uint16_t eoc       = (address >> 9) & 0x7F;
-  uint16_t sp        = (address >> 3) & 0x3F;
-  uint16_t pix       = address & 0x07;
-  uint16_t x         = eoc * 2 + (pix / 4);
-  uint16_t y         = (sp * 4 + (pix % 4));
-  uint16_t idx       = y * 256 + x;
+  uint16_t address = (data[0] & 0x0F) << 12 | (data[1] << 4) | ((data[2] >> 4) & 0x0F);
+  uint16_t value3  = ((data[2] & 0x0F) << 10) | (data[3] << 2) | ((data[4] >> 6) & 0x03);
+  uint16_t value2  = ((data[4] & 0x3F) << 4) | ((data[5] >> 4) & 0x0F);
+  uint16_t value1  = (data[5] & 0x0F);
+  uint16_t eoc     = (address >> 9) & 0x7F;
+  uint16_t sp      = (address >> 3) & 0x3F;
+  uint16_t pix     = address & 0x07;
+  uint16_t x       = eoc * 2 + (pix / 4);
+  uint16_t y       = (sp * 4 + (pix % 4));
+  uint16_t idx     = y * 256 + x;
 
   switch (pixel_mode) {
 
@@ -1618,9 +1618,9 @@ void decodePixelData(uint8_t* data, const uint8_t col_shift_num, const TPX3Pixel
 
       LLCP_PixelDataMpxiToT_t* packet = (LLCP_PixelDataMpxiToT_t*)data;
 
-      packet->dummy         = 0;
-      packet->event_counter = LUT_EVENT[value2];
-      packet->itot          = LUT_ITOT[value3];
+      packet->dummy = 0;
+      packet->mpx   = LUT_EVENT[value2];
+      packet->itot  = LUT_ITOT[value3];
 
       break;
     }

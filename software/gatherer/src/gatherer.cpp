@@ -370,7 +370,7 @@ void Gatherer::callbackFrameData(const LLCP_Message_t* message_in) {
         x = ((LLCP_PixelDataMpxiToT_t*)&image->pixel_data[pix])->address % 256;
         y = ((LLCP_PixelDataMpxiToT_t*)&image->pixel_data[pix])->address / 256;
 
-        mpx  = ((LLCP_PixelDataMpxiToT_t*)&image->pixel_data[pix])->event_counter;
+        mpx  = ((LLCP_PixelDataMpxiToT_t*)&image->pixel_data[pix])->mpx;
         itot = float(((LLCP_PixelDataMpxiToT_t*)&image->pixel_data[pix])->itot);
 
         toa  = 0;

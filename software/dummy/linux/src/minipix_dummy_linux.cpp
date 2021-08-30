@@ -277,7 +277,7 @@ void MinipixDummyLinux::getFrameData(void) {
           case LLCP_TPX3_PXL_MODE_MPX_ITOT: {
 
             LLCP_PixelDataMpxiToT_t* pixel = (LLCP_PixelDataMpxiToT_t*)&image_data.payload.pixel_data[n_pixels_counter];
-            pixel->event_counter           = uint8_t(pixel_value);
+            pixel->mpx                     = uint8_t(pixel_value);
             pixel->itot                    = 500 - uint8_t(pixel_value) >= 0 ? 500 - uint8_t(pixel_value) : 0;
 
             pixel_mode = TPX3_MPX_ITOT;

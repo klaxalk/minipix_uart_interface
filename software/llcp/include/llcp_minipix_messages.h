@@ -116,7 +116,7 @@ typedef struct __attribute__((packed))
 typedef struct __attribute__((packed))
 {
   uint8_t  dummy : 4;
-  uint16_t event_counter : 10;
+  uint16_t mpx : 10;
   uint16_t itot : 14;
   uint16_t address : 16;
   uint16_t header : 4;
