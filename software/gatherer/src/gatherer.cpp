@@ -310,9 +310,6 @@ void Gatherer::callbackFrameData(const LLCP_Message_t* message_in) {
   // for all the pixels in the packet
   for (int pix = 0; pix < image->n_pixels; pix++) {
 
-    // derandomize and deserialize the pixel data
-    decodePixelData((uint8_t*)&image->pixel_data[pix], 4, TPX3_TOA_TOT);
-
     uint8_t  x, y;
     uint16_t tot, toa, ftoa, mpx, itot;
 
@@ -323,12 +320,15 @@ void Gatherer::callbackFrameData(const LLCP_Message_t* message_in) {
 
       case LLCP_TPX3_PXL_MODE_TOA_TOT: {
 
+        // derandomize and deserialize the pixel data
+        decodePixelData((uint8_t*)&image->pixel_data[pix], 4, TPX3_TOA_TOT);
+
         x = ((LLCP_PixelDataToAToT_t*)&image->pixel_data[pix])->address % 256;
         y = ((LLCP_PixelDataToAToT_t*)&image->pixel_data[pix])->address / 256;
 
-        ftoa = float(((LLCP_PixelDataToAToT_t*)&image->pixel_data[pix])->ftoa);
-        tot  = float(((LLCP_PixelDataToAToT_t*)&image->pixel_data[pix])->tot);
-        toa  = float(((LLCP_PixelDataToAToT_t*)&image->pixel_data[pix])->toa);
+        ftoa = ((LLCP_PixelDataToAToT_t*)&image->pixel_data[pix])->ftoa;
+        tot  = ((LLCP_PixelDataToAToT_t*)&image->pixel_data[pix])->tot;
+        toa  = ((LLCP_PixelDataToAToT_t*)&image->pixel_data[pix])->toa;
 
         mpx  = 0;
         itot = 0;
@@ -345,11 +345,14 @@ void Gatherer::callbackFrameData(const LLCP_Message_t* message_in) {
 
       case LLCP_TPX3_PXL_MODE_TOA: {
 
+        // derandomize and deserialize the pixel data
+        decodePixelData((uint8_t*)&image->pixel_data[pix], 4, TPX3_TOA);
+
         x = ((LLCP_PixelDataToA_t*)&image->pixel_data[pix])->address % 256;
         y = ((LLCP_PixelDataToA_t*)&image->pixel_data[pix])->address / 256;
 
-        ftoa = float(((LLCP_PixelDataToA_t*)&image->pixel_data[pix])->ftoa);
-        toa  = float(((LLCP_PixelDataToA_t*)&image->pixel_data[pix])->toa);
+        ftoa = ((LLCP_PixelDataToA_t*)&image->pixel_data[pix])->ftoa;
+        toa  = ((LLCP_PixelDataToA_t*)&image->pixel_data[pix])->toa;
 
         tot  = 0;
         mpx  = 0;
@@ -367,11 +370,14 @@ void Gatherer::callbackFrameData(const LLCP_Message_t* message_in) {
 
       case LLCP_TPX3_PXL_MODE_MPX_ITOT: {
 
+        // derandomize and deserialize the pixel data
+        decodePixelData((uint8_t*)&image->pixel_data[pix], 4, TPX3_MPX_ITOT);
+
         x = ((LLCP_PixelDataMpxiToT_t*)&image->pixel_data[pix])->address % 256;
         y = ((LLCP_PixelDataMpxiToT_t*)&image->pixel_data[pix])->address / 256;
 
         mpx  = ((LLCP_PixelDataMpxiToT_t*)&image->pixel_data[pix])->mpx;
-        itot = float(((LLCP_PixelDataMpxiToT_t*)&image->pixel_data[pix])->itot);
+        itot = ((LLCP_PixelDataMpxiToT_t*)&image->pixel_data[pix])->itot;
 
         toa  = 0;
         ftoa = 0;
