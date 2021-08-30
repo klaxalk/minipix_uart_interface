@@ -41,3 +41,5 @@ target_compile_definitions(example_interface PRIVATE MUI_SEND_STRING=1)
 
 target_compile_definitions(example_interface PRIVATE GATHERER_SEND_STRING=1)
 # target_compile_definitions(example_interface PRIVATE GATHERER_SEND_CHAR=1)
+
+# target_compile_definitions(example_interface PRIVATE LLCP_DEBUG_PRINT=1)

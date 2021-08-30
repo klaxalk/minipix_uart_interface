@@ -39,10 +39,10 @@ class PixelDataMpxiToT:
 
     def __init__(self):
 
-        self.event_counter = 0
-        self.itot          = 0
-        self.x             = 0
-        self.y             = 0
+        self.mpx  = 0
+        self.itot = 0
+        self.x    = 0
+        self.y    = 0
 
 # #} end of class PixelDataMpxiToT
 
