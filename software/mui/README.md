@@ -33,8 +33,9 @@ MUI allows the user/integrator to handle the communication _acking_ manually by 
 ```C
 #define MUI_USER_HANDSHAKES 1
 ```
-It could be useful if the user/integrator requires more control in timings of the incomming data.
-For details, please see the communication diagrams below under the label `#define MUI_USER_HANDSHAKES 1`.
+Otherwise, acks are sent automatically by the MUI after the user callback is executed.
+Manual acking could be useful if the user/integrator requires more control of timings of the incomming data, particularly after calling `mui_getFrameData()`.
+For details, please see the communication flow diagrams below under the label `#define MUI_USER_HANDSHAKES 1`.
 
 ## Run-time initialization
 
