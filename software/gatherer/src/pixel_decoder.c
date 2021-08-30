@@ -1575,6 +1575,7 @@ const uint8_t LUT_COLSHIFTS[1280] = {
  *
  * @param data pointer to 6 x uint8_t of data
  * @param col_shift_num = 4
+ * @param pixel_mode pixel mode out of the TPX3PixelMode_t enum
  */
 void decodePixelData(uint8_t* data, const uint8_t col_shift_num, const TPX3PixelMode_t pixel_mode) {
 
