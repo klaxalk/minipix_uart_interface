@@ -1,5 +1,10 @@
 # MiniPIX UART Interface (MUI)
 
+MUI is a minimalistic C99 library for controlling [MiniPIX TPX3](https://advacam.com/camera/minipix-tpx3) devices over a serial line (UART).
+The interface was developped specifically for constraint applications of Space radiation dosimetry.
+Maximum efford was invested into making the interface as lightweight as possible (to support even 8bit microcontrollers) and to make the user integration as simple as possible, regardless of the underlying system.
+This repository contains the software neccessary for interaction with MiniPIX, as well as example use cases (Linux, STM32F4), dummy detectors and decoder examples.
+
 ## [Software](https://github.com/klaxalk/tpx_lunar_lander/tree/master/software)
 
 | Build status | [![Build](https://github.com/klaxalk/minipix_uart_interface/workflows/Build/badge.svg)](https://github.com/klaxalk/minipix_uart_interface/actions) | [![Docs](https://github.com/klaxalk/minipix_uart_interface/workflows/Docs/badge.svg)](https://github.com/klaxalk/minipix_uart_interface/actions) |
@@ -15,7 +20,10 @@ Message definitions: [llcp_minipix_messages.h](https://klaxalk.github.io/minipix
 
 ## Additional material
 
-### System diagram
+### System diagram of the provided software
+
+A potential user/integrator should focus in directly using the **yellow**-labelled blocks, specifically, the [MUI](./software/mui/README.md).
+The rest is provided for debugging and as examples, and is not supposed to serve _as is_.
 
 [![](./fig/diagram.png)](./fig/diagram.pdf)
 
