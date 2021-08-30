@@ -753,14 +753,14 @@ void Gatherer::pwr(const bool& state) {
 
 /* maskPixel() //{ */
 
-void Gatherer::maskPixel(const uint8_t& x, const uint8_t& y) {
+void Gatherer::maskPixel(const uint8_t& x, const uint8_t& y, const bool state) {
 
   // create the message
   LLCP_UpdatePixelMaskReqMsg_t msg;
   init_LLCP_UpdatePixelMaskReqMsg_t(&msg);
 
   // fill in the payload
-  msg.payload.masked       = 1;
+  msg.payload.masked       = state ? 1 : 0;
   msg.payload.x_coordinate = x;
   msg.payload.y_coordinate = y;
 

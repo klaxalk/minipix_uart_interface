@@ -15,7 +15,7 @@ add_definitions(-DLLCP_LITTLE_ENDIAN)
 add_definitions(-Wall)
 add_definitions(-Wextra)
 add_definitions(-Wpedantic)
-add_definitions(-O2)
+# add_definitions(-O0)
 # add_definitions(-g)
 
 find_package(CMSIS COMPONENTS STM32F4 REQUIRED)

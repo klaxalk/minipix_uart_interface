@@ -19,6 +19,32 @@ TODO
 
 ## Communication flow diagrams
 
+### mui_pwr()
+
+TODO
+
+### mui_getStatus()
+
+![](./fig/mui_get_status.png)
+
+### mui_getTemperature()
+
+![](./fig/mui_get_temperature.png)
+
+### mui_measureFrame()
+
+![](./fig/mui_measure_frame.png)
+
+### mui_setThreshold()
+
+TODO
+
+### mui_setConfigurationPreset()
+
+TODO
+
+### mui_updatePixelMask()
+
 TODO
 
 ## User manual handling of ACK handshaking

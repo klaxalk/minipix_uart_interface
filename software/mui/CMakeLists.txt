@@ -8,6 +8,8 @@ add_definitions(-DLLCP_LITTLE_ENDIAN)
 add_definitions(-Wall)
 add_definitions(-Wextra)
 add_definitions(-Wpedantic)
+# add_definitions(-O0)
+# add_definitions(-g)
 
 include_directories(
   include
