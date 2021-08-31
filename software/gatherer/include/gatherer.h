@@ -48,13 +48,14 @@ public:
 
   void getStatus(void);
   void getTemperature(void);
-  void measureFrame(const uint16_t& acquisition_time_ms, const uint8_t &mode);
+  void measureFrame(const uint16_t& acquisition_time_ms, const uint8_t& mode);
   void pwr(const bool& state);
   void maskPixel(const uint8_t& x, const uint8_t& y, const bool state);
   void setThreshold(const uint16_t& coarse, const uint16_t& fine);
   void setConfigurationPreset(const uint16_t& preset);
   void sendAck(bool ack);
   void getFrameData(void);
+  void stop(void);
 
 public:
   bool measuring_frame_    = false;
@@ -63,10 +64,9 @@ public:
   bool waiting_for_status_ = false;
 
 private:
-
   SerialPort serial_port_;
   std::mutex mutex_serial_port_;
-  uint8_t tx_buffer[SERIAL_BUFFER_SIZE];
+  uint8_t    tx_buffer[SERIAL_BUFFER_SIZE];
 
   LLCP_Receiver_t llcp_receiver;
 
@@ -74,6 +74,7 @@ private:
   void        threadMain(void);
 
   std::atomic<bool> initialized_ = false;
+  std::atomic<bool> running_     = true;
 
   // | ------------------------ callbacks ----------------------- |
 

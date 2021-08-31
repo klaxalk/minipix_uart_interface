@@ -5,7 +5,7 @@ set(CMAKE_CXX_STANDARD 20)
 set(CMAKE_CXX_STANDARD_REQUIRED ON)
 set(CMAKE_EXPORT_COMPILE_COMMANDS ON)
 
-#UNSET this to compile without OpenCV GUI
+# set this to 1 to compile with OpenCV
 set(GUI 0)
 
 if(${GUI})

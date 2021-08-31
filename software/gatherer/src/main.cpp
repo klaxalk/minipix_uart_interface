@@ -95,6 +95,9 @@ output data path: '%s'\n",
   printf("powering off\n");
   gatherer.pwr(false);
 
+  // this will stop the threads and disconnect the uart
+  gatherer.stop();
+
   printf("finished\n");
 
   return 0;

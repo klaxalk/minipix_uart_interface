@@ -54,6 +54,22 @@ void Gatherer::connect(const std::string& serial_port, const int& baud_rate, con
 
 //}
 
+/* stop() //{ */
+
+void Gatherer::stop(void) {
+
+  running_ = false;
+
+  thread_main_.join();
+#if GUI == 1
+  thread_plot_.join();
+#endif
+
+  serial_port_.disconnect();
+}
+
+//}
+
 /* threadMain() //{ */
 
 void Gatherer::threadMain(void) {
@@ -77,7 +93,7 @@ void Gatherer::threadMain(void) {
 
   printf("threadMain started\n");
 
-  while (true) {
+  while (running_) {
 
     {
       std::scoped_lock lock(mutex_serial_port_);
@@ -190,7 +206,7 @@ void Gatherer::threadPlot(void) {
 
   printf("threadPlot started\n");
 
-  while (true) {
+  while (running_) {
 
     cv::Mat frame_top_left_plot(256, 256, CV_32FC3);
     cv::Mat frame_top_right_plot(256, 256, CV_32FC3);

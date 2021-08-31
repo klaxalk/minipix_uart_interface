@@ -1,4 +1,4 @@
-name: minipix
+name: hw_mui_hw_minipix
 root: ./
 startup_window: main
 windows:

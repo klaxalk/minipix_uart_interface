@@ -1,9 +1,9 @@
-name: minipix
+name: hw_mui_dummy_minipix
 root: ./
 startup_window: main
 windows:
   - main:
       layout: even-vertical
       panes:
-        - ./minipix_dummy /dev/ttyUSB1 115200 0 `pwd`/dummy_data
+        - ./minipix_dummy /dev/ttyUSB1 921600 0 `pwd`/dummy_data
         - sleep 1; ./gatherer /dev/ttyUSB0 921600 0 `pwd`/received_data/data.txt
