@@ -1,0 +1,10 @@
+<map id="example_interface/stm32f411/include/stm_core/main.h" name="example_interface/stm32f411/include/stm_core/main.h">
+<area shape="rect" id="node1" title=": Header for main.c file. This file contains the common defines of the application." alt="" coords="572,5,791,47"/>
+<area shape="rect" id="node2" href="$minipix__interface__stm_8h.html" title=" " alt="" coords="197,102,432,143"/>
+<area shape="rect" id="node5" href="$main_8c.html" title=": Main program body" alt="" coords="248,288,467,329"/>
+<area shape="rect" id="node7" href="$stm32f4xx__hal__msp_8c.html" title="This file provides code for the MSP Initialization and de&#45;Initialization codes." alt="" coords="645,95,864,151"/>
+<area shape="rect" id="node8" href="$stm32f4xx__it_8c.html" title="Interrupt Service Routines." alt="" coords="888,102,1107,143"/>
+<area shape="rect" id="node3" href="$gatherer__interface__stm_8h.html" title=" " alt="" coords="35,199,277,240"/>
+<area shape="rect" id="node6" href="$minipix__interface__stm_8c.html" title=" " alt="" coords="352,199,571,240"/>
+<area shape="rect" id="node4" href="$gatherer__interface__stm_8c.html" title=" " alt="" coords="5,288,224,329"/>
+</map>

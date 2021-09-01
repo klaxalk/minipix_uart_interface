@@ -1,0 +1,9 @@
+<map id="example_interface/stm32f411/src/main.c" name="example_interface/stm32f411/src/main.c">
+<area shape="rect" id="node1" title=": Main program body" alt="" coords="69,5,288,47"/>
+<area shape="rect" id="node2" href="$main_8h.html" title=": Header for main.c file. This file contains the common defines of the application." alt="" coords="37,177,104,203"/>
+<area shape="rect" id="node4" href="$minipix__interface__stm_8h.html" title=" " alt="" coords="89,95,269,121"/>
+<area shape="rect" id="node5" href="$gatherer__interface__stm_8h.html" title=" " alt="" coords="222,169,365,211"/>
+<area shape="rect" id="node3" title=" " alt="" coords="5,259,136,285"/>
+<area shape="rect" id="node7" title=" " alt="" coords="139,177,197,203"/>
+<area shape="rect" id="node6" title=" " alt="" coords="216,259,371,285"/>
+</map>
