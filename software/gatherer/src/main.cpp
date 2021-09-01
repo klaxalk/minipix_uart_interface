@@ -48,9 +48,9 @@ output data path: '%s'\n",
   gatherer.pwr(true);
 
   /* printf("masking pixels\n"); */
-  /* int square_size = 10; */
-  /* for (int i = 127 - int(square_size / 2.0); i < 127 + int(square_size / 2.0); i++) { */
-  /*   for (int j = 127 - int(square_size / 2.0); j < 127 + int(square_size / 2.0); j++) { */
+  /* int square_size = 20; */
+  /* for (int i = 128 - int(square_size / 2.0); i < 128 + int(square_size / 2.0); i++) { */
+  /*   for (int j = 245 - int(square_size / 2.0); j < 245 + int(square_size / 2.0); j++) { */
 
   /*     bool state = true; */
 

@@ -43,7 +43,12 @@ Adapting MUI requires to pass pointers to user implementated and hardware-specif
 
 ## Operating MiniPIX with the MUI
 
-TODO
+### Masking dead or noisy pixels
+
+  1. mui_updatePixelMask(...) #1
+  2. ...
+  3. mui_updatePixelMask(...) #n
+  4. 
 
 ## Communication flow diagrams
 
