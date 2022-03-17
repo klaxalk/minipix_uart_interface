@@ -4,6 +4,7 @@ project(llcp)
 set(CMAKE_EXPORT_COMPILE_COMMANDS ON)
 
 add_definitions(-DLLCP_LITTLE_ENDIAN)
+# add_definitions(-DLLCP_CHECK_CHECKSUM)
 
 add_definitions(-Wall)
 add_definitions(-Wextra)
