@@ -166,7 +166,7 @@ bool llcp_processChar(const uint8_t char_in, LLCP_Receiver_t* receiver, LLCP_Mes
       *checksum_matched = receiver->checksum == char_in ? true : false;
 
 #if LLCP_CHECK_CHECKSUM == 1
-      if (checksum_matched) {
+      if (*checksum_matched) {
 
 #if LLCP_DEBUG_PRINT == 1
         printf("getting checksum, OK\n");
@@ -206,7 +206,7 @@ bool llcp_processChar(const uint8_t char_in, LLCP_Receiver_t* receiver, LLCP_Mes
 
 #if LLCP_CHECK_CHECKSUM == 1
 
-      if (checksum_matched) {
+      if (*checksum_matched) {
 
 #if LLCP_DEBUG_PRINT == 1
         printf("getting checksum, OK\n");
