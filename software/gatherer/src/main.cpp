@@ -44,33 +44,48 @@ output data path: '%s'\n",
   printf("getting status\n");
   gatherer.getStatus();
 
+  // --------------------------------------------------------------
+  // |        IMPORTANT, ADD SLEEPS BETWEEN EVERY COMMANDS        |
+  // --------------------------------------------------------------
+  sleep(0.01);
+
   printf("powering on\n");
   gatherer.pwr(true);
 
-  /* printf("masking pixels\n"); */
-  /* int square_size = 20; */
-  /* for (int i = 128 - int(square_size / 2.0); i < 128 + int(square_size / 2.0); i++) { */
-  /*   for (int j = 245 - int(square_size / 2.0); j < 245 + int(square_size / 2.0); j++) { */
+  sleep(0.01);
 
-  /*     bool state = true; */
+  // | ------------------ pixel masking example ----------------- |
+  /*
+  printf("masking pixels\n");
+  int square_size = 20;
+  for (int i = 128 - int(square_size / 2.0); i < 128 + int(square_size / 2.0); i++) {
+    for (int j = 245 - int(square_size / 2.0); j < 245 + int(square_size / 2.0); j++) {
 
-  /*     gatherer.maskPixel(i, j, state); */
-  /*     printf("%s pixel x: %d, y: %d\n", state ? "masking" : "unmasking", i, j); */
-  /*   } */
-  /* } */
+      bool state = true;
 
-  /* printf("setting threshold"); */
-  /* gatherer.setThreshold(333, 555); */
+      gatherer.maskPixel(i, j, state);
+      printf("%s pixel x: %d, y: %d\n", state ? "masking" : "unmasking", i, j);
+    }
+  }
 
-  /* printf("setting configuration preset 0\n"); */
-  /* gatherer.setConfigurationPreset(0); */
+  // the configuration needs to be reloaded to apply the pixel mask
+  printf("setting configuration preset 0\n");
+  */
 
-  /* printf("setting configuration preset 1\n"); */
-  /* gatherer.setConfigurationPreset(1); */
+  // | ---------------- setting threshold example --------------- |
+  /*
+  printf("setting threshold");
+  gatherer.setThreshold(333, 555);
+  */
+
+  sleep(0.01);
 
   printf("getting temperature\n");
   gatherer.getTemperature();
 
+  sleep(0.01);
+
+  // | ----------- measure 10 frames in TOA & TOT mode ---------- |
   for (int i = 0; i < 10; i++) {
 
     printf("measuring frame in TOA TOT\n");
@@ -78,6 +93,7 @@ output data path: '%s'\n",
     sleep(0.01);
   }
 
+  // | -------------- measure 10 frames in TOA mode ------------- |
   for (int i = 0; i < 10; i++) {
 
     printf("measuring frame in TOA\n");
@@ -85,6 +101,7 @@ output data path: '%s'\n",
     sleep(0.01);
   }
 
+  // | ---------- measure 10 frames in MPC & ITOT mode ---------- |
   for (int i = 0; i < 10; i++) {
 
     printf("measuring frame in MPX ITOT\n");
