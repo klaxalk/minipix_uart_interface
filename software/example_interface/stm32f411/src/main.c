@@ -117,7 +117,11 @@ int main(void) {
 
   /* Initialize all configured peripherals */
   MX_GPIO_Init();
+
+  // NEVER call the DMA init after UART init
   MX_DMA_Init();
+
+  // NEVER call the UART init before DMA init
   MX_USART1_UART_Init();
   MX_USART2_UART_Init();
   MX_USART6_UART_Init();
