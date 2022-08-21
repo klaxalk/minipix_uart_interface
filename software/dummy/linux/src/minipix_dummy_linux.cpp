@@ -186,7 +186,8 @@ void MinipixDummyLinux::simulateFrameAcquisition(const uint16_t& acquisition_tim
 
   // simulate error
 
-  if (randd(0, 1) > 0.9) {
+  // if (randd(0, 1) > 0.9) { uncommnet to simulate errros
+  if (false) {
 
     printf("Error: measurement failed\n");
 
