@@ -5,10 +5,7 @@ The interface was developped specifically for constraint applications of Space r
 Maximum efford was invested into making the interface as lightweight as possible (to support even 8bit microcontrollers) and to make the user integration as simple as possible, regardless of the underlying system.
 This repository contains the software neccessary for interaction with MiniPIX, as well as example use cases (Linux, STM32F4), dummy detectors and decoder examples.
 
-## [Software](https://github.com/klaxalk/tpx_lunar_lander/tree/master/software)
-
-| Build status | [![Build](https://github.com/klaxalk/minipix_uart_interface/workflows/Build/badge.svg)](https://github.com/klaxalk/minipix_uart_interface/actions) | [![Docs](https://github.com/klaxalk/minipix_uart_interface/workflows/Docs/badge.svg)](https://github.com/klaxalk/minipix_uart_interface/actions) |
-|--------------|----------------------------------------------------------------------------------------------------------------------------------------------------|--------------------------------------------------------------------------------------------------------------------------------------------------|
+## [Software](./software)
 
 Please follow to [software/README.md](./software/README.md) for more information.
 
