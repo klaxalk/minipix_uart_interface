@@ -6,8 +6,11 @@
 
 #include <mui.h>
 
-#define RX_SERIAL_BUFFER_SIZE 2048
-#define TX_SERIAL_BUFFER_SIZE 512
+// This is better to be large for Linux, in case the serial driver
+// fills in more than one packet.
+#define RX_SERIAL_BUFFER_SIZE 5 * LLCP_RX_TX_BUFFER_SIZE
+
+#define TX_SERIAL_BUFFER_SIZE LLCP_RX_TX_BUFFER_SIZE
 
 SerialPort serial_port_minipix_;
 uint8_t    tx_buffer[TX_SERIAL_BUFFER_SIZE];
@@ -22,15 +25,13 @@ std::atomic<bool> measuring_frame_ = false;
 std::atomic<bool> counting_pixels_ = false;
 int               pixel_count_     = 0;
 
+int16_t           temperature_;
+std::atomic<bool> measuring_temperature_ = false;
+
 FILE *measured_data_file_;
 
-#define CONFIGURATION_PRESET 0
-
-// how many pixels should be measured in the A1 mode
-#define DESIRED_OCCUPANCY_N_PIXELS 1500
-
 // --------------------------------------------------------------
-// |                     saving data to file                    |
+// |               Method for saving data to file               |
 // --------------------------------------------------------------
 
 /* bin2hex() //{ */
@@ -51,7 +52,16 @@ void bin2hex(const uint8_t x, uint8_t *buffer) {
 
 /* saveFrameDataToFile() //{ */
 
-void saveFrameDataToFile(const LLCP_FrameDataMsg_t &msg) {
+void saveFrameDataToFile(const LLCP_FrameData_t *data) {
+
+  // I am putting the data back into our communication packet
+  // ... to be able to decode it fully from the file.
+
+  LLCP_FrameDataMsg_t msg;
+  init_LLCP_FrameDataMsg_t(&msg);
+
+  // fill in the payload
+  msg.payload = *data;
 
   // max llcp message size * 2
   uint8_t out_buffer[3];
@@ -74,6 +84,137 @@ void saveFrameDataToFile(const LLCP_FrameDataMsg_t &msg) {
 //}
 
 // --------------------------------------------------------------
+// |          method which encapsulate the MUI methods          |
+// --------------------------------------------------------------
+
+/* powerOn() //{ */
+
+void powerOn(void) {
+
+  LLCP_PwrReqMsg_t msg;
+  init_LLCP_PwrReqMsg_t(&msg);
+
+  // fill in the payload
+  msg.payload.state = 1;
+
+  // convert to network endian
+  hton_LLCP_PwrReqMsg_t(&msg);
+
+  uint16_t n_bytes = llcp_prepareMessage((uint8_t *)&msg, sizeof(msg), tx_buffer);
+
+  serial_port_minipix_.sendCharArray(tx_buffer, n_bytes);
+}
+
+//}
+
+/* powerOff() //{ */
+
+void powerOff(void) {
+
+  LLCP_PwrReqMsg_t msg;
+  init_LLCP_PwrReqMsg_t(&msg);
+
+  // fill in the payload
+  msg.payload.state = 0;
+
+  // convert to network endian
+  hton_LLCP_PwrReqMsg_t(&msg);
+
+  uint16_t n_bytes = llcp_prepareMessage((uint8_t *)&msg, sizeof(msg), tx_buffer);
+
+  serial_port_minipix_.sendCharArray(tx_buffer, n_bytes);
+}
+
+//}
+
+/* measureFrame() //{ */
+
+void measureFrame(int acquisition_time_ms, int pixel_mode) {
+
+  measuring_frame_ = true;
+
+  // create the message
+  LLCP_MeasureFrameReqMsg_t msg;
+  init_LLCP_MeasureFrameReqMsg_t(&msg);
+
+  // fill in the payload
+  msg.payload.acquisition_time_ms = acquisition_time_ms;
+  msg.payload.mode                = pixel_mode;
+
+  // convert to network endian
+  hton_LLCP_MeasureFrameReqMsg_t(&msg);
+
+  uint16_t n_bytes = llcp_prepareMessage((uint8_t *)&msg, sizeof(msg), tx_buffer);
+
+  serial_port_minipix_.sendCharArray(tx_buffer, n_bytes);
+}
+
+//}
+
+/* setConfiguration() //{ */
+
+void setConfiguration(int configuration_id) {
+
+  // create the message
+  LLCP_SetConfigurationPresetReqMsg_t msg;
+  init_LLCP_SetConfigurationPresetReqMsg_t(&msg);
+
+  // fill in the payload
+  msg.payload.preset = configuration_id;
+
+  // convert to network endian
+  hton_LLCP_SetConfigurationPresetReqMsg_t(&msg);
+
+  uint16_t n_bytes = llcp_prepareMessage((uint8_t *)&msg, sizeof(msg), tx_buffer);
+
+  serial_port_minipix_.sendCharArray(tx_buffer, n_bytes);
+}
+
+//}
+
+/* setThreshold() //{ */
+
+void setThreshold(const uint16_t &coarse, const uint16_t &fine) {
+
+  // create the message
+  LLCP_SetThresholdReqMsg_t msg;
+  init_LLCP_SetThresholdReqMsg_t(&msg);
+
+  // fill in the payload
+  msg.payload.threshold_coarse = coarse;
+  msg.payload.threshold_fine   = fine;
+
+  // convert to network endian
+  hton_LLCP_SetThresholdReqMsg_t(&msg);
+
+  uint16_t n_bytes = llcp_prepareMessage((uint8_t *)&msg, sizeof(msg), tx_buffer);
+
+  serial_port_minipix_.sendCharArray(tx_buffer, n_bytes);
+}
+
+//}
+
+/* getTemperature() //{ */
+
+void getTemperature() {
+
+  measuring_temperature_ = true;
+
+  // create the message
+  LLCP_GetTemperatureReqMsg_t msg;
+  init_LLCP_GetTemperatureReqMsg_t(&msg);
+
+  // convert to network endian
+  hton_LLCP_GetTemperatureReqMsg_t(&msg);
+
+  uint16_t n_bytes = llcp_prepareMessage((uint8_t *)&msg, sizeof(msg), tx_buffer);
+
+  serial_port_minipix_.sendCharArray(tx_buffer, n_bytes);
+}
+
+//}
+
+// --------------------------------------------------------------
 // |                    callbacks for the MUI                   |
 // --------------------------------------------------------------
 
@@ -84,20 +225,15 @@ void mui_linux_processFrameData(const LLCP_FrameData_t *data) {
   // measurement mode a1
   if (counting_pixels_) {
 
+    // just record how many pixels were hit
+    // and do NOT save the data
     pixel_count_ += data->n_pixels;
 
   } else {
 
     // | ------ here, process/save the data however you need ------ |
-    printf("received data, saving them\n");
 
-    LLCP_FrameDataMsg_t msg;
-    init_LLCP_FrameDataMsg_t(&msg);
-
-    // fill in the payload
-    msg.payload = *data;
-
-    saveFrameDataToFile(msg);
+    saveFrameDataToFile(data);
   }
 
   // | ----- send ack, this will make minipix send more data ---- |
@@ -122,7 +258,7 @@ void mui_linux_processFrameData(const LLCP_FrameData_t *data) {
 
 /* mui_linux_processFrameDataTerminator() //{ */
 
-void mui_linux_processFrameDataTerminator(const LLCP_FrameDataTerminator_t *data) {
+void mui_linux_processFrameDataTerminator([[maybe_unused]] const LLCP_FrameDataTerminator_t *data) {
 
   measuring_frame_ = false;
 }
@@ -132,6 +268,11 @@ void mui_linux_processFrameDataTerminator(const LLCP_FrameDataTerminator_t *data
 /* mui_linux_processStatus() //{ */
 
 void mui_linux_processStatus(const LLCP_Status_t *data) {
+
+  printf("received status message:\n");
+
+  // TODO for OneWeb
+  // possibly gather this regularly using some payload housekeeping collector
 }
 
 //}
@@ -139,19 +280,16 @@ void mui_linux_processStatus(const LLCP_Status_t *data) {
 /* mui_linux_processTemperature() //{ */
 
 void mui_linux_processTemperature(const LLCP_Temperature_t *data) {
+
+  temperature_           = data->temperature;
+  measuring_temperature_ = false;
 }
 
 //}
 
 /* mui_linux_processAck() //{ */
 
-void mui_linux_processAck(const LLCP_Ack_t *data) {
-
-  LLCP_AckMsg_t *msg = (LLCP_AckMsg_t *)data;
-  ntoh_LLCP_AckMsg_t(msg);
-  LLCP_Ack_t *ack = (LLCP_Ack_t *)&msg->payload;
-
-  /* printf("received ack: %s\n", ack->success ? "true" : "false"); */
+void mui_linux_processAck([[maybe_unused]] const LLCP_Ack_t *data) {
 
   got_ack_ = true;
 }
@@ -161,6 +299,9 @@ void mui_linux_processAck(const LLCP_Ack_t *data) {
 /* mui_linux_processMinipixError() //{ */
 
 void mui_linux_processMinipixError(const LLCP_MinipixError_t *data) {
+
+  // TODO OneWeb
+  // please save these errors
 }
 
 //}
@@ -230,57 +371,256 @@ void mui_linux_sendString(const uint8_t *str_out, const uint16_t len) {
 // |              OneWeb-specific measurement modes             |
 // --------------------------------------------------------------
 
-/* a1() //{ */
+/* measurementA1() //{ */
 
-void a1() {
+void measurementA1(uint16_t desired_occupancy, int pixel_mode, uint16_t threshold_coarse, uint16_t threshold_fine, uint16_t default_acquisition_time,
+                   int configuration_id, bool use_temp_for_config, uint16_t temp_threshold) {
 
-  printf("Measurement mode 1\n");
+  printf("Measurement mode A1\n");
+
+  // this may be changed down below by logic
+  int configuration = configuration_id;
 
   // | --------------------- PWR ON Minipix --------------------- |
 
   {
 
-    printf("powering on\n");
+    printf("[A1] powering on\n");
 
-    // create the message
-    LLCP_PwrReqMsg_t msg;
-    init_LLCP_PwrReqMsg_t(&msg);
-
-    // fill in the payload
-    msg.payload.state = 1;
-
-    // convert to network endian
-    hton_LLCP_PwrReqMsg_t(&msg);
-
-    uint16_t n_bytes = llcp_prepareMessage((uint8_t *)&msg, sizeof(msg), tx_buffer);
-
-    serial_port_minipix_.sendCharArray(tx_buffer, n_bytes);
+    powerOn();
 
     // wait for acknowledge
     while (!got_ack_) {
       std::this_thread::sleep_for(std::chrono::milliseconds(10));
     }
     got_ack_ = false;
+  }
+
+  std::this_thread::sleep_for(std::chrono::milliseconds(10));
+
+  // | ------------------- measure temperatur ------------------- |
+
+  {
+    printf("[A1] getting temperature\n");
+
+    getTemperature();
+
+    // wait for data
+    while (measuring_temperature_) {
+      std::this_thread::sleep_for(std::chrono::milliseconds(10));
+    }
+  }
+
+  if (use_temp_for_config) {
+    if (temperature_ > temp_threshold) {
+      // configuration preset for high temperature
+      configuration = 1;
+    } else {
+      // configuration preset for low temperature
+      configuration = 0;
+    }
+  }
+
+  std::this_thread::sleep_for(std::chrono::milliseconds(10));
+
+  // | -------------------- Set Configuration ------------------- |
+
+  {
+    printf("[A1] setting configuration\n");
+
+    setConfiguration(configuration);
+
+    // wait for acknowledge
+    while (!got_ack_) {
+      std::this_thread::sleep_for(std::chrono::milliseconds(10));
+    }
+    got_ack_ = false;
+  }
+
+  std::this_thread::sleep_for(std::chrono::milliseconds(10));
+
+  // | ---------------------- set threshold --------------------- |
+
+  {
+    printf("[A1] setting threshold\n");
+
+    setThreshold(threshold_coarse, threshold_fine);
+
+    // wait for acknowledge
+    while (!got_ack_) {
+      std::this_thread::sleep_for(std::chrono::milliseconds(10));
+    }
+    got_ack_ = false;
+  }
+
+  std::this_thread::sleep_for(std::chrono::milliseconds(10));
+
+  // | ---------------- do short testing exposure --------------- |
+
+  uint16_t short_acquisition_time = 10;
+
+  {
+
+    printf("[A1] measuring 1st test frame\n");
+
+    counting_pixels_ = true;
+    pixel_count_     = 0;
+
+    measureFrame(short_acquisition_time, LLCP_TPX3_PXL_MODE_MPX_ITOT);
+
+    // wait for the measurement to finish
+    while (measuring_frame_) {
+      std::this_thread::sleep_for(std::chrono::milliseconds(1));
+    }
+
+    counting_pixels_ = false;
+  }
+
+  // save how many pixels were hit during the 9 ms acquisition
+  int n_pixels_short = pixel_count_;
+
+  printf("[A1] short test acquisition: %d pixels\n", n_pixels_short);
+
+  std::this_thread::sleep_for(std::chrono::milliseconds(10));
+
+  uint16_t long_acquisition_time = 1000;
+
+  {
+    printf("[A1] measuring long test frame\n");
+
+    counting_pixels_ = true;
+
+    measureFrame(long_acquisition_time, LLCP_TPX3_PXL_MODE_MPX_ITOT);
+
+    // wait for the measurement to finish
+    while (measuring_frame_) {
+      std::this_thread::sleep_for(std::chrono::milliseconds(1));
+    }
+
+    counting_pixels_ = false;
+  }
+
+  // save how many pixels were hit during the 1 ms acquisition
+  int n_pixels_long = pixel_count_;
+
+  printf("[A1] long test acquisition: %d pixels\n", n_pixels_long);
+
+  std::this_thread::sleep_for(std::chrono::milliseconds(10));
+
+  // calculate the desired exposure time for the whole frame
+  // aka, the slope of the affine function, a in Pixels = a*Time + b
+  uint16_t pixels_per_ms = int(float(n_pixels_long - n_pixels_short) / float(long_acquisition_time - short_acquisition_time));
+
+  uint16_t desired_ms;
+
+  if (pixels_per_ms > 0) {
+
+    // calculate the offset caused by "dead and active"
+    // aka the b in Pixels = a*Time + b
+    uint16_t pixels_0_ms = n_pixels_long - pixels_per_ms * long_acquisition_time;
+
+    // calculate the desired acquisition time based on the curve a*Time + b
+    desired_ms = int(float(desired_occupancy - pixels_0_ms) / float(pixels_per_ms));
+
+    if (desired_ms <= 0) {
+      desired_ms = default_acquisition_time;
+    }
+
+  } else {
+    desired_ms = default_acquisition_time;
+  }
+
+  printf("[A1] desired A1 acquisition_time = %d ms\n", desired_ms);
+
+  {
+    printf("[A1] measuring A1 main frame\n");
+
+    measureFrame(desired_ms, pixel_mode);
+
+    // wait for the measurement to finish
+    while (measuring_frame_) {
+      std::this_thread::sleep_for(std::chrono::milliseconds(1));
+    }
+  }
+
+  std::this_thread::sleep_for(std::chrono::milliseconds(10));
+
+  {
+
+    printf("[A1] powering off\n");
+
+    powerOff();
+
+    // wait for acknowledge
+    while (!got_ack_) {
+      std::this_thread::sleep_for(std::chrono::milliseconds(10));
+    }
+    got_ack_ = false;
+  }
+
+  std::this_thread::sleep_for(std::chrono::milliseconds(10));
+
+  printf("[A1] finished\n");
+}
+
+//}
+
+/* measurementA2() //{ */
+
+void measurementA2(int pixel_mode, uint16_t acquisition_time_ms, uint16_t threshold_coarse, uint16_t threshold_fine, int configuration_id,
+                   bool use_temp_for_config, uint16_t temp_threshold) {
+
+  printf("Measurement mode A2\n");
+
+  // this may be changed down below by logic
+  int configuration = configuration_id;
+
+  // | --------------------- PWR ON Minipix --------------------- |
+
+  {
+
+    printf("[A2] powering on\n");
+
+    powerOn();
+
+    // wait for acknowledge
+    while (!got_ack_) {
+      std::this_thread::sleep_for(std::chrono::milliseconds(10));
+    }
+    got_ack_ = false;
+  }
+
+  std::this_thread::sleep_for(std::chrono::milliseconds(10));
+
+  // | ------------------- measure temperatur ------------------- |
+
+  {
+    printf("[A1] getting temperature\n");
+
+    getTemperature();
+
+    // wait for data
+    while (measuring_temperature_) {
+      std::this_thread::sleep_for(std::chrono::milliseconds(10));
+    }
+  }
+
+  if (use_temp_for_config) {
+    if (temperature_ > temp_threshold) {
+      // configuration preset for high temperature
+      configuration = 1;
+    } else {
+      // configuration preset for low temperature
+      configuration = 0;
+    }
   }
 
   // | -------------------- Set Configuration ------------------- |
 
   {
-    printf("setting configuration\n");
+    printf(" setting configuration\n");
 
-    // create the message
-    LLCP_SetConfigurationPresetReqMsg_t msg;
-    init_LLCP_SetConfigurationPresetReqMsg_t(&msg);
-
-    // fill in the payload
-    msg.payload.preset = CONFIGURATION_PRESET;
-
-    // convert to network endian
-    hton_LLCP_SetConfigurationPresetReqMsg_t(&msg);
-
-    uint16_t n_bytes = llcp_prepareMessage((uint8_t *)&msg, sizeof(msg), tx_buffer);
-
-    serial_port_minipix_.sendCharArray(tx_buffer, n_bytes);
+    setConfiguration(configuration);
 
     // wait for acknowledge
     while (!got_ack_) {
@@ -289,104 +629,55 @@ void a1() {
     got_ack_ = false;
   }
 
+  std::this_thread::sleep_for(std::chrono::milliseconds(10));
+
+  // | ---------------------- set threshold --------------------- |
+
+  {
+    printf("[A2] setting threshold\n");
+
+    setThreshold(threshold_coarse, threshold_fine);
+
+    // wait for acknowledge
+    while (!got_ack_) {
+      std::this_thread::sleep_for(std::chrono::milliseconds(10));
+    }
+    got_ack_ = false;
+  }
+
+  std::this_thread::sleep_for(std::chrono::milliseconds(10));
+
   // | -------- Do 1 ms exposure and save the pixel count ------- |
 
   {
-    // create the message
-    LLCP_MeasureFrameReqMsg_t msg;
-    init_LLCP_MeasureFrameReqMsg_t(&msg);
+    printf("[A2] measuring image\n");
 
-    // fill in the payload
-    msg.payload.acquisition_time_ms = 1;
-    msg.payload.mode                = LLCP_TPX3_PXL_MODE_MPX_ITOT;
-
-    // convert to network endian
-    hton_LLCP_MeasureFrameReqMsg_t(&msg);
-
-    uint16_t n_bytes = llcp_prepareMessage((uint8_t *)&msg, sizeof(msg), tx_buffer);
-
-    measuring_frame_ = true;
-    counting_pixels_ = true;
-
-    serial_port_minipix_.sendCharArray(tx_buffer, n_bytes);
+    measureFrame(acquisition_time_ms, pixel_mode);
 
     // wait for the measurement to finish
     while (measuring_frame_) {
       std::this_thread::sleep_for(std::chrono::milliseconds(1));
     }
-    measuring_frame_ = false;
-    counting_pixels_ = false;
   }
 
-  // save how many pixels were hit during the 9 ms acquisition
-  int n_pixels_1ms = pixel_count_;
-
-  printf("[A1] 1 ms test acquisition: %d\n", n_pixels_1ms);
+  std::this_thread::sleep_for(std::chrono::milliseconds(10));
 
   {
-    // create the message
-    LLCP_MeasureFrameReqMsg_t msg;
-    init_LLCP_MeasureFrameReqMsg_t(&msg);
 
-    // fill in the payload
-    msg.payload.acquisition_time_ms = 11;
-    msg.payload.mode                = LLCP_TPX3_PXL_MODE_MPX_ITOT;
+    printf("[A2] powering off\n");
 
-    // convert to network endian
-    hton_LLCP_MeasureFrameReqMsg_t(&msg);
+    powerOff();
 
-    uint16_t n_bytes = llcp_prepareMessage((uint8_t *)&msg, sizeof(msg), tx_buffer);
-
-    measuring_frame_ = true;
-    counting_pixels_ = true;
-
-    serial_port_minipix_.sendCharArray(tx_buffer, n_bytes);
-
-    // wait for the measurement to finish
-    while (measuring_frame_) {
-      std::this_thread::sleep_for(std::chrono::milliseconds(1));
+    // wait for acknowledge
+    while (!got_ack_) {
+      std::this_thread::sleep_for(std::chrono::milliseconds(10));
     }
-    measuring_frame_ = false;
-    counting_pixels_ = false;
+    got_ack_ = false;
   }
 
-  // save how many pixels were hit during the 1 ms acquisition
-  int n_pixels_9ms = pixel_count_;
+  std::this_thread::sleep_for(std::chrono::milliseconds(10));
 
-  printf("[A1] 9 ms test acquisition: %d\n", n_pixels_9ms);
-
-  // calculate the desired exposure time for the whole frame
-  int pixels_per_ms = (n_pixels_9ms - n_pixels_1ms) / 8;  // implement this using bit shift if you need to
-  int desired_ms    = DESIRED_OCCUPANCY_N_PIXELS / pixels_per_ms;
-
-  printf("[A1] desired A1 acquisition_time = %d ms\n", desired_ms);
-
-  {
-    // create the message
-    LLCP_MeasureFrameReqMsg_t msg;
-    init_LLCP_MeasureFrameReqMsg_t(&msg);
-
-    // fill in the payload
-    msg.payload.acquisition_time_ms = desired_ms;
-    msg.payload.mode                = LLCP_TPX3_PXL_MODE_MPX_ITOT;
-
-    // convert to network endian
-    hton_LLCP_MeasureFrameReqMsg_t(&msg);
-
-    uint16_t n_bytes = llcp_prepareMessage((uint8_t *)&msg, sizeof(msg), tx_buffer);
-
-    measuring_frame_ = true;
-
-    serial_port_minipix_.sendCharArray(tx_buffer, n_bytes);
-
-    // wait for the measurement to finish
-    while (measuring_frame_) {
-      std::this_thread::sleep_for(std::chrono::milliseconds(1));
-    }
-    measuring_frame_ = false;
-  }
-
-  printf("[A1] finished\n");
+  printf("[A2] finished\n");
 }
 
 //}
@@ -484,7 +775,39 @@ int main(int argc, char *argv[]) {
 
   printf("Linux example MUI started\n");
 
-  a1();
+  // --------------------------------------------------------------
+  // |                   let's measure something                  |
+  // --------------------------------------------------------------
+
+  // the following parameters should be configurable from Earth
+
+  // global parameters
+  uint16_t PARAM_THRESHOLD_COARSE      = 120;
+  uint16_t PARAM_THRESHOLD_FINE        = 350;
+  bool     PARAM_SET_CONFIG_USING_TEMP = false;
+  uint16_t PARAM_CONFIG_TEMP_THRESHOLD = 35;
+
+  // A1-specific parameters
+  uint16_t PARAM_A1_DESIRED_OCCUPANCY_PX     = 1500;
+  uint16_t PARAM_A1_DEFAULT_ACQUISITION_TIME = 1000;
+  uint8_t  PARAM_A1_CONFIGURATION_ID         = 0;
+  uint8_t  PARAM_A1_PXL_MODE                 = LLCP_TPX3_PXL_MODE_TOA_TOT;  // {0, 1, 2}
+
+  // A2-specific parameters
+  uint8_t  PARAM_A2_CONFIGURATION_ID = 0;
+  uint16_t PARAM_A2_ACQUISITION_TIME = 60000;
+  uint8_t  PARAM_A2_PXL_MODE         = LLCP_TPX3_PXL_MODE_TOA_TOT;  // {0, 1, 2}
+
+  for (int i = 0; i < 10; i++) {
+
+    measurementA1(PARAM_A1_DESIRED_OCCUPANCY_PX, PARAM_A1_PXL_MODE, PARAM_THRESHOLD_COARSE, PARAM_THRESHOLD_FINE, PARAM_A1_DEFAULT_ACQUISITION_TIME,
+                  PARAM_A1_CONFIGURATION_ID, PARAM_SET_CONFIG_USING_TEMP, PARAM_CONFIG_TEMP_THRESHOLD);
+
+    for (int j = 0; j < 6; j++) {
+      measurementA2(PARAM_A2_PXL_MODE, PARAM_A2_ACQUISITION_TIME, PARAM_THRESHOLD_COARSE, PARAM_THRESHOLD_FINE, PARAM_A2_CONFIGURATION_ID,
+                    PARAM_SET_CONFIG_USING_TEMP, PARAM_CONFIG_TEMP_THRESHOLD);
+    }
+  }
 
   return 0;
 }
