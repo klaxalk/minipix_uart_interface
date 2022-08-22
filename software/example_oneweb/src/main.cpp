@@ -21,6 +21,9 @@ std::thread thread_serial_;
 
 std::atomic<bool> got_ack_         = false;
 std::atomic<bool> measuring_frame_ = false;
+uint16_t          save_max_pixels_;
+uint16_t          number_of_pixels_saved_;
+uint16_t          number_of_pixels_not_saved_;
 
 std::atomic<bool> counting_pixels_ = false;
 int               pixel_count_     = 0;
@@ -233,7 +236,14 @@ void mui_linux_processFrameData(const LLCP_FrameData_t *data) {
 
     // | ------ here, process/save the data however you need ------ |
 
-    saveFrameDataToFile(data);
+    // only save the data if we have not overused the comms
+    if (number_of_pixels_saved_ + data->n_pixels < save_max_pixels_) {
+
+      saveFrameDataToFile(data);
+      number_of_pixels_saved_ += data->n_pixels;
+    } else {
+      number_of_pixels_not_saved_++;
+    }
   }
 
   // | ----- send ack, this will make minipix send more data ---- |
@@ -261,6 +271,11 @@ void mui_linux_processFrameData(const LLCP_FrameData_t *data) {
 void mui_linux_processFrameDataTerminator([[maybe_unused]] const LLCP_FrameDataTerminator_t *data) {
 
   measuring_frame_ = false;
+
+  // the whole image has been now read out
+
+  // possibly save the "number_of_pixels_not_saved_" to the metadata of the image
+  // this will be useful during evaluation
 }
 
 //}
@@ -374,7 +389,7 @@ void mui_linux_sendString(const uint8_t *str_out, const uint16_t len) {
 /* measurementA1() //{ */
 
 void measurementA1(uint16_t desired_occupancy, int pixel_mode, uint16_t threshold_coarse, uint16_t threshold_fine, uint16_t default_acquisition_time,
-                   int configuration_id, bool use_temp_for_config, uint16_t temp_threshold) {
+                   int configuration_id, bool use_temp_for_config, uint16_t temp_threshold, uint16_t save_max_pixels) {
 
   printf("Measurement mode A1\n");
 
@@ -511,6 +526,8 @@ void measurementA1(uint16_t desired_occupancy, int pixel_mode, uint16_t threshol
   // aka, the slope of the affine function, a in Pixels = a*Time + b
   uint16_t pixels_per_ms = int(float(n_pixels_long - n_pixels_short) / float(long_acquisition_time - short_acquisition_time));
 
+  printf("[A1] calculated %d px / ms of acquisition\n", pixels_per_ms);
+
   uint16_t desired_ms;
 
   if (pixels_per_ms > 0) {
@@ -519,14 +536,18 @@ void measurementA1(uint16_t desired_occupancy, int pixel_mode, uint16_t threshol
     // aka the b in Pixels = a*Time + b
     uint16_t pixels_0_ms = n_pixels_long - pixels_per_ms * long_acquisition_time;
 
+    printf("[A1] calculated %d px offset while having 0 ms acquisition time\n", pixels_0_ms);
+
     // calculate the desired acquisition time based on the curve a*Time + b
     desired_ms = int(float(desired_occupancy - pixels_0_ms) / float(pixels_per_ms));
 
     if (desired_ms <= 0) {
+      printf("[A1] ! desired acquisition time is %d ms, this is not right!\n", desired_ms);
       desired_ms = default_acquisition_time;
     }
 
   } else {
+    printf("[A1] failed to calculate the slope correctly, using default acquisition time instead\n");
     desired_ms = default_acquisition_time;
   }
 
@@ -534,6 +555,10 @@ void measurementA1(uint16_t desired_occupancy, int pixel_mode, uint16_t threshol
 
   {
     printf("[A1] measuring A1 main frame\n");
+
+    save_max_pixels_            = save_max_pixels;
+    number_of_pixels_saved_     = 0;
+    number_of_pixels_not_saved_ = 0;
 
     measureFrame(desired_ms, pixel_mode);
 
@@ -568,7 +593,7 @@ void measurementA1(uint16_t desired_occupancy, int pixel_mode, uint16_t threshol
 /* measurementA2() //{ */
 
 void measurementA2(int pixel_mode, uint16_t acquisition_time_ms, uint16_t threshold_coarse, uint16_t threshold_fine, int configuration_id,
-                   bool use_temp_for_config, uint16_t temp_threshold) {
+                   bool use_temp_for_config, uint16_t temp_threshold, uint16_t save_max_pixels) {
 
   printf("Measurement mode A2\n");
 
@@ -651,6 +676,10 @@ void measurementA2(int pixel_mode, uint16_t acquisition_time_ms, uint16_t thresh
 
   {
     printf("[A2] measuring image\n");
+
+    save_max_pixels_            = save_max_pixels;
+    number_of_pixels_saved_     = 0;
+    number_of_pixels_not_saved_ = 0;
 
     measureFrame(acquisition_time_ms, pixel_mode);
 
@@ -791,21 +820,23 @@ int main(int argc, char *argv[]) {
   uint16_t PARAM_A1_DESIRED_OCCUPANCY_PX     = 1500;
   uint16_t PARAM_A1_DEFAULT_ACQUISITION_TIME = 1000;
   uint8_t  PARAM_A1_CONFIGURATION_ID         = 0;
-  uint8_t  PARAM_A1_PXL_MODE                 = LLCP_TPX3_PXL_MODE_TOA_TOT;  // {0, 1, 2}
+  uint8_t  PARAM_A1_PXL_MODE                 = LLCP_TPX3_PXL_MODE_MPX_ITOT;  // {0, 1, 2}
+  uint16_t PARAM_A1_SAVE_MAX_PIXELS          = 3024;
 
   // A2-specific parameters
   uint8_t  PARAM_A2_CONFIGURATION_ID = 0;
   uint16_t PARAM_A2_ACQUISITION_TIME = 60000;
-  uint8_t  PARAM_A2_PXL_MODE         = LLCP_TPX3_PXL_MODE_TOA_TOT;  // {0, 1, 2}
+  uint8_t  PARAM_A2_PXL_MODE         = LLCP_TPX3_PXL_MODE_MPX_ITOT;  // {0, 1, 2}
+  uint16_t PARAM_A2_SAVE_MAX_PIXELS  = 3024;
 
   for (int i = 0; i < 10; i++) {
 
     measurementA1(PARAM_A1_DESIRED_OCCUPANCY_PX, PARAM_A1_PXL_MODE, PARAM_THRESHOLD_COARSE, PARAM_THRESHOLD_FINE, PARAM_A1_DEFAULT_ACQUISITION_TIME,
-                  PARAM_A1_CONFIGURATION_ID, PARAM_SET_CONFIG_USING_TEMP, PARAM_CONFIG_TEMP_THRESHOLD);
+                  PARAM_A1_CONFIGURATION_ID, PARAM_SET_CONFIG_USING_TEMP, PARAM_CONFIG_TEMP_THRESHOLD, PARAM_A1_SAVE_MAX_PIXELS);
 
     for (int j = 0; j < 6; j++) {
       measurementA2(PARAM_A2_PXL_MODE, PARAM_A2_ACQUISITION_TIME, PARAM_THRESHOLD_COARSE, PARAM_THRESHOLD_FINE, PARAM_A2_CONFIGURATION_ID,
-                    PARAM_SET_CONFIG_USING_TEMP, PARAM_CONFIG_TEMP_THRESHOLD);
+                    PARAM_SET_CONFIG_USING_TEMP, PARAM_CONFIG_TEMP_THRESHOLD, PARAM_A2_SAVE_MAX_PIXELS);
     }
   }
 

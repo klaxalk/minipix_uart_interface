@@ -12,4 +12,4 @@ windows:
       layout: even-vertical
       panes:
         - sleep 0.5; ./minipix_dummy /tmp/ttyS0 921600 1 `pwd`/dummy_data
-        - sleep 0.5; ./example_oneweb /tmp/ttyS1 921600 1 `pwd`/received_data/data.txt
+        - sleep 1.5; ./example_oneweb /tmp/ttyS1 921600 1 `pwd`/received_data/data.txt
