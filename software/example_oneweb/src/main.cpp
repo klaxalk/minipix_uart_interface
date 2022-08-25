@@ -26,7 +26,7 @@ uint16_t          number_of_pixels_saved_;
 uint16_t          number_of_pixels_not_saved_;
 
 std::atomic<bool> counting_pixels_ = false;
-int               pixel_count_     = 0;
+uint16_t          pixel_count_     = 0;
 
 int16_t           temperature_;
 std::atomic<bool> measuring_temperature_ = false;
@@ -242,7 +242,7 @@ void mui_linux_processFrameData(const LLCP_FrameData_t *data) {
       saveFrameDataToFile(data);
       number_of_pixels_saved_ += data->n_pixels;
     } else {
-      number_of_pixels_not_saved_++;
+      number_of_pixels_not_saved_ += data->n_pixels;
     }
   }
 
@@ -269,6 +269,11 @@ void mui_linux_processFrameData(const LLCP_FrameData_t *data) {
 /* mui_linux_processFrameDataTerminator() //{ */
 
 void mui_linux_processFrameDataTerminator([[maybe_unused]] const LLCP_FrameDataTerminator_t *data) {
+
+  if (!counting_pixels_) {
+    printf("Received frame with %d pixels\n", number_of_pixels_saved_ + number_of_pixels_not_saved_);
+    printf("Saved only %d of them\n", number_of_pixels_saved_);
+  }
 
   measuring_frame_ = false;
 
@@ -389,7 +394,8 @@ void mui_linux_sendString(const uint8_t *str_out, const uint16_t len) {
 /* measurementA1() //{ */
 
 void measurementA1(uint16_t desired_occupancy, int pixel_mode, uint16_t threshold_coarse, uint16_t threshold_fine, uint16_t default_acquisition_time,
-                   int configuration_id, bool use_temp_for_config, uint16_t temp_threshold, uint16_t save_max_pixels) {
+                   int configuration_id, bool use_temp_for_config, uint16_t temp_threshold, uint16_t save_max_pixels, uint16_t min_acq_time,
+                   uint16_t max_acq_time) {
 
   printf("Measurement mode A1\n");
 
@@ -492,7 +498,7 @@ void measurementA1(uint16_t desired_occupancy, int pixel_mode, uint16_t threshol
   }
 
   // save how many pixels were hit during the 9 ms acquisition
-  int n_pixels_short = pixel_count_;
+  uint16_t n_pixels_short = pixel_count_;
 
   printf("[A1] short test acquisition: %d pixels\n", n_pixels_short);
 
@@ -504,6 +510,7 @@ void measurementA1(uint16_t desired_occupancy, int pixel_mode, uint16_t threshol
     printf("[A1] measuring long test frame\n");
 
     counting_pixels_ = true;
+    pixel_count_     = 0;
 
     measureFrame(long_acquisition_time, LLCP_TPX3_PXL_MODE_MPX_ITOT);
 
@@ -516,7 +523,7 @@ void measurementA1(uint16_t desired_occupancy, int pixel_mode, uint16_t threshol
   }
 
   // save how many pixels were hit during the 1 ms acquisition
-  int n_pixels_long = pixel_count_;
+  uint16_t n_pixels_long = pixel_count_;
 
   printf("[A1] long test acquisition: %d pixels\n", n_pixels_long);
 
@@ -524,9 +531,9 @@ void measurementA1(uint16_t desired_occupancy, int pixel_mode, uint16_t threshol
 
   // calculate the desired exposure time for the whole frame
   // aka, the slope of the affine function, a in Pixels = a*Time + b
-  uint16_t pixels_per_ms = int(float(n_pixels_long - n_pixels_short) / float(long_acquisition_time - short_acquisition_time));
+  float pixels_per_ms = float(n_pixels_long - n_pixels_short) / float(long_acquisition_time - short_acquisition_time);
 
-  printf("[A1] calculated %d px / ms of acquisition\n", pixels_per_ms);
+  printf("[A1] calculated %.2f px / ms of acquisition\n", pixels_per_ms);
 
   uint16_t desired_ms;
 
@@ -534,7 +541,7 @@ void measurementA1(uint16_t desired_occupancy, int pixel_mode, uint16_t threshol
 
     // calculate the offset caused by "dead and active"
     // aka the b in Pixels = a*Time + b
-    uint16_t pixels_0_ms = n_pixels_long - pixels_per_ms * long_acquisition_time;
+    uint16_t pixels_0_ms = n_pixels_long - int(pixels_per_ms * float(long_acquisition_time));
 
     printf("[A1] calculated %d px offset while having 0 ms acquisition time\n", pixels_0_ms);
 
@@ -549,6 +556,12 @@ void measurementA1(uint16_t desired_occupancy, int pixel_mode, uint16_t threshol
   } else {
     printf("[A1] failed to calculate the slope correctly, using default acquisition time instead\n");
     desired_ms = default_acquisition_time;
+  }
+
+  if (desired_ms > max_acq_time) {
+    desired_ms = max_acq_time;
+  } else if (desired_ms < min_acq_time) {
+    desired_ms = min_acq_time;
   }
 
   printf("[A1] desired A1 acquisition_time = %d ms\n", desired_ms);
@@ -764,6 +777,8 @@ int main(int argc, char *argv[]) {
     return 0;
   }
 
+  srand(time(NULL));
+
   // open the serial ports
   serial_port_minipix_.connect(serial_port_name, baud_rate, serial_port_virtual);
 
@@ -818,10 +833,12 @@ int main(int argc, char *argv[]) {
 
   // A1-specific parameters
   uint16_t PARAM_A1_DESIRED_OCCUPANCY_PX     = 1500;
-  uint16_t PARAM_A1_DEFAULT_ACQUISITION_TIME = 1000;
+  uint16_t PARAM_A1_DEFAULT_ACQUISITION_TIME = 1000;  // milliseconds
   uint8_t  PARAM_A1_CONFIGURATION_ID         = 0;
   uint8_t  PARAM_A1_PXL_MODE                 = LLCP_TPX3_PXL_MODE_MPX_ITOT;  // {0, 1, 2}
   uint16_t PARAM_A1_SAVE_MAX_PIXELS          = 3024;
+  uint16_t PARAM_A1_MIN_ACQUISITION_TIME     = 10;     // milliseconds
+  uint16_t PARAM_A1_MAX_ACQUISITION_TIME     = 10000;  // milliseconds
 
   // A2-specific parameters
   uint8_t  PARAM_A2_CONFIGURATION_ID = 0;
@@ -832,7 +849,8 @@ int main(int argc, char *argv[]) {
   for (int i = 0; i < 10; i++) {
 
     measurementA1(PARAM_A1_DESIRED_OCCUPANCY_PX, PARAM_A1_PXL_MODE, PARAM_THRESHOLD_COARSE, PARAM_THRESHOLD_FINE, PARAM_A1_DEFAULT_ACQUISITION_TIME,
-                  PARAM_A1_CONFIGURATION_ID, PARAM_SET_CONFIG_USING_TEMP, PARAM_CONFIG_TEMP_THRESHOLD, PARAM_A1_SAVE_MAX_PIXELS);
+                  PARAM_A1_CONFIGURATION_ID, PARAM_SET_CONFIG_USING_TEMP, PARAM_CONFIG_TEMP_THRESHOLD, PARAM_A1_SAVE_MAX_PIXELS, PARAM_A1_MIN_ACQUISITION_TIME,
+                  PARAM_A1_MAX_ACQUISITION_TIME);
 
     for (int j = 0; j < 6; j++) {
       measurementA2(PARAM_A2_PXL_MODE, PARAM_A2_ACQUISITION_TIME, PARAM_THRESHOLD_COARSE, PARAM_THRESHOLD_FINE, PARAM_A2_CONFIGURATION_ID,

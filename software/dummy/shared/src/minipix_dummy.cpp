@@ -101,6 +101,8 @@ void MinipixDummy::update(void) {
 
           LLCP_MeasureFrameReq_t *req = (LLCP_MeasureFrameReq_t *)(&msg->payload);
 
+          acquisition_time_ = req->acquisition_time_ms;
+
           if (req->mode <= 2) {
             mode_ = req->mode;
           } else {
