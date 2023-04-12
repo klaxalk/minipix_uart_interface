@@ -89,7 +89,7 @@ output data path: '%s'\n",
   for (int i = 0; i < 10; i++) {
 
     printf("measuring frame in TOA TOT\n");
-    gatherer.measureFrame(100, LLCP_TPX3_PXL_MODE_TOA_TOT);
+    gatherer.measureFrame(2000, LLCP_TPX3_PXL_MODE_TOA_TOT);
     sleep(0.01);
   }
 
