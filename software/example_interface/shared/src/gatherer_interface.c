@@ -43,6 +43,13 @@ void gatherer_receiveCharCallback(Gatherer_Handler_t *gatherer_handler, const ui
         break;
       };
 
+      case LLCP_GET_CHIP_VOLTAGE_REQ_MSG_ID: {
+
+        mui_getChipVoltage(gatherer_handler->mui_handler_ptr_);
+
+        break;
+      };
+
       case LLCP_PWR_REQ_MSG_ID: {
 
         LLCP_PwrReqMsg_t *msg = (LLCP_PwrReqMsg_t *)&message_in;
@@ -200,6 +207,26 @@ void gatherer_processTemperature(Gatherer_Handler_t *gatherer_handler, const LLC
 
   // convert it to the network endian
   hton_LLCP_TemperatureMsg_t(&msg);
+
+  uint16_t n_bytes = llcp_prepareMessage((uint8_t *)&msg, sizeof(msg), gatherer_handler->tx_buffer);
+  gatherer_sendMessage(gatherer_handler, gatherer_handler->tx_buffer, n_bytes);
+}
+
+//}
+
+/* gatherer_processChipVoltage() //{ */
+
+void gatherer_processChipVoltage(Gatherer_Handler_t *gatherer_handler, const LLCP_ChipVoltage_t *data) {
+
+  // create the message
+  LLCP_ChipVoltageMsg_t msg;
+  init_LLCP_ChipVoltageMsg_t(&msg);
+
+  // fill in the payload
+  msg.payload = *data;
+
+  // convert it to the network endian
+  hton_LLCP_ChipVoltageMsg_t(&msg);
 
   uint16_t n_bytes = llcp_prepareMessage((uint8_t *)&msg, sizeof(msg), gatherer_handler->tx_buffer);
   gatherer_sendMessage(gatherer_handler, gatherer_handler->tx_buffer, n_bytes);

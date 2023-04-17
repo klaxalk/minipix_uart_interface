@@ -223,14 +223,14 @@ void hton_LLCP_StreamData_t(LLCP_StreamData_t* data) {
   for (uint8_t i = 0; i < data->n_pixels; i++) {
     hton_LLCP_PixelData_t(&(data->pixel_data[i]));
   }
-};
+}
 
 void ntoh_LLCP_StreamData_t(LLCP_StreamData_t* data) {
 
   for (uint8_t i = 0; i < data->n_pixels; i++) {
     ntoh_LLCP_PixelData_t(&(data->pixel_data[i]));
   }
-};
+}
 
 void init_LLCP_StreamData_t(LLCP_StreamData_t* data) {
 
@@ -575,17 +575,17 @@ void init_LLCP_TemperatureMsg_t(LLCP_TemperatureMsg_t* msg) {
 
 void hton_LLCP_ChipVoltage_t(LLCP_ChipVoltage_t* data) {
 
-  data->chipVoltage = llcp_hton32(data->chipVoltage);
+  data->chip_voltage = llcp_hton32(data->chip_voltage);
 }
 
 void ntoh_LLCP_ChipVoltage_t(LLCP_ChipVoltage_t* data) {
 
-  data->chipVoltage = llcp_ntoh32(data->chipVoltage);
+  data->chip_voltage = llcp_ntoh32(data->chip_voltage);
 }
 
 void init_LLCP_ChipVoltage_t(LLCP_ChipVoltage_t* data) {
 
-  data->chipVoltage = 0;
+  data->chip_voltage = 0;
 }
 
 //}
@@ -683,6 +683,25 @@ void ntoh_LLCP_GetTemperatureReqMsg_t(LLCP_GetTemperatureReqMsg_t* msg) {
 void init_LLCP_GetTemperatureReqMsg_t(LLCP_GetTemperatureReqMsg_t* msg) {
 
   msg->message_id = LLCP_GET_TEMPERATURE_REQ_MSG_ID;
+}
+
+//}
+
+/* LLCP_GetChipVoltageReqMsg_t //{ */
+
+void hton_LLCP_GetChipVoltageReqMsg_t(LLCP_GetChipVoltageReqMsg_t* msg) {
+
+  UNUSED(msg);
+}
+
+void ntoh_LLCP_GetChipVoltageReqMsg_t(LLCP_GetChipVoltageReqMsg_t* msg) {
+
+  UNUSED(msg);
+}
+
+void init_LLCP_GetChipVoltageReqMsg_t(LLCP_GetChipVoltageReqMsg_t* msg) {
+
+  msg->message_id = LLCP_GET_CHIP_VOLTAGE_REQ_MSG_ID;
 }
 
 //}

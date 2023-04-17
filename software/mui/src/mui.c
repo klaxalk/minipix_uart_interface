@@ -180,6 +180,24 @@ void mui_getTemperature(MUI_Handler_t* mui_handler) {
 
 //}
 
+/* mui_getChipVoltage() //{ */
+
+void mui_getChipVoltage(MUI_Handler_t* mui_handler) {
+
+  // create the message
+  LLCP_GetChipVoltageReqMsg_t msg;
+  init_LLCP_GetChipVoltageReqMsg_t(&msg);
+
+  // convert to network endian
+  hton_LLCP_GetChipVoltageReqMsg_t(&msg);
+
+  uint16_t n_bytes = llcp_prepareMessage((uint8_t*)&msg, sizeof(msg), mui_handler->tx_buffer);
+
+  mui_sendMessage(mui_handler, mui_handler->tx_buffer, n_bytes);
+}
+
+//}
+
 // | ------------- UART communication with MiniPIX ------------ |
 
 /* mui_receiveCharCallback() //{ */
@@ -268,6 +286,22 @@ void mui_receiveCharCallback(MUI_Handler_t* mui_handler, const uint8_t byte_in) 
 
         // call the user's callback
         mui_handler->fcns.processTemperature(&(msg->payload));
+
+#if MUI_USER_HANDSHAKES == 0
+        mui_sendAck(mui_handler, true);
+#endif
+
+        break;
+      };
+
+      case LLCP_CHIP_VOLTAGE_MSG_ID: {
+
+        // load up the message and convert it to our endian
+        LLCP_ChipVoltageMsg_t* msg = (LLCP_ChipVoltageMsg_t*)message_in;
+        ntoh_LLCP_ChipVoltageMsg_t(msg);
+
+        // call the user's callback
+        mui_handler->fcns.processChipVoltage(&(msg->payload));
 
 #if MUI_USER_HANDSHAKES == 0
         mui_sendAck(mui_handler, true);

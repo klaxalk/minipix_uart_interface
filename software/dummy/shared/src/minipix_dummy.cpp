@@ -41,7 +41,7 @@ void MinipixDummy::simulatedTestStripeAcquisition() {
       pixel->tot                    = i;
       pixel->toa                    = j * 41 + i;
       pixel->ftoa                   = 0;
-      pixel->header                 = 10;
+      pixel->mode_mask              = 10;
 
       encodePixelData((uint8_t *)pixel, 4, TPX3_TOA_TOT);
     }
@@ -282,6 +282,27 @@ void MinipixDummy::serialDataCallback(const uint8_t *bytes_in, const uint16_t &l
           hton_LLCP_TemperatureMsg_t(&temperature_msg);
 
           uint16_t n_bytes = llcp_prepareMessage((uint8_t *)&temperature_msg, sizeof(temperature_msg), tx_buffer_);
+
+          sendMessage(tx_buffer_, n_bytes);
+
+          break;
+        };
+
+        case LLCP_GET_CHIP_VOLTAGE_REQ_MSG_ID: {
+
+          printf("received chip voltage request\n");
+
+          // create the message
+          LLCP_ChipVoltageMsg_t chip_voltage_msg;
+          init_LLCP_ChipVoltageMsg_t(&chip_voltage_msg);
+
+          // fill in the payload
+          chip_voltage_msg.payload.chip_voltage = 1.8;
+
+          // convert to network endian
+          hton_LLCP_ChipVoltageMsg_t(&chip_voltage_msg);
+
+          uint16_t n_bytes = llcp_prepareMessage((uint8_t *)&chip_voltage_msg, sizeof(chip_voltage_msg), tx_buffer_);
 
           sendMessage(tx_buffer_, n_bytes);
 

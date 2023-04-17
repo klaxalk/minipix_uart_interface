@@ -85,6 +85,7 @@ mui_handler.fcns.processFrameData                = &my_impl_processFrameData;
 mui_handler.fcns.processFrameDataTerminator      = &my_impl_processFrameDataTerminator;
 mui_handler.fcns.processStatus                   = &my_impl_processStatus;
 mui_handler.fcns.processTemperature              = &my_impl_processTemperature;
+mui_handler.fcns.processChipVoltage              = &my_impl_processChipVoltage;
 mui_handler.fcns.processAck                      = &my_impl_processAck;
 mui_handler.fcns.processMinipixError             = &my_impl_processMinipixError;
 mui_handler.fcns.processFrameMeasurementFinished = &my_impl_processMeasurementFinished;
@@ -147,6 +148,9 @@ Explanation: The pixel mask is saved into measurement presets. The masking is ac
 
 ![](./fig/mui_get_temperature.png)
 
+### mui_getChipVoltage()
+
+![](./fig/mui_get_chip_voltage.png)
 ### mui_measureFrame()
 
 ![](./fig/mui_measure_frame.png)

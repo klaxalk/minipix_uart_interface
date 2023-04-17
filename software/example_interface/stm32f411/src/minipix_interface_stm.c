@@ -89,6 +89,15 @@ void mui_stm_processTemperature(const LLCP_Temperature_t *data) {
 
 //}
 
+/* mui_stm_processChipVoltage() //{ */
+
+void mui_stm_processChipVoltage(const LLCP_ChipVoltage_t *data) {
+
+  gatherer_processChipVoltage((Gatherer_Handler_t *)gatherer_handler_ptr_, data);
+}
+
+//}
+
 /* mui_stm_processAck() //{ */
 
 void mui_stm_processAck(const LLCP_Ack_t *data) {

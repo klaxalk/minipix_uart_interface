@@ -47,6 +47,7 @@ The TPX3 measurement is done in a custom _frame mode_.
 | `mui_pwr()`                    | turns on/off the TPX3 detector             | 1/0                    | ack                        |
 | `mui_getStatus()`              | gets housekeeping data from MiniPIX        | -                      | boot count, status message |
 | `mui_getTemperature()`         | gets the MiniPIX's temperature             | -                      | int16_t (°C)               |
+| `mui_getVoltage()`             | gets the voltage on TPX3 chip              | -                      | int16_t (V)                |
 | `mui_measureFrame()`           | requests frame acquisition                 | acquisition time [ms]  | packetized frame           |
 | `mui_updatePixelMask()`        | set pixel mask                             | pixel coordinates, 1/0 | ack                        |
 | `mui_setThreshold()`           | set energy threshold, mostly for debugging | coarse thr, fine thr   | ack                        |

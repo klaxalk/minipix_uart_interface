@@ -15,7 +15,7 @@ extern "C" {
 // gives user more control over protocol handshakes, namely:
 // * user needs to call mui_getFrameData() after he receives the mui_processFrameMeasurementFinished_t() callback. Otherwise, this callback is not called and
 // the handshake happens automatically.
-// * user needs to call mui_sendAck() after receiving FrameData, FrameDataTerminator, Temperature, and Status callbacks.
+// * user needs to call mui_sendAck() after receiving FrameData, FrameDataTerminator, Temperature, ChipVoltage and Status callbacks.
 #ifndef MUI_USER_HANDSHAKES
 #define MUI_USER_HANDSHAKES 0
 #endif
@@ -114,6 +114,14 @@ typedef void (*mui_processTemperature_t)(const LLCP_Temperature_t *temperature_d
 
 /**
  * @brief Function pointer to user implementation of callback to process
+ * incoming ChipVoltage message.
+ *
+ * @param pointer to the structure with the data
+ */
+typedef void (*mui_processChipVoltage_t)(const LLCP_ChipVoltage_t *chip_voltage_data);
+
+/**
+ * @brief Function pointer to user implementation of callback to process
  * incoming Ack message.
  *
  * @param pointer to the structure with the data
@@ -149,6 +157,7 @@ typedef struct
   mui_processFrameDataTerminator_t      processFrameDataTerminator;
   mui_processStatus_t                   processStatus;
   mui_processTemperature_t              processTemperature;
+  mui_processChipVoltage_t              processChipVoltage;
   mui_processAck_t                      processAck;
   mui_processMinipixError_t             processMinipixError;
   mui_processFrameMeasurementFinished_t processFrameMeasurementFinished;
@@ -252,6 +261,16 @@ void mui_getStatus(MUI_Handler_t *mui_handle);
  * @param mui_handle
  */
 void mui_getTemperature(MUI_Handler_t *mui_handle);
+
+/**
+ * @brief Command to get the chip voltage of the MinixPIX HW. As a result,
+ * the method
+ *                          processChipVoltage()
+ * will get called.
+ *
+ * @param mui_handle
+ */
+void mui_getChipVoltage(MUI_Handler_t *mui_handle);
 
 // | ------------- UART communication with MiniPIX ------------ |
 

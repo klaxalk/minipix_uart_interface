@@ -85,6 +85,11 @@ output data path: '%s'\n",
 
   sleep(0.01);
 
+  printf("getting chip voltage\n");
+  gatherer.getChipVoltage();
+
+  sleep(0.01);
+
   // | ----------- measure 10 frames in TOA & TOT mode ---------- |
   for (int i = 0; i < 10; i++) {
 

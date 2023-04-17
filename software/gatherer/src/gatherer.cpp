@@ -147,6 +147,17 @@ void Gatherer::threadMain(void) {
               break;
             };
 
+            case LLCP_CHIP_VOLTAGE_MSG_ID: {
+
+              callbackChipVoltage(message_in);
+
+#if MUI_USER_HANDSHAKES == 1
+              sendAck(true);
+#endif
+
+              break;
+            };
+
             case LLCP_FRAME_DATA_TERMINATOR_MSG_ID: {
 
               callbackFrameTerminator(message_in);
@@ -392,7 +403,7 @@ void Gatherer::callbackFrameData(const LLCP_Message_t* message_in) {
         x = ((LLCP_PixelDataMpxiToT_t*)&image->pixel_data[pix])->address % 256;
         y = ((LLCP_PixelDataMpxiToT_t*)&image->pixel_data[pix])->address / 256;
 
-        mpx  = ((LLCP_PixelDataMpxiToT_t*)&image->pixel_data[pix])->mpx;
+        mpx  = ((LLCP_PixelDataMpxiToT_t*)&image->pixel_data[pix])->event_counter;
         itot = ((LLCP_PixelDataMpxiToT_t*)&image->pixel_data[pix])->itot;
 
         toa  = 0;
@@ -482,6 +493,21 @@ void Gatherer::callbackTemperature(const LLCP_Message_t* message_in) {
   LLCP_Temperature_t* temperature = (LLCP_Temperature_t*)&msg->payload;
 
   printf("received temperature: %d deg\n", temperature->temperature);
+
+  waiting_for_tmp_ = false;
+}
+
+//}
+
+/* callbackChipVoltage() //{ */
+
+void Gatherer::callbackChipVoltage(const LLCP_Message_t* message_in) {
+
+  LLCP_ChipVoltageMsg_t* msg = (LLCP_ChipVoltageMsg_t*)message_in;
+  ntoh_LLCP_ChipVoltageMsg_t(msg);
+  LLCP_ChipVoltage_t* chip_voltage = (LLCP_ChipVoltage_t*)&msg->payload;
+
+  printf("received chip voltage: %d deg\n", chip_voltage->chip_voltage);
 
   waiting_for_tmp_ = false;
 }
@@ -690,6 +716,34 @@ void Gatherer::getTemperature(void) {
 
   // convert to network endian
   hton_LLCP_GetTemperatureReqMsg_t(&msg);
+
+  uint16_t n_bytes = llcp_prepareMessage((uint8_t*)&msg, sizeof(msg), tx_buffer);
+
+  {
+    std::scoped_lock lock(mutex_serial_port_);
+
+    serial_port_.sendCharArray(tx_buffer, n_bytes);
+  }
+
+  waiting_for_tmp_ = true;
+
+  while (waiting_for_tmp_) {
+    std::this_thread::sleep_for(std::chrono::milliseconds(10));
+  }
+}
+
+//}
+
+/* getChipVoltage() //{ */
+
+void Gatherer::getChipVoltage(void) {
+
+  // create the message
+  LLCP_GetChipVoltageReqMsg_t msg;
+  init_LLCP_GetChipVoltageReqMsg_t(&msg);
+
+  // convert to network endian
+  hton_LLCP_GetChipVoltageReqMsg_t(&msg);
 
   uint16_t n_bytes = llcp_prepareMessage((uint8_t*)&msg, sizeof(msg), tx_buffer);
 

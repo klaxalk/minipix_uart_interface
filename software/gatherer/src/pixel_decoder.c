@@ -1618,9 +1618,9 @@ void decodePixelData(uint8_t* data, const uint8_t col_shift_num, const TPX3Pixel
 
       LLCP_PixelDataMpxiToT_t* packet = (LLCP_PixelDataMpxiToT_t*)data;
 
-      packet->dummy = 0;
-      packet->mpx   = LUT_EVENT[value2];
-      packet->itot  = LUT_ITOT[value3];
+      packet->dummy         = 0;
+      packet->event_counter = LUT_EVENT[value2];
+      packet->itot          = LUT_ITOT[value3];
 
       break;
     }
