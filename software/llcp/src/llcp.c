@@ -67,7 +67,7 @@ void llcp_initialize(LLCP_Receiver_t* receiver) {
 bool llcp_processChar(const uint8_t char_in, LLCP_Receiver_t* receiver, LLCP_Message_t** message, bool* checksum_matched) {
 
 #if LLCP_DEBUG_PRINT == 1
-  printf("got char '%c'\n", char_in);
+  printf("got char '%c'\r\n", char_in);
 #endif
 
   switch (receiver->state) {
@@ -101,7 +101,7 @@ bool llcp_processChar(const uint8_t char_in, LLCP_Receiver_t* receiver, LLCP_Mes
         receiver->checksum += payload_size;
 
 #if LLCP_DEBUG_PRINT == 1
-        printf("got size = %d bytes\n", payload_size);
+        printf("got size = %d bytes\r\n", payload_size);
 #endif
       }
 #else
@@ -130,7 +130,7 @@ bool llcp_processChar(const uint8_t char_in, LLCP_Receiver_t* receiver, LLCP_Mes
         receiver->checksum += char_in;
 
 #if LLCP_DEBUG_PRINT == 1
-        printf("got size = %d bytes\n", payload_size);
+        printf("got size = %d bytes\r\n", payload_size);
 #endif
       }
 
@@ -141,7 +141,7 @@ bool llcp_processChar(const uint8_t char_in, LLCP_Receiver_t* receiver, LLCP_Mes
     case EXPECTING_PAYLOAD: {
 
 #if LLCP_DEBUG_PRINT == 1
-      printf("getting payload %d/%d\n", receiver->buffer_counter + 1, receiver->payload_size);
+      printf("getting payload %d/%d\r\n", receiver->buffer_counter + 1, receiver->payload_size);
 #endif
 
       receiver->rx_buffer[receiver->buffer_counter] = char_in;

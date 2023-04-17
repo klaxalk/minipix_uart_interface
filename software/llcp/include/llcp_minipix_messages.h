@@ -24,6 +24,8 @@ extern "C" {
 #define LLCP_GET_STATUS_REQ_MSG_ID 11
 #define LLCP_TEMPERATURE_MSG_ID 12
 #define LLCP_GET_TEMPERATURE_REQ_MSG_ID 13
+#define LLCP_CHIP_VOLTAGE_MSG_ID 14
+#define LLCP_GET_CHIP_VOLTAGE_REQ_MSG_ID 15
 
 // frame-based measurement
 #define LLCP_FRAME_DATA_MSG_ID 20
@@ -31,6 +33,12 @@ extern "C" {
 #define LLCP_FRAME_DATA_TERMINATOR_MSG_ID 22
 #define LLCP_GET_FRAME_DATA_REQ_MSG_ID 23
 #define LLCP_FRAME_MEASUREMENT_FINISHED_MSG_ID 24
+
+// stream-based measurement
+#define LLCP_STREAM_DATA_MSG_ID 31
+#define LLCP_MEASURE_STREAM_REQ_MSG_ID 32
+#define LLCP_STOP_STREAM_REQ_MSG_ID 33
+#define LLCP_FLUSH_BUFFER_REQ_MSG_ID 34
 
 // ack
 #define LLCP_ACK_MSG_ID 40
@@ -70,7 +78,7 @@ extern const char* LLCP_MinipixErrors[LLCP_MINIPIX_ERROR_COUNT];
 
 //}
 
-// | ----------------------- Pixel data ----------------------- |
+// | ------- Pixel data, common to frame and stream mode ------ |
 
 /* LLCP_PixelData_t //{ */
 
@@ -93,7 +101,7 @@ typedef struct __attribute__((packed))
   uint16_t tot : 10;
   uint16_t toa : 14;
   uint16_t address : 16;
-  uint16_t header : 4;
+  uint16_t mode_mask : 4;
 } LLCP_PixelDataToAToT_t;
 
 /**
@@ -106,7 +114,7 @@ typedef struct __attribute__((packed))
   uint16_t dummy : 10;
   uint16_t toa : 14;
   uint16_t address : 16;
-  uint16_t header : 4;
+  uint16_t mode_mask : 4;
 } LLCP_PixelDataToA_t;
 
 /**
@@ -116,10 +124,10 @@ typedef struct __attribute__((packed))
 typedef struct __attribute__((packed))
 {
   uint8_t  dummy : 4;
-  uint16_t mpx : 10;
+  uint16_t event_counter : 10;
   uint16_t itot : 14;
   uint16_t address : 16;
-  uint16_t header : 4;
+  uint16_t mode_mask : 4;
 } LLCP_PixelDataMpxiToT_t;
 
 /**
@@ -163,9 +171,10 @@ void init_LLCP_PixelData_t(LLCP_PixelData_t* data);
 
 #define LLCP_FRAME_DATA_N_PIXELS 41
 
-#define LLCP_TPX3_PXL_MODE_TOA_TOT 0
-#define LLCP_TPX3_PXL_MODE_TOA 1
-#define LLCP_TPX3_PXL_MODE_MPX_ITOT 2
+#define LLCP_TPX3_PXL_MODE_UNSET 0
+#define LLCP_TPX3_PXL_MODE_TOA_TOT 1
+#define LLCP_TPX3_PXL_MODE_TOA 2
+#define LLCP_TPX3_PXL_MODE_MPX_ITOT 3
 
 /**
  * @brief Message data for LLCP_FrameDataMsg_t
@@ -444,6 +453,186 @@ void ntoh_LLCP_GetFrameDataReqMsg_t(LLCP_GetFrameDataReqMsg_t* msg);
 void init_LLCP_GetFrameDataReqMsg_t(LLCP_GetFrameDataReqMsg_t* msg);
 
 static_assert((sizeof(LLCP_GetFrameDataReqMsg_t) > 255) == 0, "LLCP_GetFrameDataReqMsg_t is too large");
+
+//}
+
+// | ---------- Stream data (continuous event stream) --------- |
+// for consideration
+
+/* LLCP_StreamDataMsg_t //{ */
+
+/* struct LLCP_StreamData_t //{ */
+
+#define LLCP_STREAM_DATA_N_PIXELS 41
+
+/**
+ * @brief Message data for LLCP_StreamDataMsg_t
+ */
+typedef struct __attribute__((packed))
+{
+  uint8_t          full_buffer;  // 1 if MiniPIX has a full buffer
+  uint8_t          n_pixels;     // how many pixels are filled in
+  LLCP_PixelData_t pixel_data[LLCP_STREAM_DATA_N_PIXELS];
+} LLCP_StreamData_t;
+
+/**
+ * @brief host-to-network conversion for LLCP_StreamData_t
+ *
+ * @param data
+ */
+void hton_LLCP_StreamData_t(LLCP_StreamData_t* data);
+
+/**
+ * @brief network-to-host conversion for LLCP_StreamData_t
+ *
+ * @param data
+ */
+void ntoh_LLCP_StreamData_t(LLCP_StreamData_t* data);
+
+/**
+ * @brief "constructor" for LLCP_StreamData_t
+ *
+ * @param data
+ */
+void init_LLCP_StreamData_t(LLCP_StreamData_t* data);
+
+//}
+
+/**
+ * @brief LLCP Message for sending image stream.
+ */
+typedef struct __attribute__((packed))
+{
+  uint8_t           message_id;
+  LLCP_StreamData_t payload;
+} LLCP_StreamDataMsg_t;
+
+/**
+ * @brief host-to-network conversion for LLCP_StreamDataMsg_t
+ *
+ * @param data
+ */
+void hton_LLCP_StreamDataMsg_t(LLCP_StreamDataMsg_t* msg);
+
+/**
+ * @brief network-to-host conversion for LLCP_StreamDataMsg_t
+ *
+ * @param data
+ */
+void ntoh_LLCP_StreamDataMsg_t(LLCP_StreamDataMsg_t* msg);
+
+/**
+ * @brief "constructor" for LLCP_StreamDataMsg_t
+ *
+ * @param data
+ */
+void init_LLCP_StreamDataMsg_t(LLCP_StreamDataMsg_t* msg);
+
+static_assert((sizeof(LLCP_StreamDataMsg_t) > 255) == 0, "LLCP_StreamDataMsg_t is too large");
+
+//}
+
+/* LLCP_MeasureStreamReqMsg_t //{ */
+
+/* LLCP_MeasureStreamReq_t //{ */
+
+/**
+ * @brief Message data for LLCP_MeasureStreamReq_t
+ */
+typedef struct __attribute__((packed))
+{
+  uint16_t duty_cycle_ms;  // duty cycle in ms per second, TOOD possible?
+} LLCP_MeasureStreamReq_t;
+
+/**
+ * @brief host-to-network conversion for LLCP_MeasureStreamReq_t
+ *
+ * @param data
+ */
+void hton_LLCP_MeasureStreamReq_t(LLCP_MeasureStreamReq_t* data);
+
+/**
+ * @brief network-to-host conversion for LLCP_MeasureStreamReq_t
+ *
+ * @param data
+ */
+void ntoh_LLCP_MeasureStreamReq_t(LLCP_MeasureStreamReq_t* data);
+
+/**
+ * @brief "constructor" for LLCP_MeasureStreamReq_t
+ *
+ * @param data
+ */
+void init_LLCP_MeasureStreamReq_t(LLCP_MeasureStreamReq_t* data);
+
+//}
+
+/**
+ * @brief LLCP Message for requesting of measurement in the stream mode.
+ */
+typedef struct __attribute__((packed))
+{
+  uint8_t                 message_id;
+  LLCP_MeasureStreamReq_t payload;
+} LLCP_MeasureStreamReqMsg_t;
+
+/**
+ * @brief host-to-network conversion for LLCP_MeasureStreamReqMsg_t
+ *
+ * @param msg
+ */
+void hton_LLCP_MeasureStreamReqMsg_t(LLCP_MeasureStreamReqMsg_t* msg);
+
+/**
+ * @brief network-to-host conversion for LLCP_MeasureStreamReqMsg_t
+ *
+ * @param msg
+ */
+void ntoh_LLCP_MeasureStreamReqMsg_t(LLCP_MeasureStreamReqMsg_t* msg);
+
+/**
+ * @brief "constructor" for LLCP_MeasureStreamReqMsg_t
+ *
+ * @param msg
+ */
+void init_LLCP_MeasureStreamReqMsg_t(LLCP_MeasureStreamReqMsg_t* msg);
+
+static_assert((sizeof(LLCP_MeasureStreamReqMsg_t) > 255) == 0, "LLCP_MeasureStreamReqMsg_t is too large");
+
+//}
+
+/* LLCP_FlushBufferReqMsg_t //{ */
+
+/**
+ * @brief LLCP Message for requesting of flushing the event buffer in the MiniPIX
+ */
+typedef struct __attribute__((packed))
+{
+  uint8_t message_id;
+} LLCP_FlushBufferReqMsg_t;
+
+/**
+ * @brief host-to-network conversion for LLCP_FlushBufferReqMsg_t
+ *
+ * @param msg
+ */
+void hton_LLCP_FlushBufferReqMsg_t(LLCP_FlushBufferReqMsg_t* msg);
+
+/**
+ * @brief network-to-host conversion for LLCP_FlushBufferReqMsg_t
+ *
+ * @param msg
+ */
+void ntoh_LLCP_FlushBufferReqMsg_t(LLCP_FlushBufferReqMsg_t* msg);
+
+/**
+ * @brief "constructor" for LLCP_FlushBufferReqMsg_t
+ *
+ * @param data
+ */
+void init_LLCP_FlushBufferReqMsg_t(LLCP_FlushBufferReqMsg_t* msg);
+
+static_assert((sizeof(LLCP_FlushBufferReqMsg_t) > 255) == 0, "LLCP_FlushBufferReqMsg_t is too large");
 
 //}
 
@@ -1015,6 +1204,110 @@ void ntoh_LLCP_GetTemperatureReqMsg_t(LLCP_GetTemperatureReqMsg_t* msg);
 void init_LLCP_GetTemperatureReqMsg_t(LLCP_GetTemperatureReqMsg_t* msg);
 
 static_assert((sizeof(LLCP_GetTemperatureReqMsg_t) > 255) == 0, "LLCP_GetTemperatureReqMsg_t is too large");
+
+//}
+
+/* LLCP_ChipVoltageMsg_t //{ */
+
+/* LLCP_ChipVoltage_t //{ */
+
+/**
+ * @brief Message data for LLCP_ChipVoltageMsg_t
+ */
+typedef struct __attribute__((packed))
+{
+  int16_t chipVoltage;
+} LLCP_ChipVoltage_t;
+
+/**
+ * @brief host-to-network conversion for LLCP_ChipVoltage_t
+ *
+ * @param data
+ */
+void hton_LLCP_ChipVoltage_t(LLCP_ChipVoltage_t* data);
+
+/**
+ * @brief network-to-host conversion for LLCP_ChipVoltage_t
+ *
+ * @param data
+ */
+void ntoh_LLCP_ChipVoltage_t(LLCP_ChipVoltage_t* data);
+
+/**
+ * @brief "constructor" for LLCP_ChipVoltage_t
+ *
+ * @param data
+ */
+void init_LLCP_ChipVoltage_t(LLCP_ChipVoltage_t* data);
+
+//}
+
+/**
+ * @brief LLCP Message for MiniPIX chip voltage.
+ */
+typedef struct __attribute__((packed))
+{
+  uint8_t            message_id;
+  LLCP_ChipVoltage_t payload;
+} LLCP_ChipVoltageMsg_t;
+
+/**
+ * @brief host-to-network conversion for LLCP_ChipVoltageMsg_t
+ *
+ * @param msg
+ */
+void hton_LLCP_ChipVoltageMsg_t(LLCP_ChipVoltageMsg_t* msg);
+
+/**
+ * @brief network-to-host conversion for LLCP_ChipVoltageMsg_t
+ *
+ * @param msg
+ */
+void ntoh_LLCP_ChipVoltageMsg_t(LLCP_ChipVoltageMsg_t* msg);
+
+/**
+ * @brief "constructor" for LLCP_ChipVoltageMsg_t
+ *
+ * @param msg
+ */
+void init_LLCP_ChipVoltageMsg_t(LLCP_ChipVoltageMsg_t* msg);
+
+static_assert((sizeof(LLCP_ChipVoltageMsg_t) > 255) == 0, "LLCP_ChipVoltageMsg_t is too large");
+
+//}
+
+/* LLCP_GetChipVoltageReqMsg_t //{ */
+
+/**
+ * @brief LLCP Message for requesting a MiniPIX chip voltage.
+ */
+typedef struct __attribute__((packed))
+{
+  uint8_t message_id;
+} LLCP_GetChipVoltageReqMsg_t;
+
+/**
+ * @brief host-to-network conversion for LLCP_GetChipVoltageReqMsg_t
+ *
+ * @param msg
+ */
+void hton_LLCP_GetChipVoltageReqMsg_t(LLCP_GetChipVoltageReqMsg_t* msg);
+
+/**
+ * @brief network-to-host conversion for LLCP_GetChipVoltageReqMsg_t
+ *
+ * @param msg
+ */
+void ntoh_LLCP_GetChipVoltageReqMsg_t(LLCP_GetChipVoltageReqMsg_t* msg);
+
+/**
+ * @brief "constructor" for LLCP_GetChipVoltageReqMsg_t
+ *
+ * @param msg
+ */
+void init_LLCP_GetChipVoltageReqMsg_t(LLCP_GetChipVoltageReqMsg_t* msg);
+
+static_assert((sizeof(LLCP_GetChipVoltageReqMsg_t) > 255) == 0, "LLCP_GetChipVoltageReqMsg_t is too large");
 
 //}
 
