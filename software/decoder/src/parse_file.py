@@ -14,7 +14,11 @@ def parseFile(infile):
 
     data_out = []
 
+    line_num = 0
+
     for line in infile:
+
+        line_num = line_num + 1
 
         # cut the endl character
         hex_data = line[:-1]
@@ -50,7 +54,11 @@ def parseFile(infile):
                 # for each one of the 6 bytes encoding the pixel data
                 for j in range(0, 6):
 
-                    pixel_data.append(data[8 + i*6 + j])
+                    try:
+                        pixel_data.append(data[8 + i*6 + j])
+                    except:
+                        print("line: {} could not be parsed".format(line_num))
+                        continue
 
                 # deserialize and derandomize the pixel data
                 # pixel_data should be one of 3 classes
