@@ -19,7 +19,7 @@ from src.parse_file import *
 # #} end of imports
 
 # the file should containt 1 packet of FrameDataMsg_t() per line in HEXadecimal form
-file_path = "data/oneweb2.txt"
+file_path = "data/oneweb.csv"
 
 # #{ open the input file => list of "frame_data"
 
@@ -31,7 +31,7 @@ except:
 
 # parse the input file, dehexify the data and decode the pixel values
 # frame_data = list of all decoded messages from the MUI
-frame_data = parseFile(infile)
+frame_data = parseStream(infile)
 
 # #} open the input file
 
@@ -85,6 +85,14 @@ for idx,frame in enumerate(frame_data):
             if isinstance(images_data[frame.frame_id], ImageMpxiToT):
                 images_data[frame.frame_id].mpx[pixel.x, pixel.y]  = pixel.mpx
                 images_data[frame.frame_id].itot[pixel.x, pixel.y] = pixel.itot
+
+# sort the image data by id
+# sorted_keys = list(images_data.keys())
+# sorted_keys.sort()
+# sorted_data = {i: images_data[i] for i in sorted_keys}
+# images_data = sorted_data
+
+id_list.sort()
 
 # #} end of frame_data => list of numpy images
 
@@ -143,7 +151,7 @@ scrollbar.config(command=listbox.yview)
 scrollbar.pack(side=tkinter.LEFT, fill=tkinter.Y, expand=0)
 
 # fill the listbox items with the image IDs (keys for the image map)
-for key in images_data.keys():
+for key in id_list:
     listbox.insert(tkinter.END, key)
 
 # select the first item on the list

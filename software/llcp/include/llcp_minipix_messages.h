@@ -305,6 +305,8 @@ void init_LLCP_FrameDataTerminatorMsg_t(LLCP_FrameDataTerminatorMsg_t* msg);
 
 static_assert((sizeof(LLCP_FrameDataTerminatorMsg_t) > 255) == 0, "LLCP_FrameDataTerminatorMsg_t is too large");
 
+/* char (*terminator_size_check)[sizeof( LLCP_FrameDataTerminatorMsg_t )] = 1; */
+
 //}
 
 /* LLCP_MeasureFrameReqMsg_t //{ */
@@ -409,6 +411,8 @@ void ntoh_LLCP_FrameMeasurementFinishedMsg_t(LLCP_FrameMeasurementFinishedMsg_t*
 void init_LLCP_FrameMeasurementFinishedMsg_t(LLCP_FrameMeasurementFinishedMsg_t* msg);
 
 static_assert((sizeof(LLCP_FrameMeasurementFinishedMsg_t) > 255) == 0, "LLCP_FrameMeasurementFinishedMsg_t is too large");
+
+/* char (*measurement_finished_size_check)[sizeof( LLCP_FrameMeasurementFinishedMsg_t) ] = 1; */
 
 //}
 
@@ -732,6 +736,8 @@ void init_LLCP_AckMsg_t(LLCP_AckMsg_t* msg);
 
 static_assert((sizeof(LLCP_AckMsg_t) > 255) == 0, "LLCP_AckMsg_t is too large");
 
+/* char (*ack_size_check)[sizeof( LLCP_AckMsg_t )] = 1; */
+
 //}
 
 // | -------------------------- Power ------------------------- |
@@ -877,6 +883,8 @@ void init_LLCP_StatusMsg_t(LLCP_StatusMsg_t* msg);
 
 static_assert((sizeof(LLCP_StatusMsg_t) > 255) == 0, "LLCP_StatusMsg_t is too large");
 
+/* char (*status_size_check)[sizeof( LLCP_StatusMsg_t )] = 1; */
+
 //}
 
 /* LLCP_GetStatusReqMsg_t //{ */
@@ -980,6 +988,8 @@ void ntoh_LLCP_TemperatureMsg_t(LLCP_TemperatureMsg_t* msg);
 void init_LLCP_TemperatureMsg_t(LLCP_TemperatureMsg_t* msg);
 
 static_assert((sizeof(LLCP_TemperatureMsg_t) > 255) == 0, "LLCP_TemperatureMsg_t is too large");
+
+/* char (*temperature_size_check)[sizeof( LLCP_TemperatureMsg_t )] = 1; */
 
 //}
 
@@ -1086,6 +1096,8 @@ void ntoh_LLCP_MinipixErrorMsg_t(LLCP_MinipixErrorMsg_t* msg);
 void init_LLCP_MinipixErrorMsg_t(LLCP_MinipixErrorMsg_t* msg);
 
 static_assert((sizeof(LLCP_MinipixErrorMsg_t) > 255) == 0, "LLCP_MinipixErrorMsg_t is too large");
+
+char (*error_size_check)[sizeof( LLCP_MinipixErrorMsg_t )] = 1;
 
 //}
 

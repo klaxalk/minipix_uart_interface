@@ -44,14 +44,12 @@ def exportData(file_path, image):
 
         writer = csv.writer(data_file, quoting=csv.QUOTE_NONE, delimiter=',')
 
-        float_delim = '.'
-
         for i in range(0, 256):
-            writer.writerow(["{:.2f}".format(x).replace('.', float_delim) for x in image[i, :]])
+            writer.writerow(["{}".format(x) for x in image[i, :]])
 
 
 # the file should containt 1 packet of FrameDataMsg_t() per line in HEXadecimal form
-file_path = "data/oneweb2.txt"
+file_path = "data/oneweb.csv"
 
 # #} end of exportData()
 
@@ -67,7 +65,7 @@ if __name__ == '__main__':
 
     # parse the input file, dehexify the data and decode the pixel values
     # frame_data = list of all decoded messages from the MUI
-    frame_data = parseFile(infile)
+    frame_data = parseStream(infile)
 
     # #} open the input file
 
@@ -76,16 +74,11 @@ if __name__ == '__main__':
     # image data map: image id => numpy image
     images_data = {}
 
-    # list of image IDs (= list of keys for the image_data map)
-    id_list = []
-
     # enumerate the frame_data (decoded packets) and stitch them together
     for idx,frame in enumerate(frame_data):
 
         # if this is the first occurance of this frame_id, initialize new numpy image for it
         if images_data.get(frame.frame_id) == None:
-
-            id_list.append(frame.frame_id)
 
             # initialize the right type of image
             if frame.mode == LLCP_TPX3_PXL_MODE_TOA_TOT:
@@ -122,6 +115,13 @@ if __name__ == '__main__':
                     images_data[frame.frame_id].mpx[pixel.x, pixel.y]  = pixel.mpx
                     images_data[frame.frame_id].itot[pixel.x, pixel.y] = pixel.itot
 
+    # sort the image data by id
+    sorted_keys = list(images_data.keys())
+    sorted_keys.sort()
+    sorted_data = {i: images_data[i] for i in sorted_keys}
+
+    images_data = sorted_data
+
     # #} end of frame_data => list of numpy images
 
     ## | -------------------- export the images ------------------- |
@@ -130,20 +130,32 @@ if __name__ == '__main__':
 
         image = images_data.get(key)
 
-        file_path_dsc = "data_export/{}.dsc".format(key)
-        file_path_image = "data_export/{}.txt".format(key)
+        print("exporting: {}".format(key))
 
         if isinstance(image, ImageToAToT):
 
-            exportDsc(file_path_dsc, key, "ToAToT")
-            exportData(file_path_image, image.tot)
+            dsc_file_path = "data_export/{}.dsc".format(key)
+            toa_file_path = "data_export/toa_{}.txt".format(key)
+            tot_file_path = "data_export/tot_{}.txt".format(key)
+
+            exportDsc(dsc_file_path, key, "ToAToT")
+            exportData(toa_file_path, image.toa)
+            exportData(tot_file_path, image.tot)
 
         if isinstance(image, ImageToA):
 
-            exportDsc(file_path_dsc, key, "ToA")
-            exportData(file_path_image, image.toa)
+            dsc_file_path = "data_export/{}.dsc".format(key)
+            toa_file_path = "data_export/toa_{}.txt".format(key)
+
+            exportDsc(dsc_file_path, key, "ToA")
+            exportData(toa_file_path, image.toa)
 
         if isinstance(image, ImageMpxiToT):
 
-            exportDsc(file_path_dsc, key, "MpxiToT")
-            exportData(file_path_image, image.mpx)
+            dsc_file_path = "data_export/{}.dsc".format(key)
+            mpx_file_path = "data_export/mpx_{}.txt".format(key)
+            itot_file_path = "data_export/itot_{}.txt".format(key)
+
+            exportDsc(dsc_file_path, key, "MpxiToT")
+            exportData(mpx_file_path, image.mpx)
+            exportData(itot_file_path, image.itot)
