@@ -18,6 +18,8 @@ def convert_packet(data, colShiftNum, tpx_mode):
     y           = (sp * 4 + (pix % 4))
     idx         = y * 256 + x
 
+    # frame[idx] = (decoded3 & 0x3FFF) | ((decoded2 & 0x3FF) << 14) | (( decoded1 & 0x1F) << 24);
+
     if tpx_mode == LLCP_TPX3_PXL_MODE_TOA_TOT:
 
         ftoa = (value1 + colshifttbl[x])
@@ -44,8 +46,14 @@ def convert_packet(data, colShiftNum, tpx_mode):
 
     elif tpx_mode == LLCP_TPX3_PXL_MODE_MPX_ITOT:
 
-        mpx = LUT_EVENT[value2] if value2 >= 1 and value2 < MAX_LUT_EVENT else WRONG_LUT_EVENT
-        itot = LUT_ITOT[value3] if value3 >= 1 and value3 < MAX_LUT_ITOT else WRONG_LUT_ITOT
+        decoded1 = LUT_EVENT[value1]
+        decoded2 = LUT_TOT[value2]
+        decoded3 = LUT_TOA[value3]
+
+        frame = (decoded3 & 0x3FFF) | ((decoded2 & 0x3FF) << 14) | (( decoded1 & 0x1F) << 24);
+
+        mpx = decoded2
+        itot = decoded3
 
         data           = PixelDataMpxiToT()
         data.x         = x
