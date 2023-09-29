@@ -19,7 +19,7 @@ from src.parse_file import *
 # #} end of imports
 
 # the file should containt 1 packet of FrameDataMsg_t() per line in HEXadecimal form
-file_path = "data/oneweb.csv"
+file_path = "data/oneweb_2023-09-26.csv"
 
 # #{ open the input file => list of "frame_data"
 
@@ -83,8 +83,9 @@ for idx,frame in enumerate(frame_data):
         elif frame.mode == LLCP_TPX3_PXL_MODE_MPX_ITOT:
 
             if isinstance(images_data[frame.frame_id], ImageMpxiToT):
-                images_data[frame.frame_id].mpx[pixel.x, pixel.y]  = pixel.mpx
-                images_data[frame.frame_id].itot[pixel.x, pixel.y] = pixel.itot
+
+                images_data[frame.frame_id].mpx[pixel.x, pixel.y]  = pixel.mpx if pixel.mpx < 3 else 3
+                images_data[frame.frame_id].itot[pixel.x, pixel.y] = math.log10(pixel.itot) if pixel.itot > 0 else 0
 
 # sort the image data by id
 # sorted_keys = list(images_data.keys())

@@ -52,6 +52,8 @@ def parseFile(infile):
                 # list of 6 bytes
                 pixel_data = []
 
+                decoding_error = False
+
                 # for each one of the 6 bytes encoding the pixel data
                 for j in range(0, 6):
 
@@ -59,7 +61,11 @@ def parseFile(infile):
                         pixel_data.append(data[8 + i*6 + j])
                     except:
                         print("line: {} could not be parsed".format(line_num))
+                        decoding_error = True
                         continue
+
+                if decoding_error:
+                    continue
 
                 # deserialize and derandomize the pixel data
                 # pixel_data should be one of 3 classes
@@ -153,6 +159,8 @@ def parseStream(infile):
                     # list of 6 bytes
                     pixel_data = []
 
+                    decoding_error = False
+
                     # for each one of the 6 bytes encoding the pixel data
                     for j in range(0, 6):
 
@@ -161,7 +169,11 @@ def parseStream(infile):
                             pixel_data.append(byte_stream[final_idx])
                         except:
                             print("line: {} could not be parsed".format(line_num))
+                            decoding_error = True
                             continue
+
+                    if decoding_error:
+                        continue
 
                     # deserialize and derandomize the pixel data
                     # pixel_data should be one of 3 classes
