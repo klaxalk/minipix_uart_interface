@@ -48,7 +48,7 @@ def convert_packet(data, colShiftNum, tpx_mode):
 
         decoded1 = LUT_EVENT[value1]
         decoded2 = LUT_TOT[value2]
-        decoded3 = LUT_TOA[value3]
+        decoded3 = LUT_ITOT[value3]
 
         frame = (decoded3 & 0x3FFF) | ((decoded2 & 0x3FF) << 14) | (( decoded1 & 0x1F) << 24);
 
