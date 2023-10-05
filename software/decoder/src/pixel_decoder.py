@@ -62,7 +62,7 @@ def convert_packet(data, colShiftNum, tpx_mode):
         data.mpx       = mpx
 
     else:
-        print("Error: wrong Timepix3 mode specified, need {0, 1, 2}")
+        # print("Error: wrong Timepix3 mode specified, need {0, 1, 2}")
         return False
 
     return data

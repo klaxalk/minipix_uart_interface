@@ -19,7 +19,7 @@ from src.parse_file import *
 # #} end of imports
 
 # the file should containt 1 packet of FrameDataMsg_t() per line in HEXadecimal form
-file_path = "data/oneweb_2023-09-26.csv"
+file_path = "data/oneweb.txt"
 
 # #{ open the input file => list of "frame_data"
 

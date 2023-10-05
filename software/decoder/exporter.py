@@ -47,11 +47,10 @@ def exportData(file_path, image):
         for i in range(0, 256):
             writer.writerow(["{}".format(x) for x in image[i, :]])
 
+# #} end of exportData()
 
 # the file should containt 1 packet of FrameDataMsg_t() per line in HEXadecimal form
-file_path = "data/oneweb.csv"
-
-# #} end of exportData()
+file_path = "data/oneweb_2023-09-25.csv"
 
 if __name__ == '__main__':
 

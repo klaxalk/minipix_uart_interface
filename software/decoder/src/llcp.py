@@ -22,6 +22,12 @@ LLCP_ACK_MSG_SIZE = 2
 LLCP_MINIPIX_ERROR_MSG_ID = 90
 LLCP_MINIPIX_ERROR_MSG_SIZE = 2
 
+LLCP_MinipixErrors = ["MiniPIX: Frame measurement failed.",       "MiniPIX: Powerup failed.",
+                      "MiniPIX: Powerup TPX3 reset sync error.",  "MiniPIX: Powerup TPX3 reset recv data error.",
+                      "MiniPIX: Powerup TPX3 init resets error.", "MiniPIX: Powerup TPX3 init chip ID error.",
+                      "MiniPIX: Powerup TPX3 init DACs error.",   "MiniPIX: Powerup TPX3 init PixCfg error.",
+                      "MiniPIX: Powerup TPX3 init matrix error.", "MiniPIX: Invalid preset parameter."]
+
 # LLCP_SET_CONFIGURATION_PRESET_REQ_MSG_ID =  80
 # LLCP_SET_THRESHOLD_REQ_MSG_ID =  70
 # LLCP_PWR_REQ_MSG_ID =  60
