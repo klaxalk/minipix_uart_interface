@@ -1097,8 +1097,6 @@ void init_LLCP_MinipixErrorMsg_t(LLCP_MinipixErrorMsg_t* msg);
 
 static_assert((sizeof(LLCP_MinipixErrorMsg_t) > 255) == 0, "LLCP_MinipixErrorMsg_t is too large");
 
-char (*error_size_check)[sizeof( LLCP_MinipixErrorMsg_t )] = 1;
-
 //}
 
 #ifdef __cplusplus
