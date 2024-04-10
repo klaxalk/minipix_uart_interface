@@ -24,7 +24,7 @@ Use the following pre-compiler directives to define which one should be expected
 #define MUI_SEND_CHAR 1
 ```
 
-THe directive should be set in the project's CMakeLists.txt, rather then by changing the `mui.h`, e.g., as:
+The directive should be set in the project's CMakeLists.txt, rather then by changing the `mui.h`, e.g., as:
 ```
 target_compile_definitions(<targer> PRIVATE MUI_SEND_CHAR=1)
 ```
