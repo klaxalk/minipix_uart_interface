@@ -90,44 +90,6 @@ void saveFrameDataToFile(const LLCP_FrameData_t *data) {
 // |          method which encapsulate the MUI methods          |
 // --------------------------------------------------------------
 
-/* powerOn() //{ */
-
-void powerOn(void) {
-
-  LLCP_PwrReqMsg_t msg;
-  init_LLCP_PwrReqMsg_t(&msg);
-
-  // fill in the payload
-  msg.payload.state = 1;
-
-  // convert to network endian
-  hton_LLCP_PwrReqMsg_t(&msg);
-
-  uint16_t n_bytes = llcp_prepareMessage((uint8_t *)&msg, sizeof(msg), tx_buffer);
-
-  serial_port_minipix_.sendCharArray(tx_buffer, n_bytes);
-}
-
-//}
-
-/* powerOff() //{ */
-
-void powerOff(void) {
-
-  LLCP_PwrReqMsg_t msg;
-  init_LLCP_PwrReqMsg_t(&msg);
-
-  // fill in the payload
-  msg.payload.state = 0;
-
-  // convert to network endian
-  hton_LLCP_PwrReqMsg_t(&msg);
-
-  uint16_t n_bytes = llcp_prepareMessage((uint8_t *)&msg, sizeof(msg), tx_buffer);
-
-  serial_port_minipix_.sendCharArray(tx_buffer, n_bytes);
-}
-
 //}
 
 /* measureFrame() //{ */
@@ -136,63 +98,7 @@ void measureFrame(int acquisition_time_ms, int pixel_mode) {
 
   measuring_frame_ = true;
 
-  // create the message
-  LLCP_MeasureFrameReqMsg_t msg;
-  init_LLCP_MeasureFrameReqMsg_t(&msg);
-
-  // fill in the payload
-  msg.payload.acquisition_time_ms = acquisition_time_ms;
-  msg.payload.mode                = pixel_mode;
-
-  // convert to network endian
-  hton_LLCP_MeasureFrameReqMsg_t(&msg);
-
-  uint16_t n_bytes = llcp_prepareMessage((uint8_t *)&msg, sizeof(msg), tx_buffer);
-
-  serial_port_minipix_.sendCharArray(tx_buffer, n_bytes);
-}
-
-//}
-
-/* setConfiguration() //{ */
-
-void setConfiguration(int configuration_id) {
-
-  // create the message
-  LLCP_SetConfigurationPresetReqMsg_t msg;
-  init_LLCP_SetConfigurationPresetReqMsg_t(&msg);
-
-  // fill in the payload
-  msg.payload.preset = configuration_id;
-
-  // convert to network endian
-  hton_LLCP_SetConfigurationPresetReqMsg_t(&msg);
-
-  uint16_t n_bytes = llcp_prepareMessage((uint8_t *)&msg, sizeof(msg), tx_buffer);
-
-  serial_port_minipix_.sendCharArray(tx_buffer, n_bytes);
-}
-
-//}
-
-/* setThreshold() //{ */
-
-void setThreshold(const uint16_t &coarse, const uint16_t &fine) {
-
-  // create the message
-  LLCP_SetThresholdReqMsg_t msg;
-  init_LLCP_SetThresholdReqMsg_t(&msg);
-
-  // fill in the payload
-  msg.payload.threshold_coarse = coarse;
-  msg.payload.threshold_fine   = fine;
-
-  // convert to network endian
-  hton_LLCP_SetThresholdReqMsg_t(&msg);
-
-  uint16_t n_bytes = llcp_prepareMessage((uint8_t *)&msg, sizeof(msg), tx_buffer);
-
-  serial_port_minipix_.sendCharArray(tx_buffer, n_bytes);
+  mui_measureFrame(&mui_handler_, acquisition_time_ms, pixel_mode);
 }
 
 //}
@@ -203,16 +109,7 @@ void getTemperature() {
 
   measuring_temperature_ = true;
 
-  // create the message
-  LLCP_GetTemperatureReqMsg_t msg;
-  init_LLCP_GetTemperatureReqMsg_t(&msg);
-
-  // convert to network endian
-  hton_LLCP_GetTemperatureReqMsg_t(&msg);
-
-  uint16_t n_bytes = llcp_prepareMessage((uint8_t *)&msg, sizeof(msg), tx_buffer);
-
-  serial_port_minipix_.sendCharArray(tx_buffer, n_bytes);
+  mui_getTemperature(&mui_handler_);
 }
 
 //}
@@ -287,7 +184,7 @@ void mui_linux_processFrameDataTerminator([[maybe_unused]] const LLCP_FrameDataT
 
 /* mui_linux_processStatus() //{ */
 
-void mui_linux_processStatus(const LLCP_Status_t *data) {
+void mui_linux_processStatus([[maybe_unused]] const LLCP_Status_t *data) {
 
   printf("received status message:\n");
 
@@ -318,7 +215,7 @@ void mui_linux_processAck([[maybe_unused]] const LLCP_Ack_t *data) {
 
 /* mui_linux_processMinipixError() //{ */
 
-void mui_linux_processMinipixError(const LLCP_MinipixError_t *data) {
+void mui_linux_processMinipixError([[maybe_unused]] const LLCP_MinipixError_t *data) {
 
   // TODO OneWeb
   // please save these errors
@@ -408,7 +305,7 @@ void measurementA1(uint16_t desired_occupancy, int pixel_mode, uint16_t threshol
 
     printf("[A1] powering on\n");
 
-    powerOn();
+    mui_pwr(&mui_handler_, 1);
 
     // wait for acknowledge
     while (!got_ack_) {
@@ -449,7 +346,7 @@ void measurementA1(uint16_t desired_occupancy, int pixel_mode, uint16_t threshol
   {
     printf("[A1] setting configuration\n");
 
-    setConfiguration(configuration);
+    mui_setConfigurationPreset(&mui_handler_, configuration);
 
     // wait for acknowledge
     while (!got_ack_) {
@@ -465,7 +362,7 @@ void measurementA1(uint16_t desired_occupancy, int pixel_mode, uint16_t threshol
   {
     printf("[A1] setting threshold\n");
 
-    setThreshold(threshold_coarse, threshold_fine);
+    mui_setThreshold(&mui_handler_, threshold_coarse, threshold_fine);
 
     // wait for acknowledge
     while (!got_ack_) {
@@ -587,7 +484,7 @@ void measurementA1(uint16_t desired_occupancy, int pixel_mode, uint16_t threshol
 
     printf("[A1] powering off\n");
 
-    powerOff();
+    mui_pwr(&mui_handler_, 0);
 
     // wait for acknowledge
     while (!got_ack_) {
@@ -619,12 +516,13 @@ void measurementA2(int pixel_mode, uint16_t acquisition_time_ms, uint16_t thresh
 
     printf("[A2] powering on\n");
 
-    powerOn();
+    mui_pwr(&mui_handler_, 1);
 
     // wait for acknowledge
     while (!got_ack_) {
       std::this_thread::sleep_for(std::chrono::milliseconds(10));
     }
+
     got_ack_ = false;
   }
 
@@ -644,6 +542,7 @@ void measurementA2(int pixel_mode, uint16_t acquisition_time_ms, uint16_t thresh
   }
 
   if (use_temp_for_config) {
+
     if (temperature_ > temp_threshold) {
       // configuration preset for high temperature
       configuration = 1;
@@ -658,12 +557,13 @@ void measurementA2(int pixel_mode, uint16_t acquisition_time_ms, uint16_t thresh
   {
     printf(" setting configuration\n");
 
-    setConfiguration(configuration);
+    mui_setConfigurationPreset(&mui_handler_, configuration);
 
     // wait for acknowledge
     while (!got_ack_) {
       std::this_thread::sleep_for(std::chrono::milliseconds(10));
     }
+
     got_ack_ = false;
   }
 
@@ -674,7 +574,7 @@ void measurementA2(int pixel_mode, uint16_t acquisition_time_ms, uint16_t thresh
   {
     printf("[A2] setting threshold\n");
 
-    setThreshold(threshold_coarse, threshold_fine);
+    mui_setThreshold(&mui_handler_, threshold_coarse, threshold_fine);
 
     // wait for acknowledge
     while (!got_ack_) {
@@ -708,7 +608,7 @@ void measurementA2(int pixel_mode, uint16_t acquisition_time_ms, uint16_t thresh
 
     printf("[A2] powering off\n");
 
-    powerOff();
+    mui_pwr(&mui_handler_, 0);
 
     // wait for acknowledge
     while (!got_ack_) {
@@ -798,7 +698,7 @@ int main(int argc, char *argv[]) {
   // MUI needs this compiler preprocessor definition to build itself using the right one
   // please supply the definition during compilation, e.g., in CMakeLists
 #if MUI_SEND_CHAR == 1
-  mui_handler.fcns.sendChar = &mui_linux_sendChar;
+  mui_handler_.fcns.sendChar = &mui_linux_sendChar;
 #elif MUI_SEND_STRING == 1
   mui_handler_.fcns.sendString = &mui_linux_sendString;
 #endif
